@@ -12,8 +12,9 @@
     <description>Framework Library based on YMP.</description>
 
     <modules>
-        <module>ymate-framework-core</module>
         <module>ymate-framework-addons</module>
+        <module>ymate-framework-commons</module>
+        <module>ymate-framework-core</module>
     </modules>
 
     <developers>

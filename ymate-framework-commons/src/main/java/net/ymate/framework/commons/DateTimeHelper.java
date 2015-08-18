@@ -4,7 +4,7 @@
  * This program licensed under the terms of the GNU Lesser General Public License version 3.0
  * as published by the Free Software Foundation.
  */
-package net.ymate.framework.core.support;
+package net.ymate.framework.commons;
 
 import net.ymate.platform.core.util.DateTimeUtils;
 
