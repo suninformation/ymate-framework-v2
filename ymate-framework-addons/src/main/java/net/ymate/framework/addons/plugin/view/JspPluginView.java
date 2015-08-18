@@ -6,7 +6,7 @@
  */
 package net.ymate.framework.addons.plugin.view;
 
-import net.ymate.framework.core.util.PathUtils;
+import net.ymate.framework.core.util.ViewPathUtils;
 import net.ymate.platform.plugin.IPlugin;
 import net.ymate.platform.webmvc.WebMVC;
 import net.ymate.platform.webmvc.context.WebContext;
@@ -55,12 +55,12 @@ public class JspPluginView extends JspView {
             if (_mapping.endsWith("/")) {
                 _mapping = _mapping.substring(0, _mapping.length() - 1);
             }
-            __path = PathUtils.pluginViewPath().concat(__alias).concat("/templates/").concat(_mapping).concat(".jsp");
+            __path = ViewPathUtils.pluginViewPath().concat(__alias).concat("/templates/").concat(_mapping).concat(".jsp");
         } else {
             if (!__path.startsWith("/")) {
-                __path = PathUtils.pluginViewPath().concat(__alias).concat("/templates/").concat(__path);
+                __path = ViewPathUtils.pluginViewPath().concat(__alias).concat("/templates/").concat(__path);
             } else if (!__path.startsWith("/WEB-INF")) {
-                __path = PathUtils.pluginViewPath().concat(__alias).concat("/templates").concat(__path);
+                __path = ViewPathUtils.pluginViewPath().concat(__alias).concat("/templates").concat(__path);
             }
             if (!__path.contains("?") && !__path.endsWith(".jsp")) {
                 __path += ".jsp";

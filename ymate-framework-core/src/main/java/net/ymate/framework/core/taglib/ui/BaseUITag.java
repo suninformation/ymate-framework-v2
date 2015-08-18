@@ -6,7 +6,7 @@
  */
 package net.ymate.framework.core.taglib.ui;
 
-import net.ymate.framework.core.util.PathUtils;
+import net.ymate.framework.core.util.ViewPathUtils;
 import net.ymate.framework.core.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -108,9 +108,9 @@ public abstract class BaseUITag extends BodyTagSupport {
             StringBuilder _url = new StringBuilder();
             if (!this.getSrc().startsWith("/")) {
                 if (StringUtils.isNotBlank(this.getPlugin())) {
-                    _url.append(PathUtils.rootViewPath()).append(this.getPlugin()).append("/");
+                    _url.append(ViewPathUtils.rootViewPath()).append(this.getPlugin()).append("/");
                 } else {
-                    _url.append(PathUtils.pluginViewPath());
+                    _url.append(ViewPathUtils.pluginViewPath());
                 }
                 if (StringUtils.isNotBlank(this.getTheme())) {
                     _url.append(this.getTheme()).append("/");

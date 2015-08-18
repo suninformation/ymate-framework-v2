@@ -9,7 +9,7 @@ package net.ymate.framework.addons.plugin.view;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
-import net.ymate.framework.core.util.PathUtils;
+import net.ymate.framework.core.util.ViewPathUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.plugin.IPlugin;
 import net.ymate.platform.webmvc.IWebMvc;
@@ -70,8 +70,8 @@ public class FreemarkerPluginView extends AbstractView {
         } else {
             if (!__path.startsWith("/")) {
                 __path = __alias.concat("/templates/").concat(__path);
-            } else if (__path.startsWith(PathUtils.pluginViewPath())) {
-                __path = StringUtils.substringAfter(__path, PathUtils.pluginViewPath());
+            } else if (__path.startsWith(ViewPathUtils.pluginViewPath())) {
+                __path = StringUtils.substringAfter(__path, ViewPathUtils.pluginViewPath());
             }
             if (!__path.endsWith(".ftl")) {
                 __path += ".ftl";
@@ -104,7 +104,7 @@ public class FreemarkerPluginView extends AbstractView {
             __freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
             //
             try {
-                __freemarkerConfig.setTemplateLoader(new FileTemplateLoader(new File(PathUtils.pluginViewPath())));
+                __freemarkerConfig.setTemplateLoader(new FileTemplateLoader(new File(ViewPathUtils.pluginViewPath())));
             } catch (IOException e) {
                 throw new Error(RuntimeUtils.unwrapThrow(e));
             }

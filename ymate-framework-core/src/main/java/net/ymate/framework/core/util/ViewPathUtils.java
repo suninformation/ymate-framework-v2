@@ -16,7 +16,7 @@ import java.io.File;
  * @author 刘镇 (suninformation@163.com) on 15/8/15 下午3:26
  * @version 1.0
  */
-public class PathUtils {
+public class ViewPathUtils {
 
     private static String __BASE_VIEW_PATH;
 
