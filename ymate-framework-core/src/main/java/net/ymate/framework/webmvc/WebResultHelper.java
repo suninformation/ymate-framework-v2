@@ -24,6 +24,8 @@ public class WebResultHelper {
 
     private String __msg;
 
+    private Map<String, Object> __datas;
+
     private Map<String, Object> __attrs;
 
     public static WebResultHelper SUCCESS() {
@@ -36,6 +38,7 @@ public class WebResultHelper {
 
     private WebResultHelper(int code) {
         __code = code;
+        __datas = new HashMap<String, Object>();
         __attrs = new HashMap<String, Object>();
     }
 
@@ -53,6 +56,16 @@ public class WebResultHelper {
     }
 
     @SuppressWarnings("unchecked")
+    public <T> T dataAttr(String dataKey) {
+        return (T) __datas.get(dataKey);
+    }
+
+    public WebResultHelper dataAttr(String dataKey, Object dataValue) {
+        __datas.put(dataKey, dataValue);
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T attr(String attrKey) {
         return (T) __attrs.get(attrKey);
     }
@@ -65,8 +78,15 @@ public class WebResultHelper {
     public IView toJSON() {
         JSONObject _jsonObj = new JSONObject();
         _jsonObj.put("ret", __code);
-        _jsonObj.put("msg", __msg);
-        _jsonObj.put("data", __attrs);
+        if (StringUtils.isNotBlank(__msg)) {
+            _jsonObj.put("msg", __msg);
+        }
+        if (!__datas.isEmpty()) {
+            _jsonObj.put("data", __datas);
+        }
+        if (!__attrs.isEmpty()) {
+            _jsonObj.putAll(__attrs);
+        }
         //
         return View.jsonView(_jsonObj);
     }
@@ -81,27 +101,36 @@ public class WebResultHelper {
                 _content.append("<msg>").append(__msg).append("</msg>");
             }
         }
-        if (__attrs != null && !__attrs.isEmpty()) {
+        if (!__datas.isEmpty()) {
             _content.append("<data>");
-            for (Map.Entry<String, Object> _entry : __attrs.entrySet()) {
-                if (_entry.getValue() != null && StringUtils.isNotBlank(_entry.getValue().toString())) {
-                    _content.append("<").append(_entry.getKey()).append(">");
-                    if (_entry.getValue() instanceof Number) {
-                        _content.append(_entry.getValue());
-                    } else {
-                        if (cdata) {
-                            _content.append("<![CDATA[").append(_entry.getValue()).append("]]>");
-                        } else {
-                            _content.append(_entry.getValue());
-                        }
-                    }
-                    _content.append("</").append(_entry.getKey()).append(">");
-                }
+            for (Map.Entry<String, Object> _entry : __datas.entrySet()) {
+                __doAppendContent(_content, cdata, _entry.getKey(), _entry.getValue());
             }
             _content.append("</data>");
         }
+        if (!__attrs.isEmpty()) {
+            for (Map.Entry<String, Object> _entry : __attrs.entrySet()) {
+                __doAppendContent(_content, cdata, _entry.getKey(), _entry.getValue());
+            }
+        }
         _content.append("</xml>");
         return View.textView(_content.toString());
+    }
+
+    private void __doAppendContent(StringBuilder content, boolean cdata, String key, Object value) {
+        if (value != null && StringUtils.isNotBlank(value.toString())) {
+            content.append("<").append(key).append(">");
+            if (value instanceof Number) {
+                content.append(value);
+            } else {
+                if (cdata) {
+                    content.append("<![CDATA[").append(value).append("]]>");
+                } else {
+                    content.append(value);
+                }
+            }
+            content.append("</").append(key).append(">");
+        }
     }
 
     public IView toXML() {
