@@ -63,8 +63,8 @@ public class ViewPathUtils {
                         _viewPluginPath += "/";
                     }
                 }
-            } catch (Exception ignored) {
-                // 一般出现异常的可能性只有插件包未引用导致的空指针, 可忽略
+            } catch (Throwable ignored) {
+                // 一般出现异常的可能性只有插件包未引用导致的NoClassDefFoundError, 可忽略
             }
             __PLUGIN_VIEW_PATH = _viewPluginPath;
         }
