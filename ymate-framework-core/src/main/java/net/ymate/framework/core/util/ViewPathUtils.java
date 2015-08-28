@@ -63,10 +63,8 @@ public class ViewPathUtils {
                         _viewPluginPath += "/";
                     }
                 }
-            } catch (Exception e) {
-                // 一般出现异常的可能性只有插件包未引用导致的空指针
-                // 出现任务异常都忽略,保证插件视图路径可用
-                e.printStackTrace();
+            } catch (Exception ignored) {
+                // 一般出现异常的可能性只有插件包未引用导致的空指针, 可忽略
             }
             __PLUGIN_VIEW_PATH = _viewPluginPath;
         }
