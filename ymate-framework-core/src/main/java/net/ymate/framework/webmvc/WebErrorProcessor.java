@@ -70,21 +70,23 @@ public class WebErrorProcessor implements IWebErrorProcessor {
 
     public IView onValidation(IWebMvc owner, Map<String, ValidateResult> results) {
         IView _view = null;
+        // 拼装所有的验证消息
+        StringBuilder _message = new StringBuilder();
+        for (ValidateResult _vResult : results.values()) {
+            _message.append(_vResult.getMsg()).append("\n");
+        }
+        //
         if (WebUtils.isAjax(WebContext.getRequest())) {
-            WebResultHelper _result = WebResultHelper.CODE(ErrorCode.INVALID_PARAMS_VALIDATION);
+            WebResultHelper _result = WebResultHelper.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(_message.toString().replace("\n", "<br/>"));
             try {
                 for (ValidateResult _vResult : results.values()) {
-                    _result.attr(_vResult.getName(), _vResult.getMsg());
+                    _result.dataAttr(_vResult.getName(), _vResult.getMsg());
                 }
                 _view = _result.toJSON();
             } catch (Exception e) {
                 Logs.get(owner.getOwner()).getLogger().error(RuntimeUtils.unwrapThrow(e));
             }
         } else {
-            StringBuilder _message = new StringBuilder();
-            for (ValidateResult _vResult : results.values()) {
-                _message.append(_vResult.getMsg()).append("\n");
-            }
             _view = __toErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _message.toString().replace("\n", "<br/>"));
         }
         return _view;
