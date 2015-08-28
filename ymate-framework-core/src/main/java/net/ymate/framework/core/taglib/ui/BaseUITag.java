@@ -108,9 +108,9 @@ public abstract class BaseUITag extends BodyTagSupport {
             StringBuilder _url = new StringBuilder();
             if (!this.getSrc().startsWith("/")) {
                 if (StringUtils.isNotBlank(this.getPlugin())) {
-                    _url.append(ViewPathUtils.rootViewPath()).append(this.getPlugin()).append("/");
+                    _url.append(ViewPathUtils.pluginViewPath()).append(this.getPlugin()).append("/");
                 } else {
-                    _url.append(ViewPathUtils.pluginViewPath());
+                    _url.append(ViewPathUtils.rootViewPath());
                 }
                 if (StringUtils.isNotBlank(this.getTheme())) {
                     _url.append(this.getTheme()).append("/");
