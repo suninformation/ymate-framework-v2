@@ -99,14 +99,14 @@ public class HttpClientHelper {
         return _builder.setSSLSocketFactory(__socketFactory).build();
     }
 
-    public String get(String url) throws Exception {
+    public IHttpResponse get(String url) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
             _LOG.debug("Request URL ['" + url + "']");
-            String _result = _httpClient.execute(RequestBuilder.get().setUri(url).build(), new ResponseHandler<String>() {
+            IHttpResponse _result = _httpClient.execute(RequestBuilder.get().setUri(url).build(), new ResponseHandler<IHttpResponse>() {
 
-                public String handleResponse(HttpResponse response) throws IOException {
-                    return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
+                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
+                    return new IHttpResponse.NEW(response);
                 }
 
             });
@@ -117,7 +117,7 @@ public class HttpClientHelper {
         }
     }
 
-    public String get(String url, Map<String, String> params) throws Exception {
+    public IHttpResponse get(String url, Map<String, String> params) throws Exception {
         RequestBuilder _request = RequestBuilder.get().setUri(url);
         for (Map.Entry<String, String> entry : params.entrySet()) {
             _request.addParameter(entry.getKey(), entry.getValue());
@@ -125,10 +125,10 @@ public class HttpClientHelper {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
             _LOG.debug("Request URL ['" + url + "'], Param ['" + params + "']");
-            String _result = _httpClient.execute(_request.build(), new ResponseHandler<String>() {
+            IHttpResponse _result = _httpClient.execute(_request.build(), new ResponseHandler<IHttpResponse>() {
 
-                public String handleResponse(HttpResponse response) throws IOException {
-                    return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
+                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
+                    return new IHttpResponse.NEW(response);
                 }
 
             });
@@ -139,19 +139,19 @@ public class HttpClientHelper {
         }
     }
 
-    public String post(String url, String content) throws Exception {
+    public IHttpResponse post(String url, ContentType contentType, String content) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
             _LOG.debug("Request URL ['" + url + "'] PostBody ['" + content + "']");
-            String _result = _httpClient.execute(RequestBuilder.post()
+            IHttpResponse _result = _httpClient.execute(RequestBuilder.post()
                     .setUri(url)
                     .setEntity(EntityBuilder.create()
                             .setContentEncoding(DEFAULT_CHARSET)
-                            .setContentType(ContentType.create("application/x-www-form-urlencoded", DEFAULT_CHARSET))
-                            .setText(content).build()).build(), new ResponseHandler<String>() {
+                            .setContentType(contentType)
+                            .setText(content).build()).build(), new ResponseHandler<IHttpResponse>() {
 
-                public String handleResponse(HttpResponse response) throws IOException {
-                    return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
+                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
+                    return new IHttpResponse.NEW(response);
                 }
 
             });
@@ -162,20 +162,24 @@ public class HttpClientHelper {
         }
     }
 
-    public String post(String url, byte[] content) throws Exception {
+    public IHttpResponse post(String url, String content) throws Exception {
+        return post(url, ContentType.create("text/plain", DEFAULT_CHARSET), content);
+    }
+
+    public IHttpResponse post(String url, ContentType contentType, byte[] content) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
             _LOG.debug("Request URL ['" + url + "'] PostBody ['" + Arrays.toString(content) + "']");
-            String _result = _httpClient.execute(RequestBuilder.post()
+            IHttpResponse _result = _httpClient.execute(RequestBuilder.post()
                     .setUri(url)
                     .setEntity(EntityBuilder.create()
                             .setContentEncoding(DEFAULT_CHARSET)
-                            .setContentType(ContentType.create("application/x-www-form-urlencoded", DEFAULT_CHARSET))
+                            .setContentType(contentType)
                             .setBinary(content).build())
-                    .build(), new ResponseHandler<String>() {
+                    .build(), new ResponseHandler<IHttpResponse>() {
 
-                public String handleResponse(HttpResponse response) throws IOException {
-                    return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
+                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
+                    return new IHttpResponse.NEW(response);
                 }
 
             });
@@ -186,18 +190,22 @@ public class HttpClientHelper {
         }
     }
 
-    public String post(String url, Map<String, String> params) throws Exception {
+    public IHttpResponse post(String url, byte[] content) throws Exception {
+        return post(url, ContentType.create("application/octet-stream", DEFAULT_CHARSET), content);
+    }
+
+    public IHttpResponse post(String url, Map<String, String> params) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
             _LOG.debug("Request URL ['" + url + "'] PostBody ['" + params + "']");
-            String _result = _httpClient.execute(RequestBuilder.post()
+            IHttpResponse _result = _httpClient.execute(RequestBuilder.post()
                     .setUri(url)
                     .setEntity(EntityBuilder.create()
                             .setContentEncoding(DEFAULT_CHARSET)
-                            .setParameters(__doBuildNameValuePairs(params)).build()).build(), new ResponseHandler<String>() {
+                            .setParameters(__doBuildNameValuePairs(params)).build()).build(), new ResponseHandler<IHttpResponse>() {
 
-                public String handleResponse(HttpResponse response) throws IOException {
-                    return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
+                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
+                    return new IHttpResponse.NEW(response);
                 }
 
             });
