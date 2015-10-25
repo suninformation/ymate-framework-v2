@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2107, the original author or authors. All rights reserved.
+ * Copyright (c) 2007-2016, the original author or authors. All rights reserved.
  * 
  * This program licensed under the terms of the GNU Lesser General Public License version 3.0
  * as published by the Free Software Foundation.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2107, the original author or authors. All rights reserved.
+ * Copyright (c) 2007-2016, the original author or authors. All rights reserved.
  *
  * This program licensed under the terms of the GNU Lesser General Public License version 3.0
  * as published by the Free Software Foundation.
@@ -161,8 +161,8 @@ public class WebUtils {
      * @param jspFile         JSP文件路径
      * @param charsetEncoding 字符编码
      * @return 执行JSP并返回HTML源码
-     * @throws ServletException
-     * @throws IOException
+     * @throws ServletException 可能产生的异常
+     * @throws IOException      可能产生的异常
      */
     public static String includeJSP(HttpServletRequest request, HttpServletResponse response, String jspFile, String charsetEncoding) throws ServletException, IOException {
         final OutputStream _output = new ByteArrayOutputStream();
@@ -202,7 +202,7 @@ public class WebUtils {
      * @param request HttpServletRequest对象
      * @param dataStr 待加密的内容
      * @return 加密后的内容
-     * @throws Exception
+     * @throws Exception 可能产生的异常
      */
     public static String encryptStr(HttpServletRequest request, String dataStr) throws Exception {
         return new String(Base64.encodeBase64URLSafe(CodecUtils.DES.encrypt(dataStr.getBytes("UTF-8"),
@@ -215,7 +215,7 @@ public class WebUtils {
      * @param dataStr 待加密的内容
      * @param key     密钥
      * @return 加密后的内容
-     * @throws Exception
+     * @throws Exception 可能产生的异常
      */
     public static String encryptStr(String dataStr, String key) throws Exception {
         return new String(Base64.encodeBase64URLSafe(CodecUtils.DES.encrypt(dataStr.getBytes("UTF-8"), DigestUtils.md5Hex(key).getBytes())));
@@ -227,7 +227,7 @@ public class WebUtils {
      * @param request HttpServletRequest对象
      * @param dataStr 待解密的内容
      * @return 解密后的内容
-     * @throws Exception
+     * @throws Exception 可能产生的异常
      */
     public static String decryptStr(HttpServletRequest request, String dataStr) throws Exception {
         return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr.getBytes("UTF-8")),
@@ -240,7 +240,7 @@ public class WebUtils {
      * @param dataStr 待解密的内容
      * @param key     密钥
      * @return 解密后的内容
-     * @throws Exception
+     * @throws Exception 可能产生的异常
      */
     public static String decryptStr(String dataStr, String key) throws Exception {
         return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr.getBytes("UTF-8")), DigestUtils.md5Hex(key).getBytes()));

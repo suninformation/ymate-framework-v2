@@ -36,7 +36,7 @@ public class WebResultHelper {
         return new WebResultHelper(code);
     }
 
-    private WebResultHelper(int code) {
+    protected WebResultHelper(int code) {
         __code = code;
         __datas = new HashMap<String, Object>();
         __attrs = new HashMap<String, Object>();

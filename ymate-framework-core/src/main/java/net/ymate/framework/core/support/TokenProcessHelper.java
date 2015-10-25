@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2107, the original author or authors. All rights reserved.
+ * Copyright (c) 2007-2016, the original author or authors. All rights reserved.
  * 
  * This program licensed under the terms of the GNU Lesser General Public License version 3.0
  * as published by the Free Software Foundation.
@@ -56,57 +56,16 @@ public class TokenProcessHelper {
     }
 
     /**
-     * Retrieves the singleton instance of this class.
+     * @return Retrieves the singleton instance of this class.
      */
     public static TokenProcessHelper getInstance() {
         return instance;
     }
 
-    /**
-     * <p>Return <code>true</code> if there is a transaction token stored in
-     * the user's current session, and the value submitted as a request
-     * parameter with this action matches it.  Returns <code>false</code>
-     * under any of the following circumstances:</p>
-     * <p/>
-     * <ul>
-     * <p/>
-     * <li>No session associated with this request</li>
-     * <p/>
-     * <li>No transaction token saved in the session</li>
-     * <p/>
-     * <li>No transaction token included as a request parameter</li>
-     * <p/>
-     * <li>The included transaction token value does not match the transaction
-     * token in the user's session</li>
-     * <p/>
-     * </ul>
-     *
-     * @param request The servlet request we are processing
-     */
     public synchronized boolean isTokenValid(HttpServletRequest request) {
         return this.isTokenValid(request, false);
     }
 
-    /**
-     * Return <code>true</code> if there is a transaction token stored in the
-     * user's current session, and the value submitted as a request parameter
-     * with this action matches it.  Returns <code>false</code>
-     * <p/>
-     * <ul>
-     * <p/>
-     * <li>No session associated with this request</li> <li>No transaction
-     * token saved in the session</li>
-     * <p/>
-     * <li>No transaction token included as a request parameter</li>
-     * <p/>
-     * <li>The included transaction token value does not match the transaction
-     * token in the user's session</li>
-     * <p/>
-     * </ul>
-     *
-     * @param request The servlet request we are processing
-     * @param reset   Should we reset the token after checking it?
-     */
     public synchronized boolean isTokenValid(HttpServletRequest request, boolean reset) {
         // Retrieve the current session for this request
         HttpSession session = request.getSession(false);
@@ -161,6 +120,7 @@ public class TokenProcessHelper {
      * request for a particular transaction.
      *
      * @param request The request we are processing
+     * @return a new transaction token
      */
     public synchronized String generateToken(HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -173,6 +133,7 @@ public class TokenProcessHelper {
      *
      * @param id a unique Identifier for the session or other context in which
      *           this token is to be used.
+     * @return a new transaction token with id
      */
     public synchronized String generateToken(String id) {
         try {

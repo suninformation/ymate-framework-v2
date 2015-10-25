@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2107, the original author or authors. All rights reserved.
+ * Copyright (c) 2007-2016, the original author or authors. All rights reserved.
  *
  * This program licensed under the terms of the GNU Lesser General Public License version 3.0
  * as published by the Free Software Foundation.
@@ -7,15 +7,10 @@
 package net.ymate.framework.webmvc;
 
 /**
- * <p>
- * ErrorCode
- * </p>
- * <p>
- * ret = 0: 正确返回<br/>
- * ret > 0: 调用OpenAPI时发生错误，需要开发者进行相应的处理<br/>
- * -50 <= ret <= -1: 接口调用不能通过接口代理机校验，需要开发者进行相应的处理<br/>
- * ret <-50: 系统内部错误
- * </p>
+ * ret = 0: 正确返回<br>
+ * ret &gt; 0: 调用OpenAPI时发生错误，需要开发者进行相应的处理<br>
+ * -50 &lt;= ret &lt;= -1: 接口调用不能通过接口代理机校验，需要开发者进行相应的处理<br>
+ * ret &lt;-50: 系统内部错误
  *
  * @author 刘镇 (suninformation@163.com) on 14/7/6 下午6:53
  * @version 1.0

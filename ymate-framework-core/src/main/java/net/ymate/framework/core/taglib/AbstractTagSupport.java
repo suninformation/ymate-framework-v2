@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2107, the original author or authors. All rights reserved.
+ * Copyright (c) 2007-2016, the original author or authors. All rights reserved.
  * 
  * This program licensed under the terms of the GNU Lesser General Public License version 3.0
  * as published by the Free Software Foundation.
@@ -76,9 +76,6 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
     public AbstractTagSupport() {
     }
 
-    /* (non-Javadoc)
-     * @see javax.servlet.jsp.tagext.BodyTagSupport#doStartTag()
-     */
     @Override
     public int doStartTag() throws JspException {
         // Init
@@ -131,9 +128,6 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
         }
     }
 
-    /* (non-Javadoc)
-     * @see javax.servlet.jsp.tagext.BodyTagSupport#doAfterBody()
-     */
     @Override
     public int doAfterBody() throws JspException {
         if (__iterator != null) {
@@ -147,14 +141,11 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
         return super.doAfterBody();
     }
 
-    /* (non-Javadoc)
-     * @see javax.servlet.jsp.tagext.BodyTagSupport#doEndTag()
-     */
     @Override
     public int doEndTag() throws JspException {
         if (__iterator != null) {
             try {
-                if (this.getBodyContent() != null){
+                if (this.getBodyContent() != null) {
                     pageContext.getOut().write(this.getBodyContent().getString());
                     this.getBodyContent().clearBody();
                 }
@@ -167,15 +158,16 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
 
     /**
      * @return 由子类标签实现具体数据处理过程，并返回处理结果对象
+     * @throws JspException 可能产生的异常
      */
     protected abstract Object doProcessTagData() throws JspException;
 
     /**
      * 处理迭代数据时，通过该方法进行数据状态的存储等
      *
-     * @param data 当前迭代数据
+     * @param data     当前迭代数据
      * @param sequence 当前迭代计数
-     * @throws JspException
+     * @throws JspException 可能产生的异常
      */
     protected void doProcessIteratorTagDataStatus(Object data, int sequence) throws JspException {
         pageContext.setAttribute(getVar(), data);
@@ -197,10 +189,7 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
         return __dynamicAttributes.get(attrName);
     }
 
-    /* (non-Javadoc)
-     * @see javax.servlet.jsp.tagext.DynamicAttributes#setDynamicAttribute()
-     */
-    public void setDynamicAttribute(String uri, String localName, Object value ) throws JspException {
+    public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
         __dynamicAttributes.put(localName, value);
     }
 
@@ -231,7 +220,7 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
     /**
      * 设置迭代对象引用，该迭代器将影响标签的执行方式和结果
      *
-     * @param iterator
+     * @param iterator 迭代对象引用对象
      */
     protected void setIterator(Iterator<?> iterator) {
         this.__iterator = iterator;

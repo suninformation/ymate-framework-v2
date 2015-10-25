@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2107, the original author or authors. All rights reserved.
+ * Copyright (c) 2007-2016, the original author or authors. All rights reserved.
  *
  * This program licensed under the terms of the GNU Lesser General Public License version 3.0
  * as published by the Free Software Foundation.
@@ -15,8 +15,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- * Date（日期）类型数据处理相关的函数工具集合
- * <p>于 2015/8/14 下午2:58 由DateUtils类重构</p>
+ * Date（日期）类型数据处理相关的函数工具集合<br>
+ * 于 2015/8/14 下午2:58 由DateUtils类重构
  *
  * @author 刘镇 (suninformation@163.com) on 2010-8-8 下午12:37:55
  * @version 1.0
