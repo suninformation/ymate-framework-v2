@@ -7,6 +7,8 @@
 package net.ymate.framework.addons.plugin.view;
 
 import freemarker.cache.FileTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;
 import net.ymate.framework.core.util.ViewPathUtils;
@@ -19,6 +21,8 @@ import net.ymate.platform.webmvc.view.AbstractView;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,14 +44,14 @@ public class FreemarkerPluginView extends AbstractView {
     }
 
     public FreemarkerPluginView(IPlugin plugin, String path) {
+        if (__freemarkerConfig == null) {
+            __doViewInit(WebMVC.get(plugin.getPluginContext().getPluginFactory().getOwner()));
+        }
         __path = path;
         // 以插件别名为视图文件的路径,若别名为空则直接使用插件ID
         __alias = plugin.getPluginContext().getPluginMeta().getAlias();
         if (StringUtils.isBlank(__alias)) {
             __alias = plugin.getPluginContext().getPluginMeta().getId();
-        }
-        if (__freemarkerConfig == null) {
-            __doInitConfiguration(WebMVC.get(plugin.getPluginContext().getPluginFactory().getOwner()));
         }
     }
 
@@ -96,15 +100,26 @@ public class FreemarkerPluginView extends AbstractView {
      * @param owner 所属WebMVC框架管理器
      */
     @Override
-    protected synchronized void __doInitConfiguration(IWebMvc owner) {
+    protected void __doViewInit(IWebMvc owner) {
+        super.__doViewInit(owner);
         // 初始化Freemarker模板引擎配置
         if (__freemarkerConfig == null) {
             __freemarkerConfig = new Configuration(Configuration.VERSION_2_3_22);
             __freemarkerConfig.setDefaultEncoding(owner.getModuleCfg().getDefaultCharsetEncoding());
             __freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
             //
+            //
+            List<TemplateLoader> _tmpLoaders = new ArrayList<TemplateLoader>();
             try {
-                __freemarkerConfig.setTemplateLoader(new FileTemplateLoader(new File(ViewPathUtils.pluginViewPath())));
+                _tmpLoaders.add(new FileTemplateLoader(new File(ViewPathUtils.pluginViewPath())));
+                //
+                if (__baseViewPath.startsWith("/WEB-INF")) {
+                    _tmpLoaders.add(new FileTemplateLoader(new File(RuntimeUtils.getRootPath(), StringUtils.substringAfter(__baseViewPath, "/WEB-INF/"))));
+                } else {
+                    _tmpLoaders.add(new FileTemplateLoader(new File(__baseViewPath)));
+                }
+                //
+                __freemarkerConfig.setTemplateLoader(new MultiTemplateLoader(_tmpLoaders.toArray(new TemplateLoader[_tmpLoaders.size()])));
             } catch (IOException e) {
                 throw new Error(RuntimeUtils.unwrapThrow(e));
             }
