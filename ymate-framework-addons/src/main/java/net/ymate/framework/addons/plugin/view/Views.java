@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.ymate.framework.addons.plugin;
+package net.ymate.framework.addons.plugin.view;
 
-import net.ymate.platform.core.YMP;
-import net.ymate.platform.persistence.annotation.Entity;
-import net.ymate.platform.persistence.handle.EntityHandler;
-import net.ymate.platform.plugin.annotation.Handler;
+import net.ymate.platform.plugin.IPlugin;
+import net.ymate.platform.webmvc.view.View;
+import net.ymate.platform.webmvc.view.impl.JspView;
 
 /**
- * 插件数据实体类处理器
- *
- * @author 刘镇 (suninformation@163.com) on 15/8/16 下午5:14
+ * @author 刘镇 (suninformation@163.com) on 15/8/17 上午9:09
  * @version 1.0
  */
-@Handler(Entity.class)
-public class EntityBeanHandler extends EntityHandler {
+public class Views extends View {
 
-    public EntityBeanHandler(YMP owner) throws Exception {
-        super(owner);
+    public static JspView jspPluginView(IPlugin plugin, String path) {
+        return JspPluginView.bind(plugin, path);
+    }
+
+    public static FreemarkerPluginView freemarkerPluginView(IPlugin plugin, String path) {
+        return FreemarkerPluginView.bind(plugin, path);
     }
 }

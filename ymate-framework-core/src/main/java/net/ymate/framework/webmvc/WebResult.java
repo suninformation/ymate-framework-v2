@@ -1,8 +1,17 @@
 /*
- * Copyright (c) 2007-2107, the original author or authors. All rights reserved.
+ * Copyright 2007-2016 the original author or authors.
  *
- * This program licensed under the terms of the GNU Lesser General Public License version 3.0
- * as published by the Free Software Foundation.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.ymate.framework.webmvc;
 
@@ -18,7 +27,7 @@ import java.util.Map;
  * @author 刘镇 (suninformation@163.com) on 15/8/18 下午2:18
  * @version 1.0
  */
-public class WebResultHelper {
+public class WebResult {
 
     private int __code;
 
@@ -28,15 +37,15 @@ public class WebResultHelper {
 
     private Map<String, Object> __attrs;
 
-    public static WebResultHelper SUCCESS() {
-        return new WebResultHelper(ErrorCode.SUCCESSED);
+    public static WebResult SUCCESS() {
+        return new WebResult(ErrorCode.SUCCESSED);
     }
 
-    public static WebResultHelper CODE(int code) {
-        return new WebResultHelper(code);
+    public static WebResult CODE(int code) {
+        return new WebResult(code);
     }
 
-    protected WebResultHelper(int code) {
+    protected WebResult(int code) {
         __code = code;
         __datas = new HashMap<String, Object>();
         __attrs = new HashMap<String, Object>();
@@ -50,7 +59,7 @@ public class WebResultHelper {
         return StringUtils.trimToEmpty(__msg);
     }
 
-    public WebResultHelper msg(String msg) {
+    public WebResult msg(String msg) {
         __msg = msg;
         return this;
     }
@@ -60,7 +69,7 @@ public class WebResultHelper {
         return (T) __datas.get(dataKey);
     }
 
-    public WebResultHelper dataAttr(String dataKey, Object dataValue) {
+    public WebResult dataAttr(String dataKey, Object dataValue) {
         __datas.put(dataKey, dataValue);
         return this;
     }
@@ -70,7 +79,7 @@ public class WebResultHelper {
         return (T) __attrs.get(attrKey);
     }
 
-    public WebResultHelper attr(String attrKey, Object attrValue) {
+    public WebResult attr(String attrKey, Object attrValue) {
         __attrs.put(attrKey, attrValue);
         return this;
     }

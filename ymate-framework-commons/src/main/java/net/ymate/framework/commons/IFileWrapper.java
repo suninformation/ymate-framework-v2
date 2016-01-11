@@ -1,8 +1,17 @@
 /*
- * Copyright (c) 2007-2016, the original author or authors. All rights reserved.
+ * Copyright 2007-2016 the original author or authors.
  *
- * This program licensed under the terms of the GNU Lesser General Public License version 3.0
- * as published by the Free Software Foundation.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.ymate.framework.commons;
 
@@ -19,7 +28,7 @@ import java.io.InputStream;
  */
 public interface IFileWrapper {
 
-    public static class NEW implements IFileWrapper {
+    class NEW implements IFileWrapper {
 
         private boolean __hasError;
 
@@ -101,21 +110,21 @@ public interface IFileWrapper {
         }
     }
 
-    public boolean hasError();
+    boolean hasError();
 
-    public String getErrorMsg();
+    String getErrorMsg();
 
-    public String getFileName();
+    String getFileName();
 
-    public String getName();
+    String getName();
 
-    public String getSuffix();
+    String getSuffix();
 
-    public long getContentLength();
+    long getContentLength();
 
-    public String getContentType();
+    String getContentType();
 
-    public InputStream getInputStream() throws IOException;
+    InputStream getInputStream() throws IOException;
 
-    public void writeTo(File distFile) throws IOException;
+    void writeTo(File distFile) throws IOException;
 }
