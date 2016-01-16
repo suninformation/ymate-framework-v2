@@ -102,7 +102,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
     }
 
     public IView onConvention(IWebMvc owner, IRequestContext requestContext) throws Exception {
-        String[] _fileTypes = {".html", ".jsp", ".ftl"};
+        String[] _fileTypes = {".html", ".jsp", ".ftl", ".vm"};
         for (String _fileType : _fileTypes) {
             // 判断插件目录下是否存在视图文件
             File _targetFile = new File(ViewPathUtils.pluginViewPath(), requestContext.getRequestMapping() + _fileType);
@@ -113,6 +113,8 @@ public class WebErrorProcessor implements IWebErrorProcessor {
                     return View.jspView(owner, requestContext.getRequestMapping().substring(1));
                 } else if (".ftl".equals(_fileType)) {
                     return View.freemarkerView(owner, requestContext.getRequestMapping().substring(1));
+                } else if (".vm".equals(_fileType)) {
+                    return View.velocityView(owner, requestContext.getRequestMapping().substring(1));
                 }
             }
         }

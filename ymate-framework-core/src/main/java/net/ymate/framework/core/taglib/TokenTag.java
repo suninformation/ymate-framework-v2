@@ -17,6 +17,7 @@ package net.ymate.framework.core.taglib;
 
 import net.ymate.framework.core.support.TokenProcessHelper;
 import net.ymate.platform.core.util.RuntimeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
@@ -38,6 +39,8 @@ public class TokenTag extends TagSupport {
 
     private boolean xhtml = true;
 
+    private String name;
+
     /**
      * 构造器
      */
@@ -50,8 +53,11 @@ public class TokenTag extends TagSupport {
         HttpSession session = pageContext.getSession();
 
         if (session != null) {
-            String token =
-                    (String) session.getAttribute(TokenProcessHelper.TRANSACTION_TOKEN_KEY);
+            String _tokenKey = TokenProcessHelper.TRANSACTION_TOKEN_KEY;
+            if (StringUtils.isNotBlank(name)) {
+                _tokenKey += "|" + name;
+            }
+            String token = (String) session.getAttribute(_tokenKey);
 
             if (token != null) {
                 results.append("<div><input type=\"hidden\" name=\"");
@@ -88,4 +94,11 @@ public class TokenTag extends TagSupport {
         this.xhtml = xhtml;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

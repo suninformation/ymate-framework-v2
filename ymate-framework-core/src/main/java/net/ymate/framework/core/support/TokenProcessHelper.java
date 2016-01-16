@@ -15,6 +15,9 @@
  */
 package net.ymate.framework.core.support;
 
+import org.apache.commons.lang.NullArgumentException;
+import org.apache.commons.lang.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
@@ -76,6 +79,10 @@ public class TokenProcessHelper {
     }
 
     public synchronized boolean isTokenValid(HttpServletRequest request, boolean reset) {
+        return this.isTokenValid(request, null, reset);
+    }
+
+    public synchronized boolean isTokenValid(HttpServletRequest request, String name, boolean reset) {
         // Retrieve the current session for this request
         HttpSession session = request.getSession(false);
         if (session == null) {
@@ -83,7 +90,11 @@ public class TokenProcessHelper {
         }
         // Retrieve the transaction token from this session, and
         // reset it if requested
-        String saved = (String) session.getAttribute(TRANSACTION_TOKEN_KEY);
+        String _tokenKey = TokenProcessHelper.TRANSACTION_TOKEN_KEY;
+        if (StringUtils.isNotBlank(name)) {
+            _tokenKey += "|" + name;
+        }
+        String saved = (String) session.getAttribute(_tokenKey);
         if (saved == null) {
             return false;
         }
@@ -104,10 +115,19 @@ public class TokenProcessHelper {
      */
     public synchronized void resetToken(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session == null) {
-            return;
+        if (session != null) {
+            session.removeAttribute(TRANSACTION_TOKEN_KEY);
         }
-        session.removeAttribute(TRANSACTION_TOKEN_KEY);
+    }
+
+    public synchronized void resetToken(HttpServletRequest request, String name) {
+        if (StringUtils.trimToNull(name) == null) {
+            throw new NullArgumentException(name);
+        }
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.removeAttribute(TRANSACTION_TOKEN_KEY + "|" + name);
+        }
     }
 
     /**
@@ -117,10 +137,21 @@ public class TokenProcessHelper {
      * @param request The servlet request we are processing
      */
     public synchronized void saveToken(HttpServletRequest request) {
-        HttpSession session = request.getSession();
         String token = generateToken(request);
         if (token != null) {
+            HttpSession session = request.getSession();
             session.setAttribute(TRANSACTION_TOKEN_KEY, token);
+        }
+    }
+
+    public synchronized void saveToken(HttpServletRequest request, String name) {
+        if (StringUtils.trimToNull(name) == null) {
+            throw new NullArgumentException(name);
+        }
+        String token = generateToken(request);
+        if (token != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute(TRANSACTION_TOKEN_KEY + "|" + name, token);
         }
     }
 
