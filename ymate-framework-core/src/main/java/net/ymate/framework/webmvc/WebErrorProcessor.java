@@ -19,6 +19,7 @@ import net.ymate.framework.core.Optional;
 import net.ymate.framework.core.util.ViewPathUtils;
 import net.ymate.framework.core.util.WebUtils;
 import net.ymate.platform.core.i18n.I18N;
+import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.log.Logs;
 import net.ymate.platform.validation.ValidateResult;
@@ -80,13 +81,19 @@ public class WebErrorProcessor implements IWebErrorProcessor {
     public IView onValidation(IWebMvc owner, Map<String, ValidateResult> results) {
         IView _view = null;
         // 拼装所有的验证消息
-        StringBuilder _message = new StringBuilder();
+        StringBuilder _messages = new StringBuilder();
         for (ValidateResult _vResult : results.values()) {
-            _message.append(_vResult.getMsg()).append("\n");
+            ExpressionUtils _item = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(Optional.VALIDATION_TEMPLATE_ITEM), "${message}<br>"));
+            _item.set("name", _vResult.getName());
+            _item.set("message", _vResult.getMsg());
+            //
+            _messages.append(_item.getResult());
         }
+        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${items}"));
+        String _resultMsg = _element.set("items", _messages.toString()).getResult();
         //
         if (WebUtils.isAjax(WebContext.getRequest())) {
-            WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(_message.toString().replace("\n", "<br/>"));
+            WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(_resultMsg);
             try {
                 for (ValidateResult _vResult : results.values()) {
                     _result.dataAttr(_vResult.getName(), _vResult.getMsg());
@@ -96,7 +103,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
                 Logs.get(owner.getOwner()).getLogger().error(RuntimeUtils.unwrapThrow(e));
             }
         } else {
-            _view = __toErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _message.toString().replace("\n", "<br/>"));
+            _view = __toErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _resultMsg);
         }
         return _view;
     }

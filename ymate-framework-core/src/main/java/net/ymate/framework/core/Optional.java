@@ -47,4 +47,14 @@ public class Optional {
      * 控制器请求URL后缀参数名称
      */
     public static final String REQUEST_SUFFIX = "webmvc.request_suffix";
+
+    /**
+     * 验证结果消息模板参数名称, 默认值: "${items}"
+     */
+    public static final String VALIDATION_TEMPLATE_ELEMENT = "webmvc.validation_template_element";
+
+    /**
+     * 验证结果消息项模板参数名称, 默认值: "${message}<br>"
+     */
+    public static final String VALIDATION_TEMPLATE_ITEM = "webmvc.validation_template_item";
 }
