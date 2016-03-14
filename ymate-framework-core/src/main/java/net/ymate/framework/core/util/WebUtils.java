@@ -19,6 +19,8 @@ import net.ymate.framework.core.Optional;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.CodecUtils;
+import net.ymate.platform.core.util.ExpressionUtils;
+import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.webmvc.WebMVC;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -30,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.*;
+import java.util.Collection;
 
 /**
  * Web通用工具类
@@ -271,5 +274,31 @@ public class WebUtils {
     public static String i18nStr(YMP owner, String resKey, String defaultValue) {
         String _resourceName = StringUtils.defaultIfBlank(owner.getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
         return I18N.load(_resourceName, resKey, defaultValue);
+    }
+
+    public static String messageWithTemplate(YMP owner, String message) {
+        return messageWithTemplate(owner, "", message);
+    }
+
+    public static String messageWithTemplate(YMP owner, String name, String message) {
+        ExpressionUtils _item = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ITEM), "${message}<br>"));
+        _item.set("name", name);
+        _item.set("message", message);
+        //
+        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${items}"));
+        return _element.set("items", _item.getResult()).getResult();
+    }
+
+    public static String messageWithTemplate(YMP owner, Collection<ValidateResult> messages) {
+        StringBuilder _messages = new StringBuilder();
+        for (ValidateResult _vResult : messages) {
+            ExpressionUtils _item = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ITEM), "${message}<br>"));
+            _item.set("name", _vResult.getName());
+            _item.set("message", _vResult.getMsg());
+            //
+            _messages.append(_item.getResult());
+        }
+        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${items}"));
+        return _element.set("items", _messages.toString()).getResult();
     }
 }
