@@ -17,6 +17,7 @@ package net.ymate.framework.core.util;
 
 import net.ymate.framework.core.Optional;
 import net.ymate.platform.core.YMP;
+import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.CodecUtils;
 import net.ymate.platform.webmvc.WebMVC;
 import org.apache.commons.codec.binary.Base64;
@@ -245,5 +246,30 @@ public class WebUtils {
      */
     public static String decryptStr(String dataStr, String key) throws Exception {
         return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr.getBytes("UTF-8")), DigestUtils.md5Hex(key).getBytes()));
+    }
+
+    /**
+     * 加载i18n资源键值
+     *
+     * @param owner  所属YMP容器
+     * @param resKey 键
+     * @return 返回resKey指定的键值
+     */
+    public static String i18nStr(YMP owner, String resKey) {
+        String _resourceName = StringUtils.defaultIfBlank(owner.getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+        return I18N.load(_resourceName, resKey);
+    }
+
+    /**
+     * 加载i18n资源键值
+     *
+     * @param owner        所属YMP容器
+     * @param resKey       键
+     * @param defaultValue 默认值
+     * @return 返回resKey指定的键值
+     */
+    public static String i18nStr(YMP owner, String resKey, String defaultValue) {
+        String _resourceName = StringUtils.defaultIfBlank(owner.getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+        return I18N.load(_resourceName, resKey, defaultValue);
     }
 }
