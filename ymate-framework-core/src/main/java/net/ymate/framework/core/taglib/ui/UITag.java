@@ -42,7 +42,7 @@ public class UITag extends BaseUITag {
      * @return 返回当前线程中的UITag对象
      */
     public UITag currentUI() {
-        return (UITag) this.pageContext.getRequest().getAttribute(UITag.class.getName());
+        return (UITag) this.pageContext.getAttribute(UITag.class.getName());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class UITag extends BaseUITag {
         try {
             if (currentUI() == null) {
                 __isCurrentUI = true;
-                this.pageContext.getRequest().setAttribute(UITag.class.getName(), this);
+                this.pageContext.setAttribute(UITag.class.getName(), this);
             }
         } catch (Exception e) {
             throw new JspException(RuntimeUtils.unwrapThrow(e));
@@ -74,12 +74,15 @@ public class UITag extends BaseUITag {
     public int doEndTag() throws JspException {
         if (__isCurrentUI) {
             try {
-                /* UI模板文件内容*/
-                String __tmplContent = WebUtils.includeJSP(
-                        (HttpServletRequest) this.pageContext.getRequest(),
-                        (HttpServletResponse) this.pageContext.getResponse(),
-                        this.buildSrcUrl(), this.getCharsetEncoding());
-                __tmplContent = this.mergeContent(StringUtils.defaultIfEmpty(__tmplContent, ""));
+                /* UI模板文件内容 */
+                String __tmplContent = null;
+                if (StringUtils.isNotBlank(this.getSrc())) {
+                    __tmplContent = WebUtils.includeJSP(
+                            (HttpServletRequest) this.pageContext.getRequest(),
+                            (HttpServletResponse) this.pageContext.getResponse(),
+                            this.buildSrcUrl(), this.getCharsetEncoding());
+                }
+                __tmplContent = this.mergeContent(StringUtils.defaultIfEmpty(__tmplContent, "@{body}"));
                 this.pageContext.getOut().write(WebUtils.replaceRegClear(__tmplContent));
             } catch (Exception e) {
                 throw new JspException(RuntimeUtils.unwrapThrow(e));
