@@ -194,6 +194,11 @@
 		<tag-class>net.ymate.framework.core.taglib.ui.LayoutTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
+			<name>name</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
 			<name>src</name>
 			<rtexprvalue>true</rtexprvalue>
 			<type>java.lang.String</type>

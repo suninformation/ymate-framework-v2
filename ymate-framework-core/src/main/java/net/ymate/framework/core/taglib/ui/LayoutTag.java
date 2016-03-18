@@ -32,7 +32,7 @@ import javax.servlet.jsp.JspException;
 public class LayoutTag extends BaseUITag {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7959201563636313024L;
 
@@ -42,6 +42,11 @@ public class LayoutTag extends BaseUITag {
 	 * Layout模板文件内容
 	 */
 	private String __tmplContent;
+
+	/**
+	 * 自定义占位符名称, 若未提供则默认为body
+	 */
+	private String name;
 
 	@Override
 	public int doStartTag() throws JspException {
@@ -89,11 +94,23 @@ public class LayoutTag extends BaseUITag {
 			__ui.writerToCssPart(this.getCssPartContent());
 			__ui.writerToScriptPart(this.getScriptPartContent());
 			__tmplContent = this.mergeContent(StringUtils.defaultIfEmpty(__tmplContent, ""));
-			__ui.writerToBodyPart(WebUtils.replaceRegClear(__tmplContent));
+			//
+			if (StringUtils.isNotBlank(name) && !"body".equalsIgnoreCase(name)) {
+				__ui.putProperty(name, WebUtils.replaceRegClear(__tmplContent));
+			} else {
+				__ui.writerToBodyPart(WebUtils.replaceRegClear(__tmplContent));
+			}
 		} catch (Exception e) {
 			throw new JspException(RuntimeUtils.unwrapThrow(e));
 		}
 		return super.doEndTag();
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 }
