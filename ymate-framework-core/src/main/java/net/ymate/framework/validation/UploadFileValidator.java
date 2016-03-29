@@ -15,6 +15,7 @@
  */
 package net.ymate.framework.validation;
 
+import net.ymate.framework.core.Optional;
 import net.ymate.platform.core.beans.annotation.CleanProxy;
 import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.validation.IValidator;
@@ -24,7 +25,9 @@ import net.ymate.platform.validation.annotation.Validator;
 import net.ymate.platform.webmvc.IUploadFileWrapper;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 16/3/20 上午3:48
@@ -41,6 +44,9 @@ public class UploadFileValidator implements IValidator {
             _paramName = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _paramName, _paramName);
             //
             VUploadFile _vUploadFile = (VUploadFile) context.getAnnotation();
+            //
+            List<String> _allowContentTypes = __doGetAllowContentTypes(context, _vUploadFile);
+            //
             if (context.getParamValue().getClass().isArray()) {
                 //
                 IUploadFileWrapper[] _values = (IUploadFileWrapper[]) context.getParamValue();
@@ -48,7 +54,7 @@ public class UploadFileValidator implements IValidator {
                     long _totalSize = 0;
                     for (IUploadFileWrapper _value : _values) {
                         _totalSize += _value.getSize();
-                        ValidateResult _result = __doValidateUploadFileWrapper(context, _paramName, _vUploadFile, _value);
+                        ValidateResult _result = __doValidateUploadFileWrapper(context, _allowContentTypes, _paramName, _vUploadFile, _value);
                         if (_result != null) {
                             return _result;
                         }
@@ -66,7 +72,7 @@ public class UploadFileValidator implements IValidator {
             } else {
                 IUploadFileWrapper _value = (IUploadFileWrapper) context.getParamValue();
                 if (_value != null) {
-                    ValidateResult _result = __doValidateUploadFileWrapper(context, _paramName, _vUploadFile, _value);
+                    ValidateResult _result = __doValidateUploadFileWrapper(context, _allowContentTypes, _paramName, _vUploadFile, _value);
                     if (_result != null) {
                         return _result;
                     }
@@ -76,7 +82,7 @@ public class UploadFileValidator implements IValidator {
         return null;
     }
 
-    private ValidateResult __doValidateUploadFileWrapper(ValidateContext context, String paramName, VUploadFile vUploadFile, IUploadFileWrapper value) {
+    private ValidateResult __doValidateUploadFileWrapper(ValidateContext context, List<String> allowContentTypes, String paramName, VUploadFile vUploadFile, IUploadFileWrapper value) {
         boolean _matched = false;
         boolean _isNotAllowContentType = false;
         //
@@ -84,7 +90,7 @@ public class UploadFileValidator implements IValidator {
             _matched = true;
         } else if (vUploadFile.max() > 0 && value.getSize() > vUploadFile.max()) {
             _matched = true;
-        } else if (vUploadFile.contentTypes().length > 0 && !Arrays.asList(vUploadFile.contentTypes()).contains(value.getContentType())) {
+        } else if (allowContentTypes.size() > 0 && !allowContentTypes.contains(value.getContentType())) {
             _matched = true;
             _isNotAllowContentType = true;
         }
@@ -108,5 +114,22 @@ public class UploadFileValidator implements IValidator {
             return new ValidateResult(context.getParamName(), _msg);
         }
         return null;
+    }
+
+    private List<String> __doGetAllowContentTypes(ValidateContext context, VUploadFile vUploadFile) {
+        List<String> _contentTyps = new ArrayList<String>();
+        //
+        _contentTyps.addAll(Arrays.asList(vUploadFile.contentTypes()));
+        //
+        String[] _types = StringUtils.split(StringUtils.trimToEmpty(context.getContextParams().get(Optional.VALIDATION_ALLOW_UPLOAD_CONTENT_TYPES)), "|");
+        if (_types.length > 0) {
+            _contentTyps.addAll(Arrays.asList(_types));
+        }
+        //
+        _types = StringUtils.split(StringUtils.trimToEmpty(context.getOwner().getConfig().getParam(Optional.VALIDATION_ALLOW_UPLOAD_CONTENT_TYPES)), "|");
+        if (_types.length > 0) {
+            _contentTyps.addAll(Arrays.asList(_types));
+        }
+        return _contentTyps;
     }
 }

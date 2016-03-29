@@ -23,6 +23,10 @@ package net.ymate.framework.core;
  */
 public class Optional {
 
+    public static final Integer BOOL_TRUE = 1;
+
+    public static final Integer BOOL_FALSE = 0;
+
     /**
      * 国际化资源文件参数名称
      */
@@ -44,9 +48,24 @@ public class Optional {
     public static final String SYSTEM_ERROR_DEFAULT_I18N_KEY = "webmvc.error_default_i18n_key";
 
     /**
+     * 会话过期消息KEY
+     */
+    public static final String SYSTEM_SESSION_TIMEOUT_KEY = "webmvc.session_timeout_key";
+
+    /**
      * 控制器请求URL后缀参数名称
      */
     public static final String REQUEST_SUFFIX = "webmvc.request_suffix";
+
+    /**
+     * 重定向登录URL地址参数名称, 默认值: "login?redirect_url=${redirect_url}"
+     */
+    public static final String REDIRECT_LOGIN_URL = "webmvc.redirect_login_url";
+
+    /**
+     * 允许上传的文件类型验证参数名称
+     */
+    public static final String VALIDATION_ALLOW_UPLOAD_CONTENT_TYPES = "webmvc.validation_allow_upload_content_types";
 
     /**
      * 验证结果消息模板参数名称, 默认值: "${items}"
