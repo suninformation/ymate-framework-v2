@@ -64,6 +64,25 @@ public class WebResult {
         return this;
     }
 
+    public WebResult data(Object data) {
+        __attrs.put("data", data);
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T data() {
+        return (T) __attrs.get("data");
+    }
+
+    public WebResult attrs(Map<String, Object> attrs) {
+        __attrs = attrs;
+        return this;
+    }
+
+    public Map<String, Object> attrs() {
+        return __attrs;
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T dataAttr(String dataKey) {
         return (T) __datas.get(dataKey);
