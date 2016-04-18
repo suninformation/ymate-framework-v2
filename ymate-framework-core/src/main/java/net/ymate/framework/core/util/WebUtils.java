@@ -20,6 +20,7 @@ import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.CodecUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
+import net.ymate.platform.core.util.NetworkUtils;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.webmvc.WebMVC;
 import org.apache.commons.codec.binary.Base64;
@@ -52,7 +53,7 @@ public class WebUtils {
      */
     public static String buildURL(HttpServletRequest request, String requestPath, boolean withBasePath) {
         requestPath = StringUtils.trimToEmpty(requestPath);
-        if (withBasePath && requestPath.equals("") && requestPath.charAt(0) == '/') {
+        if (withBasePath && !requestPath.equals("") && requestPath.charAt(0) == '/') {
             requestPath = StringUtils.substringAfter(requestPath, "/");
         }
         return (withBasePath ? WebUtils.baseURL(request) + requestPath : requestPath) + StringUtils.defaultIfEmpty(YMP.get().getConfig().getParam(Optional.REQUEST_SUFFIX), "");
@@ -161,6 +162,13 @@ public class WebUtils {
         }
         if (StringUtils.isBlank(_ip) || "unknown".equalsIgnoreCase(_ip)) {
             _ip = request.getRemoteAddr();
+            if (StringUtils.equals(_ip, "127.0.0.1")) {
+                _ip = StringUtils.join(NetworkUtils.IP.getHostIPAddrs(), ",");
+            }
+        }
+        String[] _ips = StringUtils.split(_ip, ',');
+        if (_ips != null && _ips.length > 0) {
+            return _ips[0];
         }
         return _ip;
     }
