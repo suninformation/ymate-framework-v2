@@ -18,11 +18,14 @@ package net.ymate.framework.webmvc.intercept;
 import net.ymate.framework.core.Optional;
 import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.ErrorCode;
+import net.ymate.framework.webmvc.ISessionCheckHandler;
 import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
+import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.i18n.I18N;
+import net.ymate.platform.core.util.ClassUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.View;
@@ -38,20 +41,26 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class UserSessionCheckInterceptor implements IInterceptor {
 
+    private static final String REDIRECT_URL = "redirect_url";
+
+    private ISessionCheckHandler __sessionCheckHandler;
+
     public Object intercept(InterceptContext context) throws Exception {
         // 判断当前拦截器执行方向
         switch (context.getDirection()) {
             case BEFORE:
                 UserSessionBean _sessionBean = UserSessionBean.current();
                 if (_sessionBean == null) {
-                    String _resourceName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-                    String _message = StringUtils.defaultIfBlank(I18N.load(_resourceName, Optional.SYSTEM_SESSION_TIMEOUT_KEY), "Not login or session timeout, Login again.");
-                    if (WebUtils.isAjax(WebContext.getRequest())) {
-                        return WebResult
-                                .CODE(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT)
-                                .msg(_message)
-                                .toJSON();
+                    if (__sessionCheckHandler == null) {
+                        if (__doGetSessionCheckHandler(context.getOwner()) != null) {
+                            _sessionBean = __sessionCheckHandler.handle(context.getOwner());
+                        }
+                    } else {
+                        _sessionBean = __sessionCheckHandler.handle(context.getOwner());
                     }
+                }
+                if (_sessionBean == null) {
+                    // 拼装跳转登录URL地址
                     HttpServletRequest _request = WebContext.getRequest();
                     StringBuffer _returnUrlBuffer = _request.getRequestURL();
                     String _queryStr = _request.getQueryString();
@@ -59,9 +68,19 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                         _returnUrlBuffer.append("?").append(_queryStr);
                     }
                     String _redirectUrl = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.REDIRECT_LOGIN_URL), "login?redirect_url=${redirect_url}");
-                    _redirectUrl = ExpressionUtils.bind(_redirectUrl).set("redirect_url", WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
-                    if (!StringUtils.startsWithIgnoreCase(_redirectUrl, "http://")) {
+                    _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
+                    if (!StringUtils.startsWithIgnoreCase(_redirectUrl, "http://") && !StringUtils.startsWithIgnoreCase(_redirectUrl, "https://")) {
                         _redirectUrl = WebUtils.buildURL(_request, _redirectUrl, true);
+                    }
+                    //
+                    if (WebUtils.isAjax(WebContext.getRequest())) {
+                        String _resourceName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+                        String _message = StringUtils.defaultIfBlank(I18N.load(_resourceName, Optional.SYSTEM_SESSION_TIMEOUT_KEY), "Not login or session timeout, Login again.");
+                        return WebResult
+                                .CODE(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT)
+                                .msg(_message)
+                                .attr(REDIRECT_URL, _redirectUrl)
+                                .toJSON();
                     }
                     return View.redirectView(_redirectUrl);
                 } else {
@@ -71,5 +90,15 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                 break;
         }
         return null;
+    }
+
+    private synchronized ISessionCheckHandler __doGetSessionCheckHandler(YMP owner) {
+        if (__sessionCheckHandler == null) {
+            String _handleClassName = owner.getConfig().getParam(Optional.SYSTEM_SESSION_CHECK_HANDLER_CLASS);
+            if (StringUtils.isNotBlank(_handleClassName)) {
+                __sessionCheckHandler = ClassUtils.impl(_handleClassName, ISessionCheckHandler.class, getClass());
+            }
+        }
+        return __sessionCheckHandler;
     }
 }

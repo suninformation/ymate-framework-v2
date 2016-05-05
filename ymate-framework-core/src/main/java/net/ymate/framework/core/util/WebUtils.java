@@ -242,6 +242,11 @@ public class WebUtils {
                 DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes())));
     }
 
+    public static String encryptStr(HttpServletRequest request, byte[] bytes) throws Exception {
+        return new String(Base64.encodeBase64URLSafe(CodecUtils.DES.encrypt(bytes,
+                DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes())));
+    }
+
     /**
      * 内容加密
      *
@@ -265,6 +270,11 @@ public class WebUtils {
     public static String decryptStr(HttpServletRequest request, String dataStr) throws Exception {
         return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr.getBytes("UTF-8")),
                 DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes()));
+    }
+
+    public static byte[] decryptStr(HttpServletRequest request, byte[] bytes) throws Exception {
+        return CodecUtils.DES.decrypt(Base64.decodeBase64(bytes),
+                DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes());
     }
 
     /**

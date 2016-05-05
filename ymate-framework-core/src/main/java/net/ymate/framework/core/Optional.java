@@ -53,6 +53,11 @@ public class Optional {
     public static final String SYSTEM_SESSION_TIMEOUT_KEY = "webmvc.session_timeout_key";
 
     /**
+     * 会话检查处理器类
+     */
+    public static final String SYSTEM_SESSION_CHECK_HANDLER_CLASS = "webmvc.session_check_handler_class";
+
+    /**
      * 控制器请求URL后缀参数名称
      */
     public static final String REQUEST_SUFFIX = "webmvc.request_suffix";
