@@ -39,7 +39,8 @@ public class UploadFileValidator implements IValidator {
 
     public ValidateResult validate(ValidateContext context) {
         // 待验证的参数必须是IUploadFileWrapper类型
-        if (context.getParamValue() instanceof IUploadFileWrapper) {
+        Object _paramValue = context.getParamValue();
+        if (_paramValue != null) {
             String _paramName = StringUtils.defaultIfBlank(context.getParamLabel(), context.getParamName());
             _paramName = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _paramName, _paramName);
             //
@@ -47,35 +48,31 @@ public class UploadFileValidator implements IValidator {
             //
             List<String> _allowContentTypes = __doGetAllowContentTypes(context, _vUploadFile);
             //
-            if (context.getParamValue().getClass().isArray()) {
+            if (_paramValue.getClass().isArray() && _paramValue instanceof IUploadFileWrapper[]) {
                 //
-                IUploadFileWrapper[] _values = (IUploadFileWrapper[]) context.getParamValue();
-                if (_values != null) {
-                    long _totalSize = 0;
-                    for (IUploadFileWrapper _value : _values) {
-                        _totalSize += _value.getSize();
-                        ValidateResult _result = __doValidateUploadFileWrapper(context, _allowContentTypes, _paramName, _vUploadFile, _value);
-                        if (_result != null) {
-                            return _result;
-                        }
-                    }
-                    if (_totalSize > _vUploadFile.totalMax()) {
-                        String _msg = StringUtils.trimToNull(_vUploadFile.msg());
-                        if (_msg != null) {
-                            _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _msg, _msg, _paramName);
-                        } else {
-                            _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.upload_file_total_max", "{0} total size must be lt {1}.", _paramName, _vUploadFile.totalMax());
-                        }
-                        return new ValidateResult(_paramName, _msg);
-                    }
-                }
-            } else {
-                IUploadFileWrapper _value = (IUploadFileWrapper) context.getParamValue();
-                if (_value != null) {
+                IUploadFileWrapper[] _values = (IUploadFileWrapper[]) _paramValue;
+                long _totalSize = 0;
+                for (IUploadFileWrapper _value : _values) {
+                    _totalSize += _value.getSize();
                     ValidateResult _result = __doValidateUploadFileWrapper(context, _allowContentTypes, _paramName, _vUploadFile, _value);
                     if (_result != null) {
                         return _result;
                     }
+                }
+                if (_totalSize > _vUploadFile.totalMax()) {
+                    String _msg = StringUtils.trimToNull(_vUploadFile.msg());
+                    if (_msg != null) {
+                        _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _msg, _msg, _paramName);
+                    } else {
+                        _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.upload_file_total_max", "{0} total size must be lt {1}.", _paramName, _vUploadFile.totalMax());
+                    }
+                    return new ValidateResult(_paramName, _msg);
+                }
+            } else if (_paramValue instanceof IUploadFileWrapper) {
+                IUploadFileWrapper _value = (IUploadFileWrapper) _paramValue;
+                ValidateResult _result = __doValidateUploadFileWrapper(context, _allowContentTypes, _paramName, _vUploadFile, _value);
+                if (_result != null) {
+                    return _result;
                 }
             }
         }
