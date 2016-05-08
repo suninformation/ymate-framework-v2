@@ -29,6 +29,8 @@ import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.util.Map;
@@ -40,6 +42,8 @@ import java.util.Map;
  * @version 1.0
  */
 public class WebErrorProcessor implements IWebErrorProcessor {
+
+    private static final Log _LOG = LogFactory.getLog(WebErrorProcessor.class);
 
     private IView __toErrorView(IWebMvc owner, int code, String msg) {
         IView _view = null;
@@ -67,12 +71,12 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         try {
             Logs.get(owner.getOwner()).getLogger().error(RuntimeUtils.unwrapThrow(e));
         } catch (Throwable ignored) {
-            e.printStackTrace(System.err);
+            _LOG.warn("", RuntimeUtils.unwrapThrow(ignored));
         } finally {
             try {
                 _view.render();
             } catch (Exception e1) {
-                e1.printStackTrace(System.err);
+                _LOG.warn("", RuntimeUtils.unwrapThrow(e1));
             }
         }
     }

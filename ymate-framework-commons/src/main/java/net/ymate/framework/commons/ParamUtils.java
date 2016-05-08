@@ -16,7 +16,10 @@
 package net.ymate.framework.commons;
 
 import net.ymate.platform.core.lang.BlurObject;
+import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -29,6 +32,8 @@ import java.util.Map;
  * @version 1.0
  */
 public class ParamUtils {
+
+    private static final Log _LOG = LogFactory.getLog(ParamUtils.class);
 
     /**
      * @param params  请求参数映射
@@ -54,7 +59,7 @@ public class ParamUtils {
                     try {
                         _paramSB.append(_key).append("=").append(URLEncoder.encode(_valueStr, StringUtils.defaultIfBlank(charset, "UTF-8")));
                     } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+                        _LOG.warn("", RuntimeUtils.unwrapThrow(e));
                     }
                 } else {
                     _paramSB.append(_key).append("=").append(_valueStr);

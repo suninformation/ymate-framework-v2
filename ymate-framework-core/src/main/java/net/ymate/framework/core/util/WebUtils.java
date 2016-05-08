@@ -21,11 +21,14 @@ import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.CodecUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.core.util.NetworkUtils;
+import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.webmvc.WebMVC;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -44,6 +47,8 @@ import java.util.Collection;
  * @version 1.0
  */
 public class WebUtils {
+
+    private static final Log _LOG = LogFactory.getLog(WebUtils.class);
 
     /**
      * @param request      HttpServletRequest对象
@@ -81,7 +86,7 @@ public class WebUtils {
         try {
             return URLEncoder.encode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
         }
         return url;
     }
@@ -90,7 +95,7 @@ public class WebUtils {
         try {
             return URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
         }
         return url;
     }
