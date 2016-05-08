@@ -150,9 +150,21 @@ public class WebUtils {
 
     /**
      * @param request HttpServletRequest对象
-     * @return 获取用户IP地址
+     * @return 获取用户IP地址(当存在多个IP地址时仅返回第一个)
      */
     public static String getRemoteAddr(HttpServletRequest request) {
+        String[] _ips = getRemoteAddrs(request);
+        if (_ips != null && _ips.length > 0) {
+            return _ips[0];
+        }
+        return null;
+    }
+
+    /**
+     * @param request HttpServletRequest对象
+     * @return 获取用户IP地址(以数组的形式返回所有IP)
+     */
+    public static String[] getRemoteAddrs(HttpServletRequest request) {
         String _ip = request.getHeader("x-forwarded-for");
         if (StringUtils.isBlank(_ip) || "unknown".equalsIgnoreCase(_ip)) {
             _ip = request.getHeader("Proxy-Client-IP");
@@ -166,11 +178,7 @@ public class WebUtils {
                 _ip = StringUtils.join(NetworkUtils.IP.getHostIPAddrs(), ",");
             }
         }
-        String[] _ips = StringUtils.split(_ip, ',');
-        if (_ips != null && _ips.length > 0) {
-            return _ips[0];
-        }
-        return _ip;
+        return StringUtils.split(_ip, ',');
     }
 
     /**
