@@ -115,22 +115,19 @@ public class HttpClientHelper {
     public IHttpResponse get(String url, Header[] headers) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            _LOG.debug("Request URL ['" + url + "']");
             RequestBuilder _reqBuilder = RequestBuilder.get().setUri(url);
             if (headers != null && headers.length > 0) {
                 for (Header _header : headers) {
                     _reqBuilder.addHeader(_header);
                 }
             }
-            IHttpResponse _result = _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
+            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     return new IHttpResponse.NEW(response);
                 }
 
             });
-            _LOG.debug("Request URL ['" + url + "'] Response ['" + _result + "']");
-            return _result;
         } finally {
             _httpClient.close();
         }
@@ -152,16 +149,13 @@ public class HttpClientHelper {
         }
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            _LOG.debug("Request URL ['" + url + "'], Param ['" + params + "']");
-            IHttpResponse _result = _httpClient.execute(_request.build(), new ResponseHandler<IHttpResponse>() {
+            return _httpClient.execute(_request.build(), new ResponseHandler<IHttpResponse>() {
 
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     return new IHttpResponse.NEW(response);
                 }
 
             });
-            _LOG.debug("Request URL ['" + url + "'] Response ['" + _result + "']");
-            return _result;
         } finally {
             _httpClient.close();
         }
@@ -170,7 +164,6 @@ public class HttpClientHelper {
     public IHttpResponse post(String url, ContentType contentType, String content, Header[] headers) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            _LOG.debug("Request URL ['" + url + "'] PostBody ['" + content + "']");
             RequestBuilder _reqBuilder = RequestBuilder.post()
                     .setUri(url)
                     .setEntity(EntityBuilder.create()
@@ -182,15 +175,13 @@ public class HttpClientHelper {
                     _reqBuilder.addHeader(_header);
                 }
             }
-            IHttpResponse _result = _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
+            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     return new IHttpResponse.NEW(response);
                 }
 
             });
-            _LOG.debug("Request URL ['" + url + "'] Response ['" + _result + "']");
-            return _result;
         } finally {
             _httpClient.close();
         }
@@ -207,7 +198,6 @@ public class HttpClientHelper {
     public IHttpResponse post(String url, ContentType contentType, byte[] content, Header[] headers) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            _LOG.debug("Request URL ['" + url + "'] PostBody ['" + content + "']");
             RequestBuilder _reqBuilder = RequestBuilder.post()
                     .setUri(url)
                     .setEntity(EntityBuilder.create()
@@ -219,15 +209,13 @@ public class HttpClientHelper {
                     _reqBuilder.addHeader(_header);
                 }
             }
-            IHttpResponse _result = _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
+            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     return new IHttpResponse.NEW(response);
                 }
 
             });
-            _LOG.debug("Request URL ['" + url + "'] Response ['" + _result + "']");
-            return _result;
         } finally {
             _httpClient.close();
         }
@@ -244,7 +232,6 @@ public class HttpClientHelper {
     public IHttpResponse post(String url, Map<String, String> params, Header[] headers) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            _LOG.debug("Request URL ['" + url + "'] PostBody ['" + params + "']");
             RequestBuilder _reqBuilder = RequestBuilder.post()
                     .setUri(url)
                     .setEntity(EntityBuilder.create()
@@ -255,15 +242,13 @@ public class HttpClientHelper {
                     _reqBuilder.addHeader(_header);
                 }
             }
-            IHttpResponse _result = _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
+            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     return new IHttpResponse.NEW(response);
                 }
 
             });
-            _LOG.debug("Request URL ['" + url + "'] Response ['" + _result + "']");
-            return _result;
         } finally {
             _httpClient.close();
         }
@@ -283,23 +268,32 @@ public class HttpClientHelper {
         return nameValuePair;
     }
 
-    public IHttpResponse upload(String url, File uploadFile, Header[] headers) throws Exception {
+    public IHttpResponse upload(String url, String fieldName, FileBody uploadFile, Header[] headers) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            _LOG.debug("Upload File ['" + uploadFile + "']");
             RequestBuilder _reqBuilder = RequestBuilder.post().setUri(url).setEntity(
-                    MultipartEntityBuilder.create().addPart("media", new FileBody(uploadFile)).build());
+                    MultipartEntityBuilder.create().addPart(fieldName, uploadFile).build());
             if (headers != null && headers.length > 0) {
                 for (Header _header : headers) {
                     _reqBuilder.addHeader(_header);
                 }
             }
-            IHttpResponse _result = new IHttpResponse.NEW(_httpClient.execute(_reqBuilder.build()));
-            _LOG.debug("Upload File ['" + uploadFile + "'] Response ['" + _result + "']");
-            return _result;
+            return new IHttpResponse.NEW(_httpClient.execute(_reqBuilder.build()));
         } finally {
             _httpClient.close();
         }
+    }
+
+    public IHttpResponse upload(String url, String fieldName, File uploadFile, Header[] headers) throws Exception {
+        return upload(url, fieldName, new FileBody(uploadFile), headers);
+    }
+
+    public IHttpResponse upload(String url, File uploadFile, Header[] headers) throws Exception {
+        return upload(url, "media", uploadFile, headers);
+    }
+
+    public IHttpResponse upload(String url, String fieldName, File uploadFile) throws Exception {
+        return upload(url, fieldName, uploadFile, null);
     }
 
     public IHttpResponse upload(String url, File uploadFile) throws Exception {
