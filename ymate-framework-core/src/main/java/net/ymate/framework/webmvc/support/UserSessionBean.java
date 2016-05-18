@@ -16,7 +16,9 @@
 package net.ymate.framework.webmvc.support;
 
 import net.ymate.platform.webmvc.context.WebContext;
+import org.apache.commons.lang.StringUtils;
 
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +38,17 @@ public class UserSessionBean implements Serializable {
     private Map<String, Serializable> __attributes;
 
     private UserSessionBean() {
-        this.id = WebContext.getRequest().getSession().getId();
+        HttpSession _session = WebContext.getRequest().getSession();
+        //
+        this.id = _session.getId();
+        this.lastActivateTime = System.currentTimeMillis();
+        this.__attributes = new HashMap<String, Serializable>();
+        //
+        _session.setAttribute(UserSessionBean.class.getName(), this);
+    }
+
+    private UserSessionBean(String id) {
+        this.id = id;
         this.lastActivateTime = System.currentTimeMillis();
         this.__attributes = new HashMap<String, Serializable>();
     }
@@ -45,16 +57,21 @@ public class UserSessionBean implements Serializable {
      * @return 创建UserSessionBean对象并存入当前会话中
      */
     public static UserSessionBean create() {
-        UserSessionBean _sessionBean = new UserSessionBean();
-        WebContext.getContext().getSession().put(UserSessionBean.class.getName(), _sessionBean);
-        return _sessionBean;
+        return new UserSessionBean();
+    }
+
+    public static UserSessionBean create(String id) {
+        if (StringUtils.isNotBlank(id)) {
+            return new UserSessionBean(id);
+        }
+        return null;
     }
 
     /**
      * @return 获取当前会话中的UserSessionBean对象, 若不存在将返回null值
      */
     public static UserSessionBean current() {
-        return (UserSessionBean) WebContext.getContext().getSession().get(UserSessionBean.class.getName());
+        return (UserSessionBean) WebContext.getRequest().getSession().getAttribute(UserSessionBean.class.getName());
     }
 
     /**
