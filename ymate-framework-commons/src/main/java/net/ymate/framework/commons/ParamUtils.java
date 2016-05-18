@@ -17,6 +17,8 @@ package net.ymate.framework.commons;
 
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.RuntimeUtils;
+import net.ymate.platform.core.util.UUIDUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +43,7 @@ public class ParamUtils {
      * @param charset Encode编码字符集，默认UTF-8
      * @return 对参数进行ASCII正序排列并生成请求参数串
      */
-    public static String buildQueryParamStr(Map<String, Object> params, boolean encode, String charset) {
+    public static String buildQueryParamStr(Map<String, ?> params, boolean encode, String charset) {
         String[] _keys = params.keySet().toArray(new String[params.size()]);
         Arrays.sort(_keys);
         StringBuilder _paramSB = new StringBuilder();
@@ -125,5 +127,28 @@ public class ParamUtils {
         _payHtml.append("<input type=\"submit\" value=\"doSubmit\" style=\"display:none;\"></form>");
         _payHtml.append("<script>document.forms['_payment_submit'].submit();</script>");
         return _payHtml.toString();
+    }
+
+    /**
+     * @return 产生随机字符串，长度为6到32位不等
+     */
+    public static String createNonceStr() {
+        return UUIDUtils.randomStr(UUIDUtils.randomInt(6, 32), false).toLowerCase();
+    }
+
+    /**
+     * @param queryParamMap 请求协议参数对象映射
+     * @param encode        是否进行编码
+     * @param extraParams   扩展参数
+     * @return 返回最终生成的签名
+     */
+    public static String createSignature(Map<String, String> queryParamMap, boolean encode, String... extraParams) {
+        String _queryParamStr = buildQueryParamStr(queryParamMap, encode, null);
+        if (extraParams != null && extraParams.length > 0) {
+            for (String _extraParam : extraParams) {
+                _queryParamStr += "&" + _extraParam;
+            }
+        }
+        return DigestUtils.md5Hex(_queryParamStr).toUpperCase();
     }
 }
