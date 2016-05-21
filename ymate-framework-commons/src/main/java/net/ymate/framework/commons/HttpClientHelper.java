@@ -15,8 +15,6 @@
  */
 package net.ymate.framework.commons;
 
-import net.ymate.platform.core.util.UUIDUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,12 +29,14 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -268,7 +268,7 @@ public class HttpClientHelper {
         return nameValuePair;
     }
 
-    public IHttpResponse upload(String url, String fieldName, FileBody uploadFile, Header[] headers) throws Exception {
+    public IHttpResponse upload(String url, String fieldName, ContentBody uploadFile, Header[] headers) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
             RequestBuilder _reqBuilder = RequestBuilder.post().setUri(url).setEntity(
@@ -318,10 +318,7 @@ public class HttpClientHelper {
 
                 public IFileWrapper handleResponse(HttpResponse response) throws IOException {
                     //
-                    File _tmpFile = File.createTempFile(UUIDUtils.UUID(), null);
-                    FileUtils.copyInputStreamToFile(response.getEntity().getContent(), _tmpFile);
-                    //
-                    return new IFileWrapper.NEW(response.getEntity().getContentType().getValue(), response.getEntity().getContentLength(), _tmpFile);
+                    return new IFileWrapper.NEW(response.getEntity().getContentType().getValue(), response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent()));
                 }
             });
         } finally {
@@ -353,11 +350,8 @@ public class HttpClientHelper {
                     } else {
                         String _fileName = StringUtils.substringAfter(response.getFirstHeader("Content-disposition").getValue(), "filename=");
                         //
-                        File _tmpFile = File.createTempFile(_fileName, null);
-                        FileUtils.copyInputStreamToFile(response.getEntity().getContent(), _tmpFile);
-                        //
                         return new IFileWrapper.NEW(_fileName, response.getEntity().getContentType().getValue(),
-                                response.getEntity().getContentLength(), _tmpFile);
+                                response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent()));
                     }
                 }
             });

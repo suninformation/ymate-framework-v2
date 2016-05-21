@@ -44,9 +44,9 @@ public interface IFileWrapper {
 
         private long __contentLength;
 
-        private File __sourceFile;
+        private InputStream __sourceInputStream;
 
-        public NEW(String fileName, String contentType, long contentLength, File sourceFile) {
+        public NEW(String fileName, String contentType, long contentLength, InputStream sourceInputStream) {
             __fileName = fileName;
             if (StringUtils.isNotBlank(__fileName)) {
                 __name = StringUtils.substringBefore(StringUtils.replace(__fileName, "\"", ""), ".");
@@ -55,13 +55,13 @@ public interface IFileWrapper {
             //
             __contentType = contentType;
             __contentLength = contentLength;
-            __sourceFile = sourceFile;
+            __sourceInputStream = sourceInputStream;
         }
 
-        public NEW(String contentType, long contentLength, File sourceFile) {
+        public NEW(String contentType, long contentLength, InputStream sourceInputStream) {
             __contentType = contentType;
             __contentLength = contentLength;
-            __sourceFile = sourceFile;
+            __sourceInputStream = sourceInputStream;
         }
 
         public NEW(String errMsg) {
@@ -98,15 +98,11 @@ public interface IFileWrapper {
         }
 
         public InputStream getInputStream() throws IOException {
-            return org.apache.commons.io.FileUtils.openInputStream(__sourceFile);
+            return __sourceInputStream;
         }
 
         public void writeTo(File distFile) throws IOException {
-            if (!__sourceFile.renameTo(distFile)) {
-                org.apache.commons.io.FileUtils.copyInputStreamToFile(getInputStream(), distFile);
-            } else {
-                throw new IOException("Cannot write file!");
-            }
+            org.apache.commons.io.FileUtils.copyInputStreamToFile(__sourceInputStream, distFile);
         }
     }
 
