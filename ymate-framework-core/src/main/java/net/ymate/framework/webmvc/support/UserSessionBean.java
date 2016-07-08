@@ -67,6 +67,22 @@ public class UserSessionBean implements Serializable {
         return null;
     }
 
+    public static UserSessionBean createIfNeed() {
+        UserSessionBean _sessionBean = current();
+        if (_sessionBean == null) {
+            _sessionBean = new UserSessionBean();
+        }
+        return _sessionBean;
+    }
+
+    public static UserSessionBean createIfNeed(String id) {
+        UserSessionBean _sessionBean = current();
+        if (_sessionBean == null) {
+            _sessionBean = new UserSessionBean(id);
+        }
+        return _sessionBean;
+    }
+
     /**
      * @return 获取当前会话中的UserSessionBean对象, 若不存在将返回null值
      */
@@ -82,12 +98,20 @@ public class UserSessionBean implements Serializable {
         return this;
     }
 
+    public void destroy() {
+        WebContext.getRequest().getSession().removeAttribute(UserSessionBean.class.getName());
+    }
+
     public String getId() {
         return id;
     }
 
     public long getLastActivateTime() {
         return lastActivateTime;
+    }
+
+    public boolean hasAttribute(String name) {
+        return __attributes.containsKey(name);
     }
 
     @SuppressWarnings("unchecked")
