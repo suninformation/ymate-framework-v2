@@ -348,7 +348,10 @@ public class HttpClientHelper {
                         //
                         return new IFileWrapper.NEW(_errMsg);
                     } else {
-                        String _fileName = StringUtils.substringAfter(response.getFirstHeader("Content-disposition").getValue(), "filename=");
+                        String _fileName = null;
+                        if (response.containsHeader("Content-disposition")) {
+                            _fileName = StringUtils.substringAfter(response.getFirstHeader("Content-disposition").getValue(), "filename=");
+                        }
                         //
                         return new IFileWrapper.NEW(_fileName, response.getEntity().getContentType().getValue(),
                                 response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent()));
