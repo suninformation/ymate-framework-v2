@@ -17,6 +17,9 @@ package net.ymate.framework.commons;
 
 import net.ymate.platform.core.util.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,6 +107,15 @@ public interface IFileWrapper {
         public void writeTo(File distFile) throws IOException {
             org.apache.commons.io.FileUtils.copyInputStreamToFile(__sourceInputStream, distFile);
         }
+
+        public ContentBody toContentBody() {
+            return new InputStreamBody(this.__sourceInputStream, ContentType.create(__contentType), __fileName) {
+                @Override
+                public long getContentLength() {
+                    return __contentLength;
+                }
+            };
+        }
     }
 
     boolean hasError();
@@ -123,4 +135,6 @@ public interface IFileWrapper {
     InputStream getInputStream() throws IOException;
 
     void writeTo(File distFile) throws IOException;
+
+    ContentBody toContentBody();
 }
