@@ -15,6 +15,8 @@
  */
 package net.ymate.framework.commons;
 
+import org.apache.http.HttpResponse;
+
 import java.io.IOException;
 
 /**
@@ -23,5 +25,5 @@ import java.io.IOException;
  */
 public interface IFileHandler {
 
-    void handle(IFileWrapper fileWrapper) throws IOException;
+    void handle(HttpResponse response, IFileWrapper fileWrapper) throws IOException;
 }

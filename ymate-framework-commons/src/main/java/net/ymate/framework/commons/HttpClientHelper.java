@@ -34,7 +34,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -300,30 +299,40 @@ public class HttpClientHelper {
         return upload(url, uploadFile, null);
     }
 
-    public void download(String url, ContentType contentType, String content, Header[] headers, final IFileHandler handler) throws Exception {
+    private void __doExecHttpDownload(RequestBuilder requestBuilder, final IFileHandler handler) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            RequestBuilder _reqBuilder = RequestBuilder.post()
-                    .setUri(url)
-                    .setEntity(EntityBuilder.create()
-                            .setContentEncoding(DEFAULT_CHARSET)
-                            .setContentType(contentType)
-                            .setText(content).build());
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
-            }
-            _httpClient.execute(_reqBuilder.build(), new ResponseHandler<Void>() {
+            _httpClient.execute(requestBuilder.build(), new ResponseHandler<Void>() {
 
                 public Void handleResponse(HttpResponse response) throws IOException {
-                    handler.handle(new IFileWrapper.NEW(response.getEntity().getContentType().getValue(), response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent())));
+                    String _fileName = null;
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        if (response.containsHeader("Content-disposition")) {
+                            _fileName = StringUtils.substringAfter(response.getFirstHeader("Content-disposition").getValue(), "filename=");
+                        }
+                    }
+                    handler.handle(response, new IFileWrapper.NEW(_fileName, response.getEntity().getContentType().getValue(), response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent())));
                     return null;
                 }
             });
         } finally {
             _httpClient.close();
         }
+    }
+
+    public void download(String url, ContentType contentType, String content, Header[] headers, final IFileHandler handler) throws Exception {
+        RequestBuilder _reqBuilder = RequestBuilder.post()
+                .setUri(url)
+                .setEntity(EntityBuilder.create()
+                        .setContentEncoding(DEFAULT_CHARSET)
+                        .setContentType(contentType)
+                        .setText(content).build());
+        if (headers != null && headers.length > 0) {
+            for (Header _header : headers) {
+                _reqBuilder.addHeader(_header);
+            }
+        }
+        __doExecHttpDownload(_reqBuilder, handler);
     }
 
     public void download(String url, String content, IFileHandler handler) throws Exception {
@@ -331,37 +340,13 @@ public class HttpClientHelper {
     }
 
     public void download(String url, Header[] headers, final IFileHandler handler) throws Exception {
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            RequestBuilder _reqBuilder = RequestBuilder.get().setUri(url);
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
+        RequestBuilder _reqBuilder = RequestBuilder.get().setUri(url);
+        if (headers != null && headers.length > 0) {
+            for (Header _header : headers) {
+                _reqBuilder.addHeader(_header);
             }
-            _httpClient.execute(_reqBuilder.build(), new ResponseHandler<Void>() {
-
-                public Void handleResponse(HttpResponse response) throws IOException {
-                    String _cType = response.getEntity().getContentType().getValue().toLowerCase();
-                    if (_cType.equals("text/plain") || _cType.equals("text/html")) {
-                        final String _errMsg = EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET);
-                        //
-                        handler.handle(new IFileWrapper.NEW(_errMsg));
-                    } else {
-                        String _fileName = null;
-                        if (response.containsHeader("Content-disposition")) {
-                            _fileName = StringUtils.substringAfter(response.getFirstHeader("Content-disposition").getValue(), "filename=");
-                        }
-                        //
-                        handler.handle(new IFileWrapper.NEW(_fileName, response.getEntity().getContentType().getValue(),
-                                response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent())));
-                    }
-                    return null;
-                }
-            });
-        } finally {
-            _httpClient.close();
         }
+        __doExecHttpDownload(_reqBuilder, handler);
     }
 
     public void download(String url, IFileHandler handler) throws Exception {
