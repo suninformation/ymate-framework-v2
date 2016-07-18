@@ -43,7 +43,9 @@ public class UserSessionCheckInterceptor implements IInterceptor {
 
     private static final String REDIRECT_URL = "redirect_url";
 
-    private ISessionCheckHandler __sessionCheckHandler;
+    private static volatile ISessionCheckHandler __sessionCheckHandler;
+
+    private static volatile boolean __initedFlag = false;
 
     public Object intercept(InterceptContext context) throws Exception {
         // 判断当前拦截器执行方向
@@ -51,7 +53,7 @@ public class UserSessionCheckInterceptor implements IInterceptor {
             case BEFORE:
                 UserSessionBean _sessionBean = UserSessionBean.current();
                 if (_sessionBean == null) {
-                    if (__sessionCheckHandler == null) {
+                    if (!__initedFlag && __sessionCheckHandler == null) {
                         if (__doGetSessionCheckHandler(context.getOwner()) != null) {
                             _sessionBean = __sessionCheckHandler.handle(context.getOwner());
                         }
@@ -92,11 +94,16 @@ public class UserSessionCheckInterceptor implements IInterceptor {
         return null;
     }
 
-    private synchronized ISessionCheckHandler __doGetSessionCheckHandler(YMP owner) {
+    private static ISessionCheckHandler __doGetSessionCheckHandler(YMP owner) {
         if (__sessionCheckHandler == null) {
-            String _handleClassName = owner.getConfig().getParam(Optional.SYSTEM_SESSION_CHECK_HANDLER_CLASS);
-            if (StringUtils.isNotBlank(_handleClassName)) {
-                __sessionCheckHandler = ClassUtils.impl(_handleClassName, ISessionCheckHandler.class, getClass());
+            synchronized (REDIRECT_URL) {
+                if (__sessionCheckHandler == null) {
+                    String _handleClassName = owner.getConfig().getParam(Optional.SYSTEM_SESSION_CHECK_HANDLER_CLASS);
+                    if (StringUtils.isNotBlank(_handleClassName)) {
+                        __sessionCheckHandler = ClassUtils.impl(_handleClassName, ISessionCheckHandler.class, UserSessionCheckInterceptor.class);
+                    }
+                    __initedFlag = true;
+                }
             }
         }
         return __sessionCheckHandler;
