@@ -30,7 +30,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 public class ScriptTag extends BodyTagSupport {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -2774067114541501535L;
 
@@ -75,11 +75,14 @@ public class ScriptTag extends BodyTagSupport {
 		}
 		_scriptTmpl.append(" type=\"text/javascript\">");
 		if (_isEmpty && StringUtils.isNotEmpty(this.getValue())) {
-			_scriptTmpl.append("\n<!--//\n").append(this.getValue()).append("\n").append("\n//-->\n</script>\n");
+			String _content = StringUtils.substringBetween(this.getValue(), "<script>", "</script>");
+			if (StringUtils.isNotBlank(_content)) {
+				this.setValue(_content);
+			}
+			_scriptTmpl.append("\n<!--//\n").append(this.getValue()).append("\n").append("\n//-->\n");
 			_isEmpty = false;
-		} else {
-			_scriptTmpl.append("</script>\n");
 		}
+		_scriptTmpl.append("</script>\n");
 		if (!_isEmpty) {
 			__ui.writerToScriptPart(_scriptTmpl.toString());
 		}
