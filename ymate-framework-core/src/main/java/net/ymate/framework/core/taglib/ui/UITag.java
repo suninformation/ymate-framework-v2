@@ -88,6 +88,7 @@ public class UITag extends BaseUITag {
                 throw new JspException(RuntimeUtils.unwrapThrow(e));
             }
         }
+        this.__isCurrentUI = false;
         return super.doEndTag();
     }
 

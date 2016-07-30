@@ -86,6 +86,10 @@ public class ScriptTag extends BodyTagSupport {
 		if (!_isEmpty) {
 			__ui.writerToScriptPart(_scriptTmpl.toString());
 		}
+		//
+		this.__ui = null;
+		this.src = null;
+		this.value = null;
 		return super.doEndTag();
 	}
 

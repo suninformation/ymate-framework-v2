@@ -81,6 +81,10 @@ public class MetaTag extends BodyTagSupport {
 		if (!_isEmpty) {
 			__ui.writerToMetaPart(_metaTmpl.toString());
 		}
+		//
+		this.__ui = null;
+		this.attrKey = null;
+		this.attrValue = null;
 		return super.doEndTag();
 	}
 

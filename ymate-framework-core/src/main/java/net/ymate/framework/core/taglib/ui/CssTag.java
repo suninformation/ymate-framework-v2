@@ -83,6 +83,11 @@ public class CssTag extends BodyTagSupport {
 			_metaTmpl.append(">\n");
 			__ui.writerToCssPart(_metaTmpl.toString());
 		}
+		//
+		this.__ui = null;
+		this.href = null;
+		this.rel = null;
+		this.media = null;
 		return super.doEndTag();
 	}
 

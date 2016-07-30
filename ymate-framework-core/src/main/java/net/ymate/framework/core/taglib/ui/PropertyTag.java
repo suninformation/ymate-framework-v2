@@ -30,7 +30,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 public class PropertyTag extends BodyTagSupport {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3493408190832765819L;
 
@@ -70,6 +70,10 @@ public class PropertyTag extends BodyTagSupport {
 		if (StringUtils.isNotBlank(this.getName()) && StringUtils.isNotEmpty(this.getValue())) {
 			__ui.putProperty(this.getName(), this.getValue());
 		}
+		//
+		this.__ui = null;
+		this.name = null;
+		this.value = null;
 		return super.doEndTag();
 	}
 

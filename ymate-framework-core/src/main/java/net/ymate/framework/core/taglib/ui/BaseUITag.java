@@ -78,6 +78,15 @@ public abstract class BaseUITag extends BodyTagSupport {
     }
 
     @Override
+    public int doEndTag() throws JspException {
+        this.src = null;
+        this.theme = null;
+        this.plugin = null;
+        this.charsetEncoding = null;
+        return super.doEndTag();
+    }
+
+    @Override
     public void release() {
         __tmplBodyPart = null;
         __tmplScriptPart = null;

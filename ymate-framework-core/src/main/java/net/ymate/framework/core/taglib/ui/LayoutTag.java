@@ -103,6 +103,10 @@ public class LayoutTag extends BaseUITag {
 		} catch (Exception e) {
 			throw new JspException(RuntimeUtils.unwrapThrow(e));
 		}
+		//
+		this.__ui = null;
+		this.__tmplContent = null;
+		this.name = null;
 		return super.doEndTag();
 	}
 
