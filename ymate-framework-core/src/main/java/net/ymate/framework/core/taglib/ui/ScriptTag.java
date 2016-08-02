@@ -40,6 +40,10 @@ public class ScriptTag extends BodyTagSupport {
 
 	private String value;
 
+	private String type;
+
+	private String wrapper;
+
 	@Override
 	public int doStartTag() throws JspException {
 		__ui = (BaseUITag) this.getParent();
@@ -68,18 +72,22 @@ public class ScriptTag extends BodyTagSupport {
 	@Override
 	public int doEndTag() throws JspException {
 		StringBuilder _scriptTmpl = new StringBuilder("<script");
+		if (StringUtils.isNotBlank(this.getId())) {
+			_scriptTmpl.append(" id=\"").append(this.getId()).append("\"");
+		}
 		boolean _isEmpty = true;
 		if (StringUtils.isNotBlank(this.getSrc())) {
 			_scriptTmpl.append(" src=\"").append(this.getSrc()).append("\"");
 			_isEmpty = false;
 		}
-		_scriptTmpl.append(" type=\"text/javascript\">");
+		_scriptTmpl.append(" type=\"").append(StringUtils.defaultIfBlank(this.getType(), "text/javascript")).append("\">");
 		if (_isEmpty && StringUtils.isNotEmpty(this.getValue())) {
-			String _content = StringUtils.substringBetween(this.getValue(), "<script>", "</script>");
+			String _wrapper = StringUtils.defaultIfBlank(this.getWrapper(), "script");
+			String _content = StringUtils.substringBetween(this.getValue(), "<" + _wrapper + ">", "</" + _wrapper + ">");
 			if (StringUtils.isNotBlank(_content)) {
 				this.setValue(_content);
 			}
-			_scriptTmpl.append("\n<!--//\n").append(this.getValue()).append("\n").append("\n//-->\n");
+			_scriptTmpl.append(this.getValue()).append("\n");
 			_isEmpty = false;
 		}
 		_scriptTmpl.append("</script>\n");
@@ -90,6 +98,9 @@ public class ScriptTag extends BodyTagSupport {
 		this.__ui = null;
 		this.src = null;
 		this.value = null;
+		this.id = null;
+		this.type = null;
+		this.wrapper = null;
 		return super.doEndTag();
 	}
 
@@ -109,4 +120,19 @@ public class ScriptTag extends BodyTagSupport {
 		this.value = value;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getWrapper() {
+		return wrapper;
+	}
+
+	public void setWrapper(String wrapper) {
+		this.wrapper = wrapper;
+	}
 }
