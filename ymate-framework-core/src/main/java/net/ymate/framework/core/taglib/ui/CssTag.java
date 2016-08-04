@@ -42,6 +42,8 @@ public class CssTag extends BodyTagSupport {
 
 	private String media;
 
+	private String type;
+
 	@Override
 	public int doStartTag() throws JspException {
 		__ui = (BaseUITag) this.getParent();
@@ -77,6 +79,10 @@ public class CssTag extends BodyTagSupport {
 			}
 			_metaTmpl.append(" rel=\"").append(this.getRel()).append("\"");
 			//
+			if (StringUtils.isNotBlank(this.getType())) {
+				_metaTmpl.append(" type=\"").append(this.getType()).append("\"");
+			}
+			//
 			if (StringUtils.isNotBlank(this.getMedia())) {
 				_metaTmpl.append(" media=\"").append(this.getMedia()).append("\"");
 			}
@@ -88,6 +94,7 @@ public class CssTag extends BodyTagSupport {
 		this.href = null;
 		this.rel = null;
 		this.media = null;
+		this.type = null;
 		return super.doEndTag();
 	}
 
@@ -115,4 +122,11 @@ public class CssTag extends BodyTagSupport {
 		this.media = media;
 	}
 
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 }
