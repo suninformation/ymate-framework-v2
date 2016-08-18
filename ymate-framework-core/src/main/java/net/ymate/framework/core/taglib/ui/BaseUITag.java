@@ -57,6 +57,13 @@ public abstract class BaseUITag extends BodyTagSupport {
      */
     private String charsetEncoding;
 
+    /**
+     * 清理占位符
+     */
+    private boolean cleanup = true;
+
+    //
+
     private StringBuilder __tmplBodyPart;
 
     private StringBuilder __tmplScriptPart;
@@ -83,6 +90,7 @@ public abstract class BaseUITag extends BodyTagSupport {
         this.theme = null;
         this.plugin = null;
         this.charsetEncoding = null;
+        this.cleanup = true;
         return super.doEndTag();
     }
 
@@ -173,6 +181,14 @@ public abstract class BaseUITag extends BodyTagSupport {
 
     public void setCharsetEncoding(String charsetEncoding) {
         this.charsetEncoding = charsetEncoding;
+    }
+
+    public boolean isCleanup() {
+        return cleanup;
+    }
+
+    public void setCleanup(boolean cleanup) {
+        this.cleanup = cleanup;
     }
 
     public String getBodyPartContent() {

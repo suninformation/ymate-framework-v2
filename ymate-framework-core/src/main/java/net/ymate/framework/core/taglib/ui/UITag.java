@@ -83,7 +83,7 @@ public class UITag extends BaseUITag {
                             this.buildSrcUrl(), this.getCharsetEncoding());
                 }
                 __tmplContent = this.mergeContent(StringUtils.defaultIfEmpty(__tmplContent, "@{body}"));
-                this.pageContext.getOut().write(WebUtils.replaceRegClear(__tmplContent));
+                this.pageContext.getOut().write(!isCleanup() ? __tmplContent : WebUtils.replaceRegClear(__tmplContent));
             } catch (Exception e) {
                 throw new JspException(RuntimeUtils.unwrapThrow(e));
             }

@@ -96,9 +96,9 @@ public class LayoutTag extends BaseUITag {
 			__tmplContent = this.mergeContent(StringUtils.defaultIfEmpty(__tmplContent, ""));
 			//
 			if (StringUtils.isNotBlank(name) && !"body".equalsIgnoreCase(name)) {
-				__ui.putProperty(name, WebUtils.replaceRegClear(__tmplContent));
+				__ui.putProperty(name, !isCleanup() ? __tmplContent : WebUtils.replaceRegClear(__tmplContent));
 			} else {
-				__ui.writerToBodyPart(WebUtils.replaceRegClear(__tmplContent));
+				__ui.writerToBodyPart(!isCleanup() ? __tmplContent : WebUtils.replaceRegClear(__tmplContent));
 			}
 		} catch (Exception e) {
 			throw new JspException(RuntimeUtils.unwrapThrow(e));
