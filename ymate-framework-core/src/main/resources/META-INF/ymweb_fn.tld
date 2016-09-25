@@ -20,4 +20,40 @@
             &lt;c:if test="${func:defaultIfBlank(name, defaultName)}"&gt;
         </example>
     </function>
+
+    <function>
+        <name>uuid</name>
+        <function-class>net.ymate.platform.core.util.UUIDUtils</function-class>
+        <function-signature>java.lang.String UUID()</function-signature>
+        <example>
+            &lt;c:if test="${func:uuid()}"&gt;
+        </example>
+    </function>
+
+    <function>
+        <name>randomStr</name>
+        <function-class>net.ymate.platform.core.util.UUIDUtils</function-class>
+        <function-signature>java.lang.String randomStr(int,boolean)</function-signature>
+        <example>
+            &lt;c:if test="${func:randomStr(6, false)}"&gt;
+        </example>
+    </function>
+
+    <function>
+        <name>randomLang</name>
+        <function-class>net.ymate.platform.core.util.UUIDUtils</function-class>
+        <function-signature>long randomLong(long,long)</function-signature>
+        <example>
+            &lt;c:if test="${func:randomLong(6, 10)}"&gt;
+        </example>
+    </function>
+
+    <function>
+        <name>randomInt</name>
+        <function-class>net.ymate.platform.core.util.UUIDUtils</function-class>
+        <function-signature>int randomInt(int,int)</function-signature>
+        <example>
+            &lt;c:if test="${func:randomInt(6, 10)}"&gt;
+        </example>
+    </function>
 </taglib>
