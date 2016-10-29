@@ -16,10 +16,17 @@
 package net.ymate.framework.webmvc;
 
 import com.alibaba.fastjson.JSONObject;
+import net.ymate.platform.core.util.ClassUtils;
+import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
+import net.ymate.platform.webmvc.view.impl.JsonView;
+import net.ymate.platform.webmvc.view.impl.JspView;
+import net.ymate.platform.webmvc.view.impl.NullView;
+import net.ymate.platform.webmvc.view.impl.TextView;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,6 +43,8 @@ public class WebResult {
     private Map<String, Object> __datas;
 
     private Map<String, Object> __attrs;
+
+    private boolean __withContentType;
 
     public static WebResult SUCCESS() {
         return new WebResult(ErrorCode.SUCCESSED);
@@ -103,7 +112,16 @@ public class WebResult {
         return this;
     }
 
+    public WebResult withContentType() {
+        __withContentType = true;
+        return this;
+    }
+
     public IView toJSON() {
+        return toJSON(null);
+    }
+
+    public IView toJSON(String callback) {
         JSONObject _jsonObj = new JSONObject();
         _jsonObj.put("ret", __code);
         if (StringUtils.isNotBlank(__msg)) {
@@ -116,11 +134,15 @@ public class WebResult {
             _jsonObj.putAll(__attrs);
         }
         //
-        return View.jsonView(_jsonObj);
+        JsonView _view = View.jsonView(_jsonObj).withJsonCallback(callback);
+        if (__withContentType) {
+            _view.withContentType();
+        }
+        return _view;
     }
 
     public IView toXML(boolean cdata) {
-        StringBuilder _content = new StringBuilder();
+        StringBuilder _content = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         _content.append("<xml><ret>").append(__code).append("</ret>");
         if (StringUtils.isNotBlank(__msg)) {
             if (cdata) {
@@ -142,19 +164,45 @@ public class WebResult {
             }
         }
         _content.append("</xml>");
-        return View.textView(_content.toString());
+        TextView _view = View.textView(_content.toString());
+        if (__withContentType) {
+            _view.setContentType("application/xml");
+        }
+        return _view;
     }
 
+    @SuppressWarnings("unchecked")
     private void __doAppendContent(StringBuilder content, boolean cdata, String key, Object value) {
-        if (value != null && StringUtils.isNotBlank(value.toString())) {
+        if (value != null) {
             content.append("<").append(key).append(">");
-            if (value instanceof Number) {
+            if (value instanceof Number || int.class.isAssignableFrom(value.getClass()) || long.class.isAssignableFrom(value.getClass()) || float.class.isAssignableFrom(value.getClass()) || double.class.isAssignableFrom(value.getClass())) {
                 content.append(value);
-            } else {
+            } else if (value instanceof Map) {
+                Map<String, Object> _map = (Map<String, Object>) value;
+                if (!_map.isEmpty()) {
+                    for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+                        __doAppendContent(content, cdata, _entry.getKey(), _entry.getValue());
+                    }
+                }
+            } else if (value instanceof Collection) {
+                Collection _list = (Collection) value;
+                if (!_list.isEmpty()) {
+                    for (Object _item : _list) {
+                        __doAppendContent(content, cdata, "item", _item);
+                    }
+                }
+            } else if (value instanceof Boolean || value instanceof String || boolean.class.isAssignableFrom(value.getClass())) {
                 if (cdata) {
                     content.append("<![CDATA[").append(value).append("]]>");
                 } else {
                     content.append(value);
+                }
+            } else {
+                Map<String, Object> _map = ClassUtils.wrapper(value).toMap();
+                if (!_map.isEmpty()) {
+                    for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+                        __doAppendContent(content, cdata, _entry.getKey(), _entry.getValue());
+                    }
                 }
             }
             content.append("</").append(key).append(">");
@@ -163,5 +211,47 @@ public class WebResult {
 
     public IView toXML() {
         return toXML(false);
+    }
+
+    public static IView formatView(String path, WebResult result) {
+        return formatView(path, "format", "callback", result);
+    }
+
+    /**
+     * @param path          JSP模块路径
+     * @param paramFormat   数据格式，可选值：json|jsonp|xml
+     * @param paramCallback 当数据结式为jsonp时，指定回调方法参数名
+     * @param result        回应的数据对象
+     * @return 根据paramFormat等参数判断返回对应的视图对象
+     */
+    public static IView formatView(String path, String paramFormat, String paramCallback, WebResult result) {
+        IView _view = null;
+        String _format = StringUtils.trimToNull(WebContext.getRequest().getParameter(paramFormat));
+        if (_format != null && result != null) {
+            if ("json".equalsIgnoreCase(_format)) {
+                _view = result.toJSON(StringUtils.trimToNull(WebContext.getRequest().getParameter(paramCallback)));
+            } else if ("xml".equalsIgnoreCase(_format)) {
+                _view = result.toXML(true);
+            }
+        }
+        if (_view == null) {
+            if (StringUtils.isNotBlank(path)) {
+                _view = new JspView(path);
+                if (result != null) {
+                    if (StringUtils.isNotBlank(result.msg())) {
+                        _view.addAttribute("msg", result.msg());
+                    }
+                    if (result.data() != null) {
+                        _view.addAttribute("data", result.data());
+                    }
+                    for (Map.Entry<String, Object> _entry : result.attrs().entrySet()) {
+                        _view.addAttribute(_entry.getKey(), _entry.getValue());
+                    }
+                }
+            } else {
+                _view = new NullView();
+            }
+        }
+        return _view;
     }
 }
