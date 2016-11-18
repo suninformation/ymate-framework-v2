@@ -133,6 +133,9 @@ public class IconTag extends ElementsTag {
 
     @Override
     protected StringBuilder __doTagContent(StringBuilder tagContent, StringBuilder bodyContent) {
+        if (faStack) {
+            return __doTagEnd(tagContent.append(bodyContent));
+        }
         return __doTagEnd(tagContent).append(bodyContent);
     }
 
