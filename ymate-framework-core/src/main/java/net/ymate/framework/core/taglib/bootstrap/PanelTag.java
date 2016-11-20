@@ -19,7 +19,7 @@ import net.ymate.framework.core.taglib.ElementsTag;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * 面版
+ * 面板
  *
  * @author 刘镇 (suninformation@163.com) on 16/11/12 上午7:49
  * @version 1.0
@@ -35,12 +35,7 @@ public class PanelTag extends ElementsTag {
 
     private String heading;
     private String title;
-    private String footer;
-
-    private boolean nobody;
-    private String content;
-
-    private boolean afterBody;
+    private String icon;
 
     public PanelTag() {
     }
@@ -77,23 +72,14 @@ public class PanelTag extends ElementsTag {
                 if (StringUtils.isNotBlank(heading)) {
                     tagContent.append(heading);
                 } else if (StringUtils.isNotBlank(title)) {
-                    tagContent.append("<h3 class=\"panel-title\">").append(title).append("</h3>");
+                    tagContent.append("<h3 class=\"panel-title\">");
+                    if (StringUtils.isNotBlank(icon)) {
+                        tagContent.append("<i class=\"fa fa-").append(icon).append(" fa-fw\"></i> ");
+                    }
+                    tagContent.append(title).append("</h3>");
                 }
                 tagContent.append("</div>");
             }
-            if (nobody) {
-                if (afterBody) {
-                    tagContent.append(bodyContent).append(StringUtils.trimToEmpty(content));
-                } else {
-                    tagContent.append(StringUtils.trimToEmpty(content)).append(bodyContent);
-                }
-            } else {
-                tagContent.append("<div class=\"panel-body\">").append(bodyContent).append("</div>");
-            }
-            if (StringUtils.isNotBlank(footer)) {
-                tagContent.append("<div class=\"panel-footer\">").append(footer).append("</div>");
-            }
-            bodyContent.setLength(0);
         }
         return super.__doTagContent(tagContent, bodyContent);
     }
@@ -146,35 +132,11 @@ public class PanelTag extends ElementsTag {
         this.title = title;
     }
 
-    public String getFooter() {
-        return footer;
+    public String getIcon() {
+        return icon;
     }
 
-    public void setFooter(String footer) {
-        this.footer = footer;
-    }
-
-    public boolean isNobody() {
-        return nobody;
-    }
-
-    public void setNobody(boolean nobody) {
-        this.nobody = nobody;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public boolean isAfterBody() {
-        return afterBody;
-    }
-
-    public void setAfterBody(boolean afterBody) {
-        this.afterBody = afterBody;
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

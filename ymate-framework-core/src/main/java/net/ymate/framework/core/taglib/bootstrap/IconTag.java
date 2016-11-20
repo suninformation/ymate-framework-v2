@@ -59,7 +59,11 @@ public class IconTag extends ElementsTag {
 
     @Override
     protected void __doSetTagName() {
-        this.set_tag("span");
+        if (fa) {
+            this.set_tag("i");
+        } else {
+            this.set_tag("span");
+        }
     }
 
     @Override
