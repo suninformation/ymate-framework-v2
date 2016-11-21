@@ -770,26 +770,6 @@
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
-        <attribute>
-            <name>footer</name>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>nobody</name>
-            <type>java.lang.Boolean</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>content</name>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>afterBody</name>
-            <type>java.lang.Boolean</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
     </tag>
 
     <tag>
