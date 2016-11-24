@@ -16,6 +16,7 @@
 package net.ymate.framework.core.taglib;
 
 import net.ymate.platform.core.util.RuntimeUtils;
+import net.ymate.platform.persistence.IResultSet;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -98,7 +99,7 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
                 throw new NullArgumentException("var");
             }
             if (__iterator.hasNext()) {
-                doProcessIteratorTagDataStatus(__iterator.next(), ++__sequence);
+                __doProcessIteratorTagDataStatus(__iterator.next(), ++__sequence);
                 return EVAL_BODY_AGAIN;
             } else {
                 return SKIP_BODY;
@@ -141,7 +142,7 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
     public int doAfterBody() throws JspException {
         if (__iterator != null) {
             if (__iterator.hasNext()) {
-                doProcessIteratorTagDataStatus(__iterator.next(), ++__sequence);
+                __doProcessIteratorTagDataStatus(__iterator.next(), ++__sequence);
                 return EVAL_BODY_AGAIN;
             } else {
                 return SKIP_BODY;
@@ -178,9 +179,30 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
      * @param sequence 当前迭代计数
      * @throws JspException 可能产生的异常
      */
-    protected void doProcessIteratorTagDataStatus(Object data, int sequence) throws JspException {
+    protected void __doProcessIteratorTagDataStatus(Object data, int sequence) throws JspException {
         pageContext.setAttribute(getVar(), data);
         pageContext.setAttribute(getVar() + "_sequence", sequence);
+    }
+
+    protected boolean __doInitIterator(IResultSet<?> resultSet) throws JspException {
+        return __doInitIterator(resultSet.getResultData().iterator(), resultSet.getPageCount(), resultSet.getRecordCount());
+    }
+
+    protected boolean __doInitIterator(Iterator<?> iterator, int pageCount, long recordCount) throws JspException {
+        if (innerLoop) {
+            // 分页查询时必须提供var参数值
+            if (StringUtils.isBlank(var)) {
+                throw new NullArgumentException("var");
+            }
+            //
+            this.setIterator(iterator);
+            // 分页查询且开始内部迭代机制时，将提供“总记录数”和“总分页数”两个参数
+            pageContext.setAttribute(var + "_records", recordCount);
+            pageContext.setAttribute(var + "_pages", pageCount);
+            //
+            return true;
+        }
+        return false;
     }
 
     /**

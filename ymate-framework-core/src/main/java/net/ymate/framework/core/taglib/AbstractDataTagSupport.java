@@ -15,7 +15,12 @@
  */
 package net.ymate.framework.core.taglib;
 
+import net.ymate.platform.persistence.Fields;
+import net.ymate.platform.persistence.Page;
+import net.ymate.platform.persistence.jdbc.query.OrderBy;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Arrays;
 
 /**
  * 自定义数据访问标签抽象实现类，增加数据查询相关属性及方法
@@ -46,11 +51,6 @@ public abstract class AbstractDataTagSupport extends AbstractTagSupport {
     private String owner;
 
     /**
-     * 是否已逻辑删除
-     */
-    private Boolean deleted;
-
-    /**
      * 查询页号
      */
     private int page;
@@ -59,6 +59,16 @@ public abstract class AbstractDataTagSupport extends AbstractTagSupport {
      * 分页大小
      */
     private int pageSize;
+
+    /**
+     * 是否开启缓存
+     */
+    private boolean cacheable;
+
+    /**
+     * 缓存KEY
+     */
+    private String cacheKey;
 
     /**
      * 缓存过期时间（秒）
@@ -76,28 +86,48 @@ public abstract class AbstractDataTagSupport extends AbstractTagSupport {
     private String orderBy;
 
     /**
-     * @return 转换并返回字段过滤集合数组
+     * @return 返回Page分页参数对象
      */
-    protected String[] __doGetFieldList() {
-        return StringUtils.split(fields, '|');
-    }
-
-    /**
-     * @return 返回OrderBy字段数组
-     */
-    protected String[] __doGetOrderByArray() {
-        return StringUtils.split(orderBy, '|');
-    }
-
-    /**
-     * @return 处理补全OrderBy子句
-     */
-    protected String __doGetOrderBy() {
-        orderBy = StringUtils.trimToEmpty(orderBy);
-        if (!orderBy.toLowerCase().startsWith("order by")) {
-            orderBy += " ORDER BY ";
+    protected Page __doGetPage() {
+        if (page > 0 && pageSize > 0) {
+            return Page.create(page).pageSize(pageSize);
         }
-        return orderBy;
+        return null;
+    }
+
+    /**
+     * @return 转换并返回字段过滤对象
+     */
+    protected Fields __doGetFields() {
+        String[] _fields = StringUtils.split(StringUtils.trim(fields), '|');
+        if (_fields != null && _fields.length > 0) {
+            return Fields.create().add(Arrays.asList(_fields));
+        }
+        return null;
+    }
+
+    /**
+     * @return 返回OrderBy排序对象
+     */
+    protected OrderBy __doGetOrderBy() {
+        String[] _fields = StringUtils.split(StringUtils.trim(orderBy), '|');
+        if (_fields != null && _fields.length > 0) {
+            OrderBy _orderBy = OrderBy.create();
+            for (String _field : _fields) {
+                String[] _order = StringUtils.split(_field, " ");
+                if (_order.length > 1) {
+                    if (StringUtils.equalsIgnoreCase(_order[1], "desc")) {
+                        _orderBy.desc(_order[0]);
+                    } else {
+                        _orderBy.asc(_order[0]);
+                    }
+                } else {
+                    _orderBy.asc(_field);
+                }
+            }
+            return _orderBy;
+        }
+        return null;
     }
 
     public String getId() {
@@ -132,14 +162,6 @@ public abstract class AbstractDataTagSupport extends AbstractTagSupport {
         this.owner = owner;
     }
 
-    public Boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(Boolean deleted) {
-        this.deleted = deleted;
-    }
-
     public int getPage() {
         return page;
     }
@@ -154,6 +176,22 @@ public abstract class AbstractDataTagSupport extends AbstractTagSupport {
 
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public boolean isCacheable() {
+        return cacheable;
+    }
+
+    public void setCacheable(boolean cacheable) {
+        this.cacheable = cacheable;
+    }
+
+    public String getCacheKey() {
+        return cacheKey;
+    }
+
+    public void setCacheKey(String cacheKey) {
+        this.cacheKey = cacheKey;
     }
 
     public int getCacheTimeout() {
