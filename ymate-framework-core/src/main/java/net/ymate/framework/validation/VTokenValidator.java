@@ -18,6 +18,7 @@ package net.ymate.framework.validation;
 import net.ymate.framework.core.support.TokenProcessHelper;
 import net.ymate.platform.core.beans.annotation.CleanProxy;
 import net.ymate.platform.core.i18n.I18N;
+import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.validation.IValidator;
 import net.ymate.platform.validation.ValidateContext;
 import net.ymate.platform.validation.ValidateResult;
@@ -37,7 +38,17 @@ public class VTokenValidator implements IValidator {
         boolean _matched = false;
         VToken _vToken = (VToken) context.getAnnotation();
         if (context.getParamValue() != null) {
-            if (!TokenProcessHelper.getInstance().isTokenValid(WebContext.getRequest(), _vToken.name(), _vToken.reset())) {
+            String _token = null;
+            if (context.getParamValue().getClass().isArray()) {
+                Object[] _objArr = (Object[]) context.getParamValue();
+                if (_objArr.length > 0) {
+                    _token = BlurObject.bind(_objArr[0]).toStringValue();
+                }
+            } else {
+                _token = BlurObject.bind(context.getParamValue()).toStringValue();
+            }
+            //
+            if (!TokenProcessHelper.getInstance().isTokenValid(WebContext.getRequest(), _vToken.name(), _token, _vToken.reset())) {
                 _matched = true;
             }
         }

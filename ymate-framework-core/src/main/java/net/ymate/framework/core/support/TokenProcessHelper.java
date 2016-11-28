@@ -82,14 +82,11 @@ public class TokenProcessHelper {
         return this.isTokenValid(request, null, reset);
     }
 
-    public synchronized boolean isTokenValid(HttpServletRequest request, String name, boolean reset) {
-        // Retrieve the current session for this request
+    public synchronized boolean isTokenValid(HttpServletRequest request, String name, String token, boolean reset) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             return false;
         }
-        // Retrieve the transaction token from this session, and
-        // reset it if requested
         String _tokenKey = TokenProcessHelper.TRANSACTION_TOKEN_KEY;
         if (StringUtils.isNotBlank(name)) {
             _tokenKey += "|" + name;
@@ -101,7 +98,25 @@ public class TokenProcessHelper {
         if (reset) {
             this.resetToken(request);
         }
-        // Retrieve the transaction token included in this request
+        return token != null && saved.equals(token);
+    }
+
+    public synchronized boolean isTokenValid(HttpServletRequest request, String name, boolean reset) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return false;
+        }
+        String _tokenKey = TokenProcessHelper.TRANSACTION_TOKEN_KEY;
+        if (StringUtils.isNotBlank(name)) {
+            _tokenKey += "|" + name;
+        }
+        String saved = (String) session.getAttribute(_tokenKey);
+        if (saved == null) {
+            return false;
+        }
+        if (reset) {
+            this.resetToken(request);
+        }
         String token = request.getParameter(TOKEN_KEY);
         return token != null && saved.equals(token);
     }
