@@ -19,6 +19,7 @@ import net.ymate.framework.core.support.TokenProcessHelper;
 import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.lang.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
@@ -37,9 +38,9 @@ public class TokenTag extends TagSupport {
      */
     private static final long serialVersionUID = 3543848202628493208L;
 
-    private boolean xhtml = true;
-
     private String name;
+
+    private boolean create;
 
     /**
      * 构造器
@@ -49,49 +50,32 @@ public class TokenTag extends TagSupport {
 
     @Override
     public int doStartTag() throws JspException {
-        StringBuilder results = new StringBuilder();
+        StringBuilder _contentSB = new StringBuilder();
         HttpSession session = pageContext.getSession();
-
         if (session != null) {
             String _tokenKey = TokenProcessHelper.TRANSACTION_TOKEN_KEY;
-            if (StringUtils.isNotBlank(name)) {
+            if (create) {
+                if (StringUtils.trimToNull(name) != null) {
+                    TokenProcessHelper.getInstance().saveToken((HttpServletRequest) pageContext.getRequest(), name);
+                    _tokenKey += "|" + name;
+                } else {
+                    TokenProcessHelper.getInstance().saveToken((HttpServletRequest) pageContext.getRequest());
+                }
+            } else if (StringUtils.trimToNull(name) != null) {
                 _tokenKey += "|" + name;
             }
-            String token = (String) session.getAttribute(_tokenKey);
-
-            if (token != null) {
-                results.append("<div><input type=\"hidden\" name=\"");
-                results.append(TokenProcessHelper.TOKEN_KEY);
-                results.append("\" value=\"");
-                results.append(token);
-                if (this.isXhtml()) {
-                    results.append("\" />");
-                } else {
-                    results.append("\" >");
-                }
-                results.append("</div>");
+            //
+            String _token = (String) session.getAttribute(_tokenKey);
+            if (_token != null) {
+                _contentSB.append("<input type=\"hidden\" name=\"").append(StringUtils.defaultIfBlank(name, _tokenKey)).append("\" value=\"").append(_token).append("\">");
             }
         }
         try {
-            pageContext.getOut().println(results.toString());
+            pageContext.getOut().println(_contentSB.toString());
         } catch (IOException e) {
             throw new JspException(e.getMessage(), RuntimeUtils.unwrapThrow(e));
         }
         return SKIP_BODY;
-    }
-
-    /**
-     * @return the xhtml
-     */
-    public boolean isXhtml() {
-        return xhtml;
-    }
-
-    /**
-     * @param xhtml the xhtml to set
-     */
-    public void setXhtml(boolean xhtml) {
-        this.xhtml = xhtml;
     }
 
     public String getName() {
@@ -100,5 +84,13 @@ public class TokenTag extends TagSupport {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isCreate() {
+        return create;
+    }
+
+    public void setCreate(boolean create) {
+        this.create = create;
     }
 }
