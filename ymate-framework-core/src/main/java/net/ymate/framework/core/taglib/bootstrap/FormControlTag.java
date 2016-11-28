@@ -36,6 +36,7 @@ public class FormControlTag extends ElementsTag {
     private String placeholder;
 
     private String helpBlock;
+    private String helpBlockClass;
 
     private String label;
     private Integer labelWidth;
@@ -150,8 +151,8 @@ public class FormControlTag extends ElementsTag {
         if (__formGroup != null && StringUtils.isNotBlank(__formGroup.getFeedbackIcon())) {
             tagContent.append("<span class=\"").append(__formGroup.getFeedbackIcon()).append(" form-control-feedback\"></span>");
         }
-        if (StringUtils.isNotBlank(helpBlock)) {
-            tagContent.append("<span class=\"help-block\">").append(helpBlock).append("</span>");
+        if (StringUtils.isNotBlank(helpBlock) || StringUtils.isNotBlank(helpBlockClass)) {
+            tagContent.append("<span class=\"help-block ").append(StringUtils.trimToEmpty(helpBlockClass)).append("\">").append(StringUtils.trimToEmpty(helpBlock)).append("</span>");
         }
         if (labelWidth != null && labelWidth > 0) {
             tagContent.append("</div>");
@@ -208,6 +209,14 @@ public class FormControlTag extends ElementsTag {
 
     public void setHelpBlock(String helpBlock) {
         this.helpBlock = helpBlock;
+    }
+
+    public String getHelpBlockClass() {
+        return helpBlockClass;
+    }
+
+    public void setHelpBlockClass(String helpBlockClass) {
+        this.helpBlockClass = helpBlockClass;
     }
 
     public String getLabel() {

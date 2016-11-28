@@ -1291,6 +1291,11 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>helpBlockClass</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>label</name>
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
