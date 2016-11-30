@@ -15,6 +15,7 @@
  */
 package net.ymate.framework.webmvc.support;
 
+import net.ymate.framework.core.util.WebUtils;
 import net.ymate.platform.webmvc.context.WebContext;
 import org.apache.commons.lang.StringUtils;
 
@@ -33,6 +34,12 @@ public class UserSessionBean implements Serializable {
 
     private String id;
 
+    private String remoteAddr;
+
+    private String userAgent;
+
+    private long createTime;
+
     private long lastActivateTime;
 
     private Map<String, Serializable> __attributes;
@@ -41,15 +48,20 @@ public class UserSessionBean implements Serializable {
         HttpSession _session = WebContext.getRequest().getSession();
         //
         this.id = _session.getId();
-        this.lastActivateTime = System.currentTimeMillis();
+        this.createTime = System.currentTimeMillis();
+        this.lastActivateTime = this.createTime;
         this.__attributes = new HashMap<String, Serializable>();
+        //
+        this.remoteAddr = WebUtils.getRemoteAddr(WebContext.getRequest());
+        this.userAgent = WebContext.getRequest().getHeader("user-agent");
         //
         _session.setAttribute(UserSessionBean.class.getName(), this);
     }
 
     private UserSessionBean(String id) {
         this.id = id;
-        this.lastActivateTime = System.currentTimeMillis();
+        this.createTime = System.currentTimeMillis();
+        this.lastActivateTime = this.createTime;
         this.__attributes = new HashMap<String, Serializable>();
     }
 
@@ -98,12 +110,50 @@ public class UserSessionBean implements Serializable {
         return this;
     }
 
+    /**
+     * @return 若当前会话尚未存储或与当前存储会话Id不一致时替换原对象
+     */
+    public UserSessionBean saveIfNeed() {
+        HttpSession _session = WebContext.getRequest().getSession();
+        UserSessionBean _sessionBean = (UserSessionBean) _session.getAttribute(UserSessionBean.class.getName());
+        if (_sessionBean == null || !StringUtils.equals(this.getId(), _sessionBean.getId())) {
+            if (StringUtils.isBlank(this.remoteAddr)) {
+                this.remoteAddr = WebUtils.getRemoteAddr(WebContext.getRequest());
+            }
+            if (StringUtils.isBlank(this.userAgent)) {
+                this.userAgent = WebContext.getRequest().getHeader("user-agent");
+            }
+            _session.setAttribute(UserSessionBean.class.getName(), this);
+        }
+        return this;
+    }
+
     public void destroy() {
         WebContext.getRequest().getSession().removeAttribute(UserSessionBean.class.getName());
     }
 
     public String getId() {
         return id;
+    }
+
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
+
+    public long getCreateTime() {
+        return createTime;
     }
 
     public long getLastActivateTime() {
