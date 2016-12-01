@@ -54,10 +54,9 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                 UserSessionBean _sessionBean = UserSessionBean.current();
                 if (_sessionBean == null) {
                     if (!__initedFlag && __sessionCheckHandler == null) {
-                        if (__doGetSessionCheckHandler(context.getOwner()) != null) {
-                            _sessionBean = __sessionCheckHandler.handle(context.getOwner());
-                        }
-                    } else {
+                        __doGetSessionCheckHandler(context.getOwner());
+                    }
+                    if (__sessionCheckHandler != null) {
                         _sessionBean = __sessionCheckHandler.handle(context.getOwner());
                     }
                 }

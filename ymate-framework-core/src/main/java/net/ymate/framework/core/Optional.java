@@ -68,6 +68,11 @@ public class Optional {
     public static final String REDIRECT_LOGIN_URL = "webmvc.redirect_login_url";
 
     /**
+     * 重定向主页URL地址参数名称, 默认值: ""
+     */
+    public static final String REDIRECT_HOME_URL = "webmvc.redirect_home_url";
+
+    /**
      * 允许上传的文件类型验证参数名称
      */
     public static final String VALIDATION_ALLOW_UPLOAD_CONTENT_TYPES = "webmvc.validation_allow_upload_content_types";
