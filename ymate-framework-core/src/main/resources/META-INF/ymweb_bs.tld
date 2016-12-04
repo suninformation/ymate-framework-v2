@@ -2307,11 +2307,6 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>title</name>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
             <name>fade</name>
             <type>java.lang.Boolean</type>
             <rtexprvalue>true</rtexprvalue>
@@ -2322,17 +2317,7 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>hideCloseBtn</name>
-            <type>java.lang.Boolean</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
             <name>dialogClass</name>
-            <type>java.lang.String</type>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <name>footer</name>
             <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -2344,6 +2329,82 @@
         <attribute>
             <name>large</name>
             <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>modal-header</name>
+        <tag-class>net.ymate.framework.core.taglib.bootstrap.ModalHeaderTag</tag-class>
+        <body-content>JSP</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
+        <attribute>
+            <name>_id</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>_class</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>_style</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>title</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>hideCloseBtn</name>
+            <type>java.lang.Boolean</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>modal-body</name>
+        <tag-class>net.ymate.framework.core.taglib.bootstrap.ModalBodyTag</tag-class>
+        <body-content>JSP</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
+        <attribute>
+            <name>_id</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>_class</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>_style</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>modal-footer</name>
+        <tag-class>net.ymate.framework.core.taglib.bootstrap.ModalFooterTag</tag-class>
+        <body-content>JSP</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
+        <attribute>
+            <name>_id</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>_class</name>
+            <type>java.lang.String</type>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>_style</name>
+            <type>java.lang.String</type>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

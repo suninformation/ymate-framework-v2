@@ -30,11 +30,7 @@ public class ModalTag extends ElementsTag {
     private boolean fade;
     private boolean nonStatic;
 
-    private boolean hideCloseBtn;
-
     private String dialogClass;
-
-    private String footer;
 
     private boolean small;
     private boolean large;
@@ -60,7 +56,7 @@ public class ModalTag extends ElementsTag {
 
     @Override
     protected StringBuilder __doTagContent(StringBuilder tagContent, StringBuilder bodyContent) {
-        tagContent.append("<div class=\"modal-dialog\"");
+        tagContent.append("<div class=\"modal-dialog");
         if (small) {
             tagContent.append(" modal-sm");
         } else if (large) {
@@ -69,24 +65,7 @@ public class ModalTag extends ElementsTag {
         if (StringUtils.isNotBlank(dialogClass)) {
             tagContent.append(" ").append(dialogClass);
         }
-        tagContent.append(">");
-        tagContent.append("<div class=\"modal-content\">");
-        if (!hideCloseBtn || StringUtils.isNotBlank(title)) {
-            tagContent.append("<div class=\"modal-header\">");
-            if (!hideCloseBtn) {
-                tagContent.append("<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\"><span aria-hidden=\"true\">&times;</span><span class=\"sr-only\">Close</span></button>");
-            }
-            if (StringUtils.isNotBlank(title)) {
-                tagContent.append("<h4 class=\"modal-title\">").append(title).append("</h4>");
-            }
-            tagContent.append("</div>");
-        }
-        tagContent.append("<div class=\"modal-body\">").append(bodyContent).append("</div>");
-        if (StringUtils.isNotBlank(footer)) {
-            tagContent.append("<div class=\"modal-footer\">").append(footer).append("</div>");
-        }
-        tagContent.append("</div>");
-        tagContent.append("</div>");
+        tagContent.append("\">").append("<div class=\"modal-content\">").append(bodyContent).append("</div>").append("</div>");
         return __doTagEnd(tagContent);
     }
 
@@ -114,28 +93,12 @@ public class ModalTag extends ElementsTag {
         this.nonStatic = nonStatic;
     }
 
-    public boolean isHideCloseBtn() {
-        return hideCloseBtn;
-    }
-
-    public void setHideCloseBtn(boolean hideCloseBtn) {
-        this.hideCloseBtn = hideCloseBtn;
-    }
-
     public String getDialogClass() {
         return dialogClass;
     }
 
     public void setDialogClass(String dialogClass) {
         this.dialogClass = dialogClass;
-    }
-
-    public String getFooter() {
-        return footer;
-    }
-
-    public void setFooter(String footer) {
-        this.footer = footer;
     }
 
     public boolean isSmall() {

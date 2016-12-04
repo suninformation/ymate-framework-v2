@@ -71,6 +71,8 @@ public class ButtonTag extends ElementsTag {
         StringBuilder _classSB = new StringBuilder(StringUtils.trimToEmpty(this.get_class()));
         if (StringUtils.isBlank(href)) {
             _classSB.append(" btn btn-").append(StringUtils.defaultIfBlank(style, "default"));
+        } else if (StringUtils.isNotBlank(style)) {
+            _classSB.append(" btn btn-").append(style);
         }
         if (this.getParent() instanceof NavbarTag) {
             _classSB.append(" navbar-btn");
