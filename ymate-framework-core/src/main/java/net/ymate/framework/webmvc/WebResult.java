@@ -36,15 +36,19 @@ import java.util.Map;
  */
 public class WebResult {
 
-    private int __code;
+    private Integer __code;
 
     private String __msg;
 
-    private Map<String, Object> __datas;
+    private Map<String, Object> __datas = new HashMap<String, Object>();
 
-    private Map<String, Object> __attrs;
+    private Map<String, Object> __attrs = new HashMap<String, Object>();
 
     private boolean __withContentType;
+
+    public static WebResult create() {
+        return new WebResult();
+    }
 
     public static WebResult SUCCESS() {
         return new WebResult(ErrorCode.SUCCESSED);
@@ -54,14 +58,20 @@ public class WebResult {
         return new WebResult(code);
     }
 
+    protected WebResult() {
+    }
+
     protected WebResult(int code) {
         __code = code;
-        __datas = new HashMap<String, Object>();
-        __attrs = new HashMap<String, Object>();
     }
 
     public int code() {
         return __code;
+    }
+
+    public WebResult code(Integer code) {
+        __code = code;
+        return this;
     }
 
     public String msg() {
@@ -123,7 +133,9 @@ public class WebResult {
 
     public IView toJSON(String callback) {
         JSONObject _jsonObj = new JSONObject();
-        _jsonObj.put("ret", __code);
+        if (__code != null) {
+            _jsonObj.put("ret", __code);
+        }
         if (StringUtils.isNotBlank(__msg)) {
             _jsonObj.put("msg", __msg);
         }
