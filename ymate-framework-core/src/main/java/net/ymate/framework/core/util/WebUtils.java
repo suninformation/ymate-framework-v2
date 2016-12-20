@@ -198,7 +198,7 @@ public class WebUtils {
     }
 
     public static String replaceRegClear(String source) {
-        return replaceRegText(source, "(.+?)", "").replaceAll("\\\\", "");
+        return replaceRegText(source, "(.+?)", "");
     }
 
     /**
