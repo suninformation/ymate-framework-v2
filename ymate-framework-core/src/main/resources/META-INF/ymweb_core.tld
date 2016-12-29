@@ -67,6 +67,30 @@
         </attribute>
     </tag>
 
+    <!-- CookiesTag -->
+    <tag>
+        <display-name>CookiesTag</display-name>
+        <name>cookies</name>
+        <tag-class>net.ymate.framework.core.taglib.CookiesTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>var</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>scope</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>key</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+
     <!-- CodecTag -->
     <tag>
         <display-name>CodecTag</display-name>
