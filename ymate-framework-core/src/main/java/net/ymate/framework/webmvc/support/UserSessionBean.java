@@ -111,6 +111,19 @@ public class UserSessionBean implements Serializable {
     }
 
     /**
+     * @return 重置(会话ID将保留不变)
+     */
+    public UserSessionBean reset() {
+        this.createTime = System.currentTimeMillis();
+        this.lastActivateTime = this.createTime;
+        this.remoteAddr = null;
+        this.userAgent = null;
+        this.__attributes = new HashMap<String, Serializable>();
+        //
+        return this;
+    }
+
+    /**
      * @return 若当前会话尚未存储或与当前存储会话Id不一致时替换原对象
      */
     public UserSessionBean saveIfNeed() {
@@ -140,16 +153,18 @@ public class UserSessionBean implements Serializable {
         return remoteAddr;
     }
 
-    public void setRemoteAddr(String remoteAddr) {
+    public UserSessionBean setRemoteAddr(String remoteAddr) {
         this.remoteAddr = remoteAddr;
+        return this;
     }
 
     public String getUserAgent() {
         return userAgent;
     }
 
-    public void setUserAgent(String userAgent) {
+    public UserSessionBean setUserAgent(String userAgent) {
         this.userAgent = userAgent;
+        return this;
     }
 
     public long getCreateTime() {
