@@ -17,8 +17,7 @@ package net.ymate.framework.validation;
 
 import net.ymate.framework.core.Optional;
 import net.ymate.platform.core.beans.annotation.CleanProxy;
-import net.ymate.platform.core.i18n.I18N;
-import net.ymate.platform.validation.IValidator;
+import net.ymate.platform.validation.AbstractValidator;
 import net.ymate.platform.validation.ValidateContext;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.validation.annotation.Validator;
@@ -35,14 +34,14 @@ import java.util.List;
  */
 @Validator(VUploadFile.class)
 @CleanProxy
-public class UploadFileValidator implements IValidator {
+public class UploadFileValidator extends AbstractValidator {
 
     public ValidateResult validate(ValidateContext context) {
         // 待验证的参数必须是IUploadFileWrapper类型
         Object _paramValue = context.getParamValue();
         if (_paramValue != null) {
             String _paramName = StringUtils.defaultIfBlank(context.getParamLabel(), context.getParamName());
-            _paramName = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _paramName, _paramName);
+            _paramName = __doGetI18nFormatMessage(context, _paramName, _paramName);
             //
             VUploadFile _vUploadFile = (VUploadFile) context.getAnnotation();
             //
@@ -62,9 +61,9 @@ public class UploadFileValidator implements IValidator {
                 if (_totalSize > _vUploadFile.totalMax()) {
                     String _msg = StringUtils.trimToNull(_vUploadFile.msg());
                     if (_msg != null) {
-                        _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _msg, _msg, _paramName);
+                        _msg = __doGetI18nFormatMessage(context, _msg, _msg, _paramName);
                     } else {
-                        _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.upload_file_total_max", "{0} total size must be lt {1}.", _paramName, _vUploadFile.totalMax());
+                        _msg = __doGetI18nFormatMessage(context, "ymp.validation.upload_file_total_max", "{0} total size must be lt {1}.", _paramName, _vUploadFile.totalMax());
                     }
                     return new ValidateResult(_paramName, _msg);
                 }
@@ -94,17 +93,17 @@ public class UploadFileValidator implements IValidator {
         if (_matched) {
             String _msg = StringUtils.trimToNull(vUploadFile.msg());
             if (_msg != null) {
-                _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _msg, _msg, paramName);
+                _msg = __doGetI18nFormatMessage(context, _msg, _msg, paramName);
             } else {
                 if (_isNotAllowContentType) {
-                    _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.upload_file_content_type", "{0} content type must be match {1}.", paramName, StringUtils.join(vUploadFile.contentTypes(), ","));
+                    _msg = __doGetI18nFormatMessage(context, "ymp.validation.upload_file_content_type", "{0} content type must be match {1}.", paramName, StringUtils.join(vUploadFile.contentTypes(), ","));
                 } else {
                     if (vUploadFile.max() > 0 && vUploadFile.min() > 0) {
-                        _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.upload_file_between", "{0} size must be between {1} and {2}.", paramName, vUploadFile.min(), vUploadFile.max());
+                        _msg = __doGetI18nFormatMessage(context, "ymp.validation.upload_file_between", "{0} size must be between {1} and {2}.", paramName, vUploadFile.min(), vUploadFile.max());
                     } else if (vUploadFile.max() > 0) {
-                        _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.upload_file_max", "{0} size must be lt {1}.", paramName, vUploadFile.max());
+                        _msg = __doGetI18nFormatMessage(context, "ymp.validation.upload_file_max", "{0} size must be lt {1}.", paramName, vUploadFile.max());
                     } else {
-                        _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.upload_file_min", "{0} size must be gt {1}.", paramName, vUploadFile.min());
+                        _msg = __doGetI18nFormatMessage(context, "ymp.validation.upload_file_min", "{0} size must be gt {1}.", paramName, vUploadFile.min());
                     }
                 }
             }

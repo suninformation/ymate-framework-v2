@@ -17,9 +17,8 @@ package net.ymate.framework.validation;
 
 import net.ymate.framework.core.support.TokenProcessHelper;
 import net.ymate.platform.core.beans.annotation.CleanProxy;
-import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.lang.BlurObject;
-import net.ymate.platform.validation.IValidator;
+import net.ymate.platform.validation.AbstractValidator;
 import net.ymate.platform.validation.ValidateContext;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.validation.annotation.Validator;
@@ -32,7 +31,7 @@ import org.apache.commons.lang.StringUtils;
  */
 @Validator(VToken.class)
 @CleanProxy
-public class VTokenValidator implements IValidator {
+public class VTokenValidator extends AbstractValidator {
 
     public ValidateResult validate(ValidateContext context) {
         boolean _matched = false;
@@ -54,12 +53,12 @@ public class VTokenValidator implements IValidator {
         }
         if (_matched) {
             String _pName = StringUtils.defaultIfBlank(context.getParamLabel(), context.getParamName());
-            _pName = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _pName, _pName);
+            _pName = __doGetI18nFormatMessage(context, _pName, _pName);
             String _msg = StringUtils.trimToNull(_vToken.msg());
             if (_msg != null) {
-                _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, _msg, _msg, _pName);
+                _msg = __doGetI18nFormatMessage(context, _msg, _msg, _pName);
             } else {
-                _msg = I18N.formatMessage(VALIDATION_I18N_RESOURCE, "ymp.validation.token_invalid", "{0} is invalid.", _pName);
+                _msg = __doGetI18nFormatMessage(context, "ymp.validation.token_invalid", "{0} is invalid.", _pName);
             }
             return new ValidateResult(context.getParamName(), _msg);
         }
