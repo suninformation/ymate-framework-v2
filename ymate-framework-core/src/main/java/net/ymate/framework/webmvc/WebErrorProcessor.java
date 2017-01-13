@@ -45,20 +45,6 @@ public class WebErrorProcessor implements IWebErrorProcessor {
 
     private static final Log _LOG = LogFactory.getLog(WebErrorProcessor.class);
 
-    private IView __toErrorView(IWebMvc owner, int code, String msg) {
-        IView _view = null;
-        String _errorViewPath = StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(Optional.ERROR_VIEW), "error.jsp");
-        if (".ftl".endsWith(_errorViewPath)) {
-            _view = View.freemarkerView(owner, _errorViewPath);
-        } else {
-            _view = View.jspView(owner, _errorViewPath);
-        }
-        _view.addAttribute("ret", code);
-        _view.addAttribute("msg", msg);
-        //
-        return _view;
-    }
-
     public void onError(IWebMvc owner, Throwable e) {
         String _resourceName = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
         String _msg = I18N.formatMessage(_resourceName, Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY, "System busy, please try again later!");
@@ -66,7 +52,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         if (WebUtils.isAjax(WebContext.getRequest())) {
             _view = WebResult.CODE(ErrorCode.INTERNAL_SYSTEM_ERROR).msg(_msg).toJSON();
         } else {
-            _view = __toErrorView(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, _msg);
+            _view = WebUtils.buildErrorView(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, _msg);
         }
         try {
             Logs.get(owner.getOwner()).getLogger().error(RuntimeUtils.unwrapThrow(e));
@@ -97,7 +83,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
                 Logs.get(owner.getOwner()).getLogger().error(RuntimeUtils.unwrapThrow(e));
             }
         } else {
-            _view = __toErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _resultMsg);
+            _view = WebUtils.buildErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _resultMsg);
         }
         return _view;
     }

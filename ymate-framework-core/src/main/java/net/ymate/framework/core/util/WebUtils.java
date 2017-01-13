@@ -23,7 +23,10 @@ import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.core.util.NetworkUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.validation.ValidateResult;
+import net.ymate.platform.webmvc.IWebMvc;
 import net.ymate.platform.webmvc.WebMVC;
+import net.ymate.platform.webmvc.view.IView;
+import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
@@ -351,5 +354,21 @@ public class WebUtils {
         }
         ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${items}"));
         return _element.set("items", _messages.toString()).getResult();
+    }
+
+    public static IView buildErrorView(IWebMvc owner, int code, String msg) {
+        IView _view = null;
+        String _errorViewPath = StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(Optional.ERROR_VIEW), "error.jsp");
+        if (StringUtils.endsWithIgnoreCase(_errorViewPath, ".ftl")) {
+            _view = View.freemarkerView(owner, _errorViewPath);
+        } else if (StringUtils.endsWithIgnoreCase(_errorViewPath, ".vm")) {
+            _view = View.velocityView(owner, _errorViewPath);
+        } else {
+            _view = View.jspView(owner, _errorViewPath);
+        }
+        _view.addAttribute("ret", code);
+        _view.addAttribute("msg", msg);
+        //
+        return _view;
     }
 }
