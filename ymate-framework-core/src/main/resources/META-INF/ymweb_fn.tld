@@ -56,4 +56,17 @@
             &lt;c:if test="${func:randomInt(6, 10)}"&gt;
         </example>
     </function>
+
+    <function>
+        <name>i18nMsg</name>
+        <function-class>net.ymate.platform.core.i18n.I18N</function-class>
+        <function-signature>java.lang.String load(java.lang.String,java.lang.String)</function-signature>
+    </function>
+
+    <function>
+        <name>i18nMessage</name>
+        <function-class>net.ymate.platform.core.i18n.I18N</function-class>
+        <function-signature>java.lang.String load(java.lang.String,java.lang.String,java.lang.String)
+        </function-signature>
+    </function>
 </taglib>
