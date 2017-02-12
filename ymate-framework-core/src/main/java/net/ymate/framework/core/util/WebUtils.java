@@ -254,13 +254,11 @@ public class WebUtils {
      * @throws Exception 可能产生的异常
      */
     public static String encryptStr(HttpServletRequest request, String dataStr) throws Exception {
-        return new String(Base64.encodeBase64URLSafe(CodecUtils.DES.encrypt(dataStr.getBytes("UTF-8"),
-                DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes())));
+        return Base64.encodeBase64URLSafeString(CodecUtils.DES.encrypt(dataStr.getBytes(), DigestUtils.md5(request.getRemoteAddr() + request.getHeader("User-Agent"))));
     }
 
     public static String encryptStr(HttpServletRequest request, byte[] bytes) throws Exception {
-        return new String(Base64.encodeBase64URLSafe(CodecUtils.DES.encrypt(bytes,
-                DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes())));
+        return Base64.encodeBase64URLSafeString(CodecUtils.DES.encrypt(bytes, DigestUtils.md5(request.getRemoteAddr() + request.getHeader("User-Agent"))));
     }
 
     /**
@@ -272,7 +270,7 @@ public class WebUtils {
      * @throws Exception 可能产生的异常
      */
     public static String encryptStr(String dataStr, String key) throws Exception {
-        return new String(Base64.encodeBase64URLSafe(CodecUtils.DES.encrypt(dataStr.getBytes("UTF-8"), DigestUtils.md5Hex(key).getBytes())));
+        return Base64.encodeBase64URLSafeString(CodecUtils.DES.encrypt(dataStr.getBytes(), DigestUtils.md5(key)));
     }
 
     /**
@@ -284,13 +282,11 @@ public class WebUtils {
      * @throws Exception 可能产生的异常
      */
     public static String decryptStr(HttpServletRequest request, String dataStr) throws Exception {
-        return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr.getBytes("UTF-8")),
-                DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes()));
+        return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr), DigestUtils.md5(request.getRemoteAddr() + request.getHeader("User-Agent"))));
     }
 
     public static byte[] decryptStr(HttpServletRequest request, byte[] bytes) throws Exception {
-        return CodecUtils.DES.decrypt(Base64.decodeBase64(bytes),
-                DigestUtils.md5Hex(request.getRemoteAddr() + request.getHeader("User-Agent")).getBytes());
+        return CodecUtils.DES.decrypt(Base64.decodeBase64(bytes), DigestUtils.md5(request.getRemoteAddr() + request.getHeader("User-Agent")));
     }
 
     /**
@@ -302,7 +298,7 @@ public class WebUtils {
      * @throws Exception 可能产生的异常
      */
     public static String decryptStr(String dataStr, String key) throws Exception {
-        return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr.getBytes("UTF-8")), DigestUtils.md5Hex(key).getBytes()));
+        return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr), DigestUtils.md5(key)));
     }
 
     /**
