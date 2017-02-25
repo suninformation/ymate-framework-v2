@@ -43,6 +43,11 @@ public class Optional {
     public static final String ERROR_VIEW = "webmvc.error_view";
 
     /**
+     * 系统异常分析是否关闭参数名称
+     */
+    public static final String SYSTEM_EXCEPTION_ANALYSIS_DISABLED = "webmvc.exception_analysis_disabled";
+
+    /**
      * 系统默认国际化错误消息KEY
      */
     public static final String SYSTEM_ERROR_DEFAULT_I18N_KEY = "webmvc.error_default_i18n_key";
