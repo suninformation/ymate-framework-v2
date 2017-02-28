@@ -39,6 +39,10 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
         switch (context.getDirection()) {
             case BEFORE:
                 UserSessionBean _sessionBean = UserSessionBean.current();
+                if (_sessionBean != null && !_sessionBean.isVerified()) {
+                    _sessionBean.destroy();
+                    _sessionBean = null;
+                }
                 if (_sessionBean != null) {
                     String _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(REDIRECT_URL), context.getContextParams().get(REDIRECT_URL));
                     if (StringUtils.isBlank(_redirectUrl)) {

@@ -58,9 +58,9 @@ public class Optional {
     public static final String SYSTEM_SESSION_TIMEOUT_KEY = "webmvc.session_timeout_key";
 
     /**
-     * 会话检查处理器类
+     * 会话处理器类
      */
-    public static final String SYSTEM_SESSION_CHECK_HANDLER_CLASS = "webmvc.session_check_handler_class";
+    public static final String SYSTEM_USER_SESSION_HANDLER_CLASS = "webmvc.user_session_handler_class";
 
     /**
      * 控制器请求URL后缀参数名称

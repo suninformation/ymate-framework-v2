@@ -16,22 +16,26 @@
 package net.ymate.framework.webmvc;
 
 import net.ymate.framework.webmvc.support.UserSessionBean;
-import net.ymate.platform.core.YMP;
+import net.ymate.platform.core.beans.intercept.InterceptContext;
 
 /**
- * 会话检查处理器接口
+ * 会话处理器接口
  *
  * @author 刘镇 (suninformation@163.com) on 16/4/30 下午8:52
  * @version 1.0
  */
-public interface ISessionCheckHandler {
+public interface IUserSessionHandler {
 
     /**
-     * 自定义会话检查
-     *
-     * @param owner 所属YMP框架管理器
-     * @return 返回UserSessionBean实例对象, 若不存在则返回空
+     * @param context 当前拦截器环境上下文对象
+     * @return 返回自定义获取或创建用户会话实例对象, 若不存在则返回空
      * @throws Exception 抛出任何可能异常
      */
-    UserSessionBean handle(YMP owner) throws Exception;
+    UserSessionBean handle(InterceptContext context) throws Exception;
+
+    /**
+     * @param sessionBean 用户会话对象
+     * @return 验证用户会话对象是否合法有效
+     */
+    boolean verification(UserSessionBean sessionBean);
 }

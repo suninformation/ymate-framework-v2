@@ -18,14 +18,11 @@ package net.ymate.framework.webmvc.intercept;
 import net.ymate.framework.core.Optional;
 import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.ErrorCode;
-import net.ymate.framework.webmvc.ISessionCheckHandler;
 import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
-import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.i18n.I18N;
-import net.ymate.platform.core.util.ClassUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.View;
@@ -43,22 +40,18 @@ public class UserSessionCheckInterceptor implements IInterceptor {
 
     private static final String REDIRECT_URL = "redirect_url";
 
-    private static volatile ISessionCheckHandler __sessionCheckHandler;
-
-    private static volatile boolean __initedFlag = false;
-
     public Object intercept(InterceptContext context) throws Exception {
         // 判断当前拦截器执行方向
         switch (context.getDirection()) {
             case BEFORE:
                 UserSessionBean _sessionBean = UserSessionBean.current();
                 if (_sessionBean == null) {
-                    if (!__initedFlag && __sessionCheckHandler == null) {
-                        __doGetSessionCheckHandler(context.getOwner());
+                    if (UserSessionBean.getSessionHandler() != null) {
+                        _sessionBean = UserSessionBean.getSessionHandler().handle(context);
                     }
-                    if (__sessionCheckHandler != null) {
-                        _sessionBean = __sessionCheckHandler.handle(context.getOwner());
-                    }
+                } else if (!_sessionBean.isVerified()) {
+                    _sessionBean.destroy();
+                    _sessionBean = null;
                 }
                 if (_sessionBean == null) {
                     // 拼装跳转登录URL地址
@@ -91,20 +84,5 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                 break;
         }
         return null;
-    }
-
-    private static ISessionCheckHandler __doGetSessionCheckHandler(YMP owner) {
-        if (__sessionCheckHandler == null) {
-            synchronized (REDIRECT_URL) {
-                if (__sessionCheckHandler == null) {
-                    String _handleClassName = owner.getConfig().getParam(Optional.SYSTEM_SESSION_CHECK_HANDLER_CLASS);
-                    if (StringUtils.isNotBlank(_handleClassName)) {
-                        __sessionCheckHandler = ClassUtils.impl(_handleClassName, ISessionCheckHandler.class, UserSessionCheckInterceptor.class);
-                    }
-                    __initedFlag = true;
-                }
-            }
-        }
-        return __sessionCheckHandler;
     }
 }

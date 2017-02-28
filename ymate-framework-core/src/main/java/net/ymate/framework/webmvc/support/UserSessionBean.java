@@ -15,8 +15,12 @@
  */
 package net.ymate.framework.webmvc.support;
 
-import net.ymate.framework.core.util.WebUtils;
+import net.ymate.framework.core.Optional;
+import net.ymate.framework.webmvc.IUserSessionHandler;
+import net.ymate.framework.webmvc.intercept.UserSessionCheckInterceptor;
+import net.ymate.platform.core.util.ClassUtils;
 import net.ymate.platform.webmvc.context.WebContext;
+import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpSession;
@@ -32,11 +36,11 @@ import java.util.Map;
  */
 public class UserSessionBean implements Serializable {
 
+    private static volatile IUserSessionHandler __sessionHandler;
+
+    private static volatile boolean __initedFlag = false;
+
     private String id;
-
-    private String remoteAddr;
-
-    private String userAgent;
 
     private long createTime;
 
@@ -44,18 +48,26 @@ public class UserSessionBean implements Serializable {
 
     private Map<String, Serializable> __attributes;
 
+    /**
+     * @return 返回会话处理器接口实现类(至少尝试初始化一次)
+     */
+    public static IUserSessionHandler getSessionHandler() {
+        if (__sessionHandler == null && !__initedFlag) {
+            synchronized (UserSessionBean.class) {
+                if (__sessionHandler == null) {
+                    String _handleClassName = WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.SYSTEM_USER_SESSION_HANDLER_CLASS);
+                    if (StringUtils.isNotBlank(_handleClassName)) {
+                        __sessionHandler = ClassUtils.impl(_handleClassName, IUserSessionHandler.class, UserSessionCheckInterceptor.class);
+                    }
+                    __initedFlag = true;
+                }
+            }
+        }
+        return __sessionHandler;
+    }
+
     private UserSessionBean() {
-        HttpSession _session = WebContext.getRequest().getSession();
-        //
-        this.id = _session.getId();
-        this.createTime = System.currentTimeMillis();
-        this.lastActivateTime = this.createTime;
-        this.__attributes = new HashMap<String, Serializable>();
-        //
-        this.remoteAddr = WebUtils.getRemoteAddr(WebContext.getRequest());
-        this.userAgent = WebContext.getRequest().getHeader("user-agent");
-        //
-        _session.setAttribute(UserSessionBean.class.getName(), this);
+        this(WebContext.getRequest().getSession().getId());
     }
 
     private UserSessionBean(String id) {
@@ -73,10 +85,10 @@ public class UserSessionBean implements Serializable {
     }
 
     public static UserSessionBean create(String id) {
-        if (StringUtils.isNotBlank(id)) {
-            return new UserSessionBean(id);
+        if (StringUtils.isBlank(id)) {
+            throw new NullArgumentException("id");
         }
-        return null;
+        return new UserSessionBean(id);
     }
 
     public static UserSessionBean createIfNeed() {
@@ -111,15 +123,25 @@ public class UserSessionBean implements Serializable {
     }
 
     /**
+     * @return 验证当前会话是否合法有效(若IUserSessionHandler配置参数为空则该方法返回值永真)
+     */
+    public boolean isVerified() {
+        return getSessionHandler() == null || getSessionHandler().verification(this);
+    }
+
+    /**
      * @return 重置(会话ID将保留不变)
      */
     public UserSessionBean reset() {
         this.createTime = System.currentTimeMillis();
         this.lastActivateTime = this.createTime;
-        this.remoteAddr = null;
-        this.userAgent = null;
         this.__attributes = new HashMap<String, Serializable>();
         //
+        return this;
+    }
+
+    public UserSessionBean save() {
+        WebContext.getRequest().getSession().setAttribute(UserSessionBean.class.getName(), this);
         return this;
     }
 
@@ -130,12 +152,6 @@ public class UserSessionBean implements Serializable {
         HttpSession _session = WebContext.getRequest().getSession();
         UserSessionBean _sessionBean = (UserSessionBean) _session.getAttribute(UserSessionBean.class.getName());
         if (_sessionBean == null || !StringUtils.equals(this.getId(), _sessionBean.getId())) {
-            if (StringUtils.isBlank(this.remoteAddr)) {
-                this.remoteAddr = WebUtils.getRemoteAddr(WebContext.getRequest());
-            }
-            if (StringUtils.isBlank(this.userAgent)) {
-                this.userAgent = WebContext.getRequest().getHeader("user-agent");
-            }
             _session.setAttribute(UserSessionBean.class.getName(), this);
         }
         return this;
@@ -147,24 +163,6 @@ public class UserSessionBean implements Serializable {
 
     public String getId() {
         return id;
-    }
-
-    public String getRemoteAddr() {
-        return remoteAddr;
-    }
-
-    public UserSessionBean setRemoteAddr(String remoteAddr) {
-        this.remoteAddr = remoteAddr;
-        return this;
-    }
-
-    public String getUserAgent() {
-        return userAgent;
-    }
-
-    public UserSessionBean setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
-        return this;
     }
 
     public long getCreateTime() {
