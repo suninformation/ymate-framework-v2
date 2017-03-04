@@ -53,20 +53,41 @@ public class WebErrorProcessor implements IWebErrorProcessor {
 
     private static final Log _LOG = LogFactory.getLog(WebErrorProcessor.class);
 
-    private Boolean __disabledAnalysis;
+    private boolean __inited;
 
-    private boolean __isCanAnalysis(IWebMvc owner) {
-        if (__disabledAnalysis == null) {
+    private String __resourceName;
+
+    private String __errorDefaultI18nKey;
+
+    private boolean __disabledAnalysis;
+
+    protected void __doInit(IWebMvc owner) {
+        if (!__inited) {
             synchronized (_LOG) {
-                if (__disabledAnalysis == null) {
+                if (!__inited) {
+                    __resourceName = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+                    __errorDefaultI18nKey = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY), Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY);
                     __disabledAnalysis = BlurObject.bind(owner.getOwner().getConfig().getParam(Optional.SYSTEM_EXCEPTION_ANALYSIS_DISABLED)).toBooleanValue();
+                    //
+                    __inited = true;
                 }
             }
         }
-        return !__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode();
     }
 
-    private void __doParseExceptionDetail(IWebMvc owner, Throwable e) {
+    protected String __doGetI18nMsg(String msgKey, String defaultMsg) {
+        return I18N.formatMessage(__resourceName, StringUtils.defaultIfBlank(msgKey, __errorDefaultI18nKey), StringUtils.defaultIfBlank(defaultMsg, "System busy, please try again later!"));
+    }
+
+    protected void __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
+        if (WebUtils.isAjax(WebContext.getRequest())) {
+            WebResult.CODE(code).msg(msg).toJSON().render();
+        } else {
+            WebUtils.buildErrorView(owner, code, msg).render();
+        }
+    }
+
+    protected void __doParseExceptionDetail(IWebMvc owner, Throwable e) {
         IRequestContext _requestCtx = WebContext.getRequestContext();
         HttpServletRequest _request = WebContext.getRequest();
         WebContext _context = WebContext.getContext();
@@ -134,20 +155,16 @@ public class WebErrorProcessor implements IWebErrorProcessor {
 
     public void onError(IWebMvc owner, Throwable e) {
         try {
-            if (__isCanAnalysis(owner)) {
-                __doParseExceptionDetail(owner, e);
+            __doInit(owner);
+            //
+            if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
+                __doParseExceptionDetail(owner, RuntimeUtils.unwrapThrow(e));
             } else {
-                Logs.get(owner.getOwner()).getLogger().error(e.getMessage(), RuntimeUtils.unwrapThrow(e));
+                Logs.get(owner.getOwner()).getLogger().error(RuntimeUtils.unwrapThrow(e));
             }
-            String _resourceName = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-            String _msg = I18N.formatMessage(_resourceName, Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY, "System busy, please try again later!");
-            if (WebUtils.isAjax(WebContext.getRequest())) {
-                WebResult.CODE(ErrorCode.INTERNAL_SYSTEM_ERROR).msg(_msg).toJSON().render();
-            } else {
-                WebUtils.buildErrorView(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, _msg).render();
-            }
+            __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null));
         } catch (Throwable e1) {
-            _LOG.warn(e1.getMessage(), RuntimeUtils.unwrapThrow(e1));
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e1));
         }
     }
 
@@ -164,7 +181,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
                 }
                 _view = _result.toJSON();
             } catch (Exception e) {
-                _LOG.error(e.getMessage(), RuntimeUtils.unwrapThrow(e));
+                _LOG.error("", RuntimeUtils.unwrapThrow(e));
             }
         } else {
             _view = WebUtils.buildErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _resultMsg);
