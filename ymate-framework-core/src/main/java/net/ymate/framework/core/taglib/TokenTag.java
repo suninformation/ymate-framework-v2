@@ -54,20 +54,23 @@ public class TokenTag extends TagSupport {
         HttpSession session = pageContext.getSession();
         if (session != null) {
             String _tokenKey = TokenProcessHelper.TRANSACTION_TOKEN_KEY;
+            String _token = null;
             if (create) {
                 if (StringUtils.trimToNull(name) != null) {
-                    TokenProcessHelper.getInstance().saveToken((HttpServletRequest) pageContext.getRequest(), name);
+                    _token = TokenProcessHelper.getInstance().saveToken((HttpServletRequest) pageContext.getRequest(), name);
                     _tokenKey += "|" + name;
                 } else {
-                    TokenProcessHelper.getInstance().saveToken((HttpServletRequest) pageContext.getRequest());
+                    _token = TokenProcessHelper.getInstance().saveToken((HttpServletRequest) pageContext.getRequest());
                 }
-            } else if (StringUtils.trimToNull(name) != null) {
-                _tokenKey += "|" + name;
+            } else {
+                if (StringUtils.trimToNull(name) != null) {
+                    _tokenKey += "|" + name;
+                }
+                _token = (String) session.getAttribute(_tokenKey);
             }
             //
-            String _token = (String) session.getAttribute(_tokenKey);
             if (_token != null) {
-                _contentSB.append("<input type=\"hidden\" name=\"").append(StringUtils.defaultIfBlank(name, _tokenKey)).append("\" value=\"").append(_token).append("\">");
+                _contentSB.append("<input type=\"hidden\" name=\"").append(StringUtils.defaultIfBlank(name, TokenProcessHelper.TOKEN_KEY)).append("\" value=\"").append(_token).append("\">");
             }
         }
         try {

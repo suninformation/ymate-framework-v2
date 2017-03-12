@@ -150,16 +150,18 @@ public class TokenProcessHelper {
      * new session if necessary.
      *
      * @param request The servlet request we are processing
+     * @return The created a new transaction token
      */
-    public synchronized void saveToken(HttpServletRequest request) {
+    public synchronized String saveToken(HttpServletRequest request) {
         String token = generateToken(request);
         if (token != null) {
             HttpSession session = request.getSession();
             session.setAttribute(TRANSACTION_TOKEN_KEY, token);
         }
+        return token;
     }
 
-    public synchronized void saveToken(HttpServletRequest request, String name) {
+    public synchronized String saveToken(HttpServletRequest request, String name) {
         if (StringUtils.trimToNull(name) == null) {
             throw new NullArgumentException(name);
         }
@@ -168,6 +170,7 @@ public class TokenProcessHelper {
             HttpSession session = request.getSession();
             session.setAttribute(TRANSACTION_TOKEN_KEY + "|" + name, token);
         }
+        return token;
     }
 
     /**
