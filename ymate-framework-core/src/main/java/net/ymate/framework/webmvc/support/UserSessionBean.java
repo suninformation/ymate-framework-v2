@@ -42,6 +42,8 @@ public class UserSessionBean implements Serializable {
 
     private String id;
 
+    private String uid;
+
     private long createTime;
 
     private long lastActivateTime;
@@ -163,6 +165,15 @@ public class UserSessionBean implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public UserSessionBean setUid(String uid) {
+        this.uid = uid;
+        return this;
     }
 
     public long getCreateTime() {
