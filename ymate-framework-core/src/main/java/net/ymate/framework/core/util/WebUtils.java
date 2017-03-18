@@ -353,6 +353,10 @@ public class WebUtils {
     }
 
     public static IView buildErrorView(IWebMvc owner, int code, String msg) {
+        return buildErrorView(owner, code, msg, null, 0);
+    }
+
+    public static IView buildErrorView(IWebMvc owner, int code, String msg, String redirectUrl, int timeInterval) {
         IView _view = null;
         String _errorViewPath = StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(Optional.ERROR_VIEW), "error.jsp");
         if (StringUtils.endsWithIgnoreCase(_errorViewPath, ".ftl")) {
@@ -364,6 +368,10 @@ public class WebUtils {
         }
         _view.addAttribute("ret", code);
         _view.addAttribute("msg", msg);
+        //
+        if (StringUtils.isNotBlank(redirectUrl) && timeInterval > 0) {
+            _view.addHeader("REFRESH", timeInterval + ";URL=" + redirectUrl);
+        }
         //
         return _view;
     }
