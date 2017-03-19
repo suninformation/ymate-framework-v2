@@ -25,7 +25,6 @@ import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
-import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,8 +36,6 @@ import javax.servlet.http.HttpServletRequest;
  * @version 1.0
  */
 public class UserSessionCheckInterceptor implements IInterceptor {
-
-    private static final String REDIRECT_URL = "redirect_url";
 
     public Object intercept(InterceptContext context) throws Exception {
         // 判断当前拦截器执行方向
@@ -62,21 +59,21 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                         _returnUrlBuffer.append("?").append(_queryStr);
                     }
                     String _redirectUrl = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.REDIRECT_LOGIN_URL), "login?redirect_url=${redirect_url}");
-                    _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
+                    _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
                     if (!StringUtils.startsWithIgnoreCase(_redirectUrl, "http://") && !StringUtils.startsWithIgnoreCase(_redirectUrl, "https://")) {
                         _redirectUrl = WebUtils.buildURL(_request, _redirectUrl, true);
                     }
                     //
+                    String _resourceName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+                    String _message = StringUtils.defaultIfBlank(I18N.load(_resourceName, Optional.SYSTEM_SESSION_TIMEOUT_KEY), "用户未授权登录或会话已过期，请重新登录");
                     if (WebUtils.isAjax(WebContext.getRequest())) {
-                        String _resourceName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-                        String _message = StringUtils.defaultIfBlank(I18N.load(_resourceName, Optional.SYSTEM_SESSION_TIMEOUT_KEY), "Not login or session timeout, Login again.");
                         return WebResult
                                 .CODE(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT)
                                 .msg(_message)
-                                .attr(REDIRECT_URL, _redirectUrl)
+                                .attr(Optional.REDIRECT_URL, _redirectUrl)
                                 .toJSON();
                     }
-                    return View.redirectView(_redirectUrl);
+                    return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, _message, _redirectUrl, 3);
                 } else {
                     // 更新会话最后活动时间
                     _sessionBean.touch();

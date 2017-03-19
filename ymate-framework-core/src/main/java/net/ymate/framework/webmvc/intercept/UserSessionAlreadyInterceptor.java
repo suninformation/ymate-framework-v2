@@ -17,12 +17,13 @@ package net.ymate.framework.webmvc.intercept;
 
 import net.ymate.framework.core.Optional;
 import net.ymate.framework.core.util.WebUtils;
+import net.ymate.framework.webmvc.ErrorCode;
 import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
+import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.webmvc.context.WebContext;
-import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -33,8 +34,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class UserSessionAlreadyInterceptor implements IInterceptor {
 
-    private static final String REDIRECT_URL = "redirect_url";
-
     public Object intercept(InterceptContext context) throws Exception {
         switch (context.getDirection()) {
             case BEFORE:
@@ -44,7 +43,7 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                     _sessionBean = null;
                 }
                 if (_sessionBean != null) {
-                    String _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(REDIRECT_URL), context.getContextParams().get(REDIRECT_URL));
+                    String _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(Optional.REDIRECT_URL), context.getContextParams().get(Optional.REDIRECT_URL));
                     if (StringUtils.isBlank(_redirectUrl)) {
                         _redirectUrl = context.getOwner().getConfig().getParam(Optional.REDIRECT_HOME_URL);
                         if (StringUtils.isBlank(_redirectUrl)) {
@@ -55,13 +54,16 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                         _redirectUrl = WebUtils.buildURL(WebContext.getRequest(), _redirectUrl, true);
                     }
                     //
+                    String _resourceName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+                    String _message = StringUtils.defaultIfBlank(I18N.load(_resourceName, Optional.SYSTEM_SESSION_AUTHORIZED_KEY), "用户已经授权登录");
                     if (WebUtils.isAjax(WebContext.getRequest())) {
                         return WebResult
-                                .CODE(0)
-                                .attr(REDIRECT_URL, _redirectUrl)
+                                .CODE(ErrorCode.USER_SESSION_AUTHORIZED)
+                                .msg(_message)
+                                .attr(Optional.REDIRECT_URL, _redirectUrl)
                                 .toJSON();
                     }
-                    return View.redirectView(_redirectUrl);
+                    return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_AUTHORIZED, _message, _redirectUrl, 3);
                 }
                 break;
         }

@@ -27,6 +27,8 @@ public class Optional {
 
     public static final Integer BOOL_FALSE = 0;
 
+    public static final String REDIRECT_URL = "redirect_url";
+
     /**
      * 国际化资源文件参数名称
      */
@@ -56,6 +58,11 @@ public class Optional {
      * 会话过期消息KEY
      */
     public static final String SYSTEM_SESSION_TIMEOUT_KEY = "webmvc.session_timeout_key";
+
+    /**
+     * 会话已授权(登录)KEY
+     */
+    public static final String SYSTEM_SESSION_AUTHORIZED_KEY = "webmvc.session_authorized_key";
 
     /**
      * 会话处理器类

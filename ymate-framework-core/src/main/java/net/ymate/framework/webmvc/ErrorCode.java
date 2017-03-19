@@ -62,6 +62,11 @@ public class ErrorCode {
     public static final int REQUEST_OPERATION_FORBIDDEN = -6;
 
     /**
+     * 用户会话已授权(登录)
+     */
+    public static final int USER_SESSION_AUTHORIZED = -7;
+
+    /**
      * 数据版本不匹配
      */
     public static final int DATA_VERSION_NOT_MATCH = -20;
