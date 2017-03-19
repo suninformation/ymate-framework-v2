@@ -22,9 +22,7 @@ import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
-import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.webmvc.context.WebContext;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * 已登录用户拦截器
@@ -43,19 +41,8 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                     _sessionBean = null;
                 }
                 if (_sessionBean != null) {
-                    String _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(Optional.REDIRECT_URL), context.getContextParams().get(Optional.REDIRECT_URL));
-                    if (StringUtils.isBlank(_redirectUrl)) {
-                        _redirectUrl = context.getOwner().getConfig().getParam(Optional.REDIRECT_HOME_URL);
-                        if (StringUtils.isBlank(_redirectUrl)) {
-                            _redirectUrl = StringUtils.defaultIfBlank(_redirectUrl, WebUtils.baseURL(WebContext.getRequest()));
-                        }
-                    }
-                    if (!StringUtils.startsWithIgnoreCase(_redirectUrl, "http://") && !StringUtils.startsWithIgnoreCase(_redirectUrl, "https://")) {
-                        _redirectUrl = WebUtils.buildURL(WebContext.getRequest(), _redirectUrl, true);
-                    }
-                    //
-                    String _resourceName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-                    String _message = StringUtils.defaultIfBlank(I18N.load(_resourceName, Optional.SYSTEM_SESSION_AUTHORIZED_KEY), "用户已经授权登录");
+                    String _redirectUrl = WebUtils.buildRedirectURL(context, null, true);
+                    String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_AUTHORIZED_KEY, "用户已经授权登录");
                     if (WebUtils.isAjax(WebContext.getRequest())) {
                         return WebResult
                                 .CODE(ErrorCode.USER_SESSION_AUTHORIZED)

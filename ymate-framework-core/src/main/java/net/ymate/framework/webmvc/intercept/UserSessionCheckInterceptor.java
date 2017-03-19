@@ -22,7 +22,6 @@ import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
-import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
 import org.apache.commons.lang.StringUtils;
@@ -58,14 +57,11 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                     if (StringUtils.isNotBlank(_queryStr)) {
                         _returnUrlBuffer.append("?").append(_queryStr);
                     }
-                    String _redirectUrl = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.REDIRECT_LOGIN_URL), "login?redirect_url=${redirect_url}");
-                    _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
-                    if (!StringUtils.startsWithIgnoreCase(_redirectUrl, "http://") && !StringUtils.startsWithIgnoreCase(_redirectUrl, "https://")) {
-                        _redirectUrl = WebUtils.buildURL(_request, _redirectUrl, true);
-                    }
                     //
-                    String _resourceName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-                    String _message = StringUtils.defaultIfBlank(I18N.load(_resourceName, Optional.SYSTEM_SESSION_TIMEOUT_KEY), "用户未授权登录或会话已过期，请重新登录");
+                    String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.REDIRECT_LOGIN_URL), "login?redirect_url=${redirect_url}"), true);
+                    _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
+                    //
+                    String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_TIMEOUT_KEY, "用户未授权登录或会话已过期，请重新登录");
                     if (WebUtils.isAjax(WebContext.getRequest())) {
                         return WebResult
                                 .CODE(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT)

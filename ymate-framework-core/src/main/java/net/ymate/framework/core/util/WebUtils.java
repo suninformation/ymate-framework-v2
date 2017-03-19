@@ -17,6 +17,7 @@ package net.ymate.framework.core.util;
 
 import net.ymate.framework.core.Optional;
 import net.ymate.platform.core.YMP;
+import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.util.CodecUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
@@ -25,6 +26,7 @@ import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.webmvc.IWebMvc;
 import net.ymate.platform.webmvc.WebMVC;
+import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.codec.binary.Base64;
@@ -350,6 +352,23 @@ public class WebUtils {
         }
         ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${items}"));
         return _element.set("items", _messages.toString()).getResult();
+    }
+
+    public static String buildRedirectURL(InterceptContext context, String redirectUrl, boolean needPrefix) {
+        String _redirectUrl = StringUtils.trimToNull(redirectUrl);
+        if (_redirectUrl == null) {
+            _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(Optional.REDIRECT_URL), context != null ? context.getContextParams().get(Optional.REDIRECT_URL) : "");
+            if (StringUtils.isBlank(_redirectUrl)) {
+                _redirectUrl = WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.REDIRECT_HOME_URL);
+                if (StringUtils.isBlank(_redirectUrl)) {
+                    _redirectUrl = StringUtils.defaultIfBlank(_redirectUrl, WebUtils.baseURL(WebContext.getRequest()));
+                }
+            }
+        }
+        if (needPrefix && !StringUtils.startsWithIgnoreCase(_redirectUrl, "http://") && !StringUtils.startsWithIgnoreCase(_redirectUrl, "https://")) {
+            _redirectUrl = WebUtils.buildURL(WebContext.getRequest(), _redirectUrl, true);
+        }
+        return _redirectUrl;
     }
 
     public static IView buildErrorView(IWebMvc owner, int code, String msg) {
