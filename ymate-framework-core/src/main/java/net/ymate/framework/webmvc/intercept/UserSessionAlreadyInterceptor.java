@@ -23,6 +23,7 @@ import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.view.View;
 
 /**
  * 已登录用户拦截器
@@ -49,6 +50,9 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                                 .msg(_message)
                                 .attr(Optional.REDIRECT_URL, _redirectUrl)
                                 .toJSON();
+                    }
+                    if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
+                        return View.redirectView(_redirectUrl);
                     }
                     return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_AUTHORIZED, _message, _redirectUrl, 3);
                 }

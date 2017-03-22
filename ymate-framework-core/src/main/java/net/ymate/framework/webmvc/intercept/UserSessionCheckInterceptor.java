@@ -24,6 +24,7 @@ import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +69,9 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                                 .msg(_message)
                                 .attr(Optional.REDIRECT_URL, _redirectUrl)
                                 .toJSON();
+                    }
+                    if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
+                        return View.redirectView(_redirectUrl);
                     }
                     return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, _message, _redirectUrl, 3);
                 } else {

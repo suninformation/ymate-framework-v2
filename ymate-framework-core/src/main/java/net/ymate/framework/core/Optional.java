@@ -29,6 +29,8 @@ public class Optional {
 
     public static final String REDIRECT_URL = "redirect_url";
 
+    public static final String OBSERVE_SILENCE = "observe_silence";
+
     /**
      * 国际化资源文件参数名称
      */
