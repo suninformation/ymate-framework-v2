@@ -100,4 +100,19 @@ public class Optional {
      * 验证结果消息项模板参数名称, 默认值: "${message}<br>"
      */
     public static final String VALIDATION_TEMPLATE_ITEM = "webmvc.validation_template_item";
+
+    /**
+     * 是否开启跨域拦截
+     */
+    public static final String ALLOW_CROSS_DOMAIN = "webmvc.allow_cross_domain";
+
+    /**
+     * 允许跨域的原始主机
+     */
+    public static final String ALLOW_ORIGIN_HOSTS = "webmvc.allow_origin_hosts";
+
+    /**
+     * 是否允许跨域请求带有验证信息
+     */
+    public static final String NOT_ALLOW_CREDENTIALS = "not_allow_credentials";
 }

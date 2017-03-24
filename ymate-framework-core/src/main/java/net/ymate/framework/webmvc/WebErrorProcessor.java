@@ -80,7 +80,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
     }
 
     protected void __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
-        if (WebUtils.isAjax(WebContext.getRequest())) {
+        if (WebUtils.isAjax(WebContext.getRequest()) || StringUtils.equalsIgnoreCase(WebContext.getRequest().getParameter("format"), "json")) {
             WebResult.CODE(code).msg(msg).toJSON().render();
         } else {
             WebUtils.buildErrorView(owner, code, msg).render();
@@ -173,7 +173,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         // 拼装所有的验证消息
         String _resultMsg = WebUtils.messageWithTemplate(owner.getOwner(), results.values());
         //
-        if (WebUtils.isAjax(WebContext.getRequest())) {
+        if (WebUtils.isAjax(WebContext.getRequest()) || StringUtils.equalsIgnoreCase(WebContext.getRequest().getParameter("format"), "json")) {
             WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(_resultMsg);
             try {
                 for (ValidateResult _vResult : results.values()) {
