@@ -38,6 +38,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -203,6 +204,32 @@ public class HttpClientHelper {
                             .setContentEncoding(DEFAULT_CHARSET)
                             .setContentType(contentType)
                             .setBinary(content).build());
+            if (headers != null && headers.length > 0) {
+                for (Header _header : headers) {
+                    _reqBuilder.addHeader(_header);
+                }
+            }
+            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
+
+                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
+                    return new IHttpResponse.NEW(response);
+                }
+
+            });
+        } finally {
+            _httpClient.close();
+        }
+    }
+
+    public IHttpResponse post(String url, ContentType contentType, InputStream content, Header[] headers) throws Exception {
+        CloseableHttpClient _httpClient = __doBuildHttpClient();
+        try {
+            RequestBuilder _reqBuilder = RequestBuilder.post()
+                    .setUri(url)
+                    .setEntity(EntityBuilder.create()
+                            .setContentEncoding(DEFAULT_CHARSET)
+                            .setContentType(contentType)
+                            .setStream(content).build());
             if (headers != null && headers.length > 0) {
                 for (Header _header : headers) {
                     _reqBuilder.addHeader(_header);
