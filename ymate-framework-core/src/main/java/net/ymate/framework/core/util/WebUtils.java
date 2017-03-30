@@ -106,6 +106,30 @@ public class WebUtils {
     }
 
     /**
+     * @param url           URL地址
+     * @param needStartWith 是否以'/'开始
+     * @param needEndwith   是否以'/'结束
+     * @return 返回修正后的URL地址
+     */
+    public static String fixURL(String url, boolean needStartWith, boolean needEndwith) {
+        url = StringUtils.trimToNull(url);
+        if (url != null) {
+            if (needStartWith && !StringUtils.startsWith(url, "/")) {
+                url = '/' + url;
+            } else if (!needStartWith && StringUtils.startsWith(url, "/")) {
+                url = StringUtils.substringAfter(url, "/");
+            }
+            if (needEndwith && !StringUtils.endsWith(url, "/")) {
+                url = url + '/';
+            } else if (!needEndwith && StringUtils.endsWith(url, "/")) {
+                url = StringUtils.substringBeforeLast(url, "/");
+            }
+            return url;
+        }
+        return "";
+    }
+
+    /**
      * @param request HttpServletRequest对象
      * @return 是否AJAX请求（需要在使用Ajax请求时设置请求头）
      */
