@@ -47,28 +47,35 @@ public class ParamUtils {
         String[] _keys = params.keySet().toArray(new String[params.size()]);
         Arrays.sort(_keys);
         StringBuilder _paramSB = new StringBuilder();
-        boolean _flag = true;
         for (String _key : _keys) {
             Object _value = params.get(_key);
             if (_value != null) {
-                if (_flag) {
-                    _flag = false;
-                } else {
-                    _paramSB.append("&");
-                }
-                String _valueStr = _value.toString();
-                if (encode) {
-                    try {
-                        _paramSB.append(_key).append("=").append(URLEncoder.encode(_valueStr, StringUtils.defaultIfBlank(charset, "UTF-8")));
-                    } catch (UnsupportedEncodingException e) {
-                        _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+                if (_value.getClass().isArray()) {
+                    for (Object _v : (Object[]) _value) {
+                        __doAppendParamValue(_key, _v, _paramSB, encode, charset);
                     }
                 } else {
-                    _paramSB.append(_key).append("=").append(_valueStr);
+                    __doAppendParamValue(_key, _value, _paramSB, encode, charset);
                 }
             }
         }
         return _paramSB.toString();
+    }
+
+    private static void __doAppendParamValue(String _key, Object _v, StringBuilder _paramSB, boolean encode, String charset) {
+        if (_paramSB.length() > 0) {
+            _paramSB.append("&");
+        }
+        String _valueStr = _v.toString();
+        if (encode) {
+            try {
+                _paramSB.append(_key).append("=").append(URLEncoder.encode(_valueStr, StringUtils.defaultIfBlank(charset, "UTF-8")));
+            } catch (UnsupportedEncodingException e) {
+                _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+            }
+        } else {
+            _paramSB.append(_key).append("=").append(_valueStr);
+        }
     }
 
     public static Map<String, String> convertParamMap(Map<String, Object> sourceMap) {
