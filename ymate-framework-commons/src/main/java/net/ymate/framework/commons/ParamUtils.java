@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -95,6 +96,10 @@ public class ParamUtils {
      * @return 解析结果
      */
     public static Map<String, String> parseQueryParamStr(String paramStr) {
+        return parseQueryParamStr(paramStr, false, null);
+    }
+
+    public static Map<String, String> parseQueryParamStr(String paramStr, boolean decode, String charset) {
         // 以“&”字符切割字符串
         String[] _paramArr = StringUtils.split(paramStr, '&');
         // 把切割后的字符串数组变成变量与数值组合的字典数组
@@ -108,6 +113,13 @@ public class ParamUtils {
             String strKey = _param.substring(0, nPos);
             //获得数值
             String strValue = _param.substring(nPos + 1, nLen);
+            if (decode) {
+                try {
+                    strValue = URLDecoder.decode(strValue, StringUtils.defaultIfBlank(charset, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+                }
+            }
             //放入MAP类中
             _returnValue.put(strKey, strValue);
         }
