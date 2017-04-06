@@ -62,6 +62,11 @@ public class Optional {
     public static final String SYSTEM_SESSION_TIMEOUT_KEY = "webmvc.session_timeout_key";
 
     /**
+     * 请求参数验证无效消息KEY
+     */
+    public static final String SYSTEM_PARAMS_VALIDATION_INVALID_KEY = "webmvc.params_validation_invalid_key";
+
+    /**
      * 会话已授权(登录)KEY
      */
     public static final String SYSTEM_SESSION_AUTHORIZED_KEY = "webmvc.session_authorized_key";

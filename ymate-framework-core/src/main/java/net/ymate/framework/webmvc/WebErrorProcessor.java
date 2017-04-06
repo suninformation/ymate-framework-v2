@@ -76,7 +76,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
     }
 
     protected String __doGetI18nMsg(String msgKey, String defaultMsg) {
-        return I18N.formatMessage(__resourceName, StringUtils.defaultIfBlank(msgKey, __errorDefaultI18nKey), StringUtils.defaultIfBlank(defaultMsg, "System busy, please try again later!"));
+        return I18N.formatMessage(__resourceName, StringUtils.defaultIfBlank(msgKey, __errorDefaultI18nKey), StringUtils.defaultIfBlank(defaultMsg, "系统繁忙, 请稍后重试!"));
     }
 
     protected void __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
@@ -170,11 +170,11 @@ public class WebErrorProcessor implements IWebErrorProcessor {
 
     public IView onValidation(IWebMvc owner, Map<String, ValidateResult> results) {
         IView _view = null;
-        // 拼装所有的验证消息
-        String _resultMsg = WebUtils.messageWithTemplate(owner.getOwner(), results.values());
+        //
+        __doInit(owner);
         //
         if (WebUtils.isAjax(WebContext.getRequest()) || StringUtils.equalsIgnoreCase(WebContext.getRequest().getParameter("format"), "json")) {
-            WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(_resultMsg);
+            WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(__doGetI18nMsg(Optional.SYSTEM_PARAMS_VALIDATION_INVALID_KEY, "请求参数验证无效"));
             try {
                 for (ValidateResult _vResult : results.values()) {
                     _result.dataAttr(_vResult.getName(), _vResult.getMsg());
@@ -184,6 +184,8 @@ public class WebErrorProcessor implements IWebErrorProcessor {
                 _LOG.error("", RuntimeUtils.unwrapThrow(e));
             }
         } else {
+            // 拼装所有的验证消息
+            String _resultMsg = WebUtils.messageWithTemplate(owner.getOwner(), results.values());
             _view = WebUtils.buildErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _resultMsg);
         }
         return _view;
