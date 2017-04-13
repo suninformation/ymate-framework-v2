@@ -46,6 +46,8 @@ public class WebResult {
 
     private boolean __withContentType;
 
+    private boolean __keepNullValue;
+
     public static WebResult create() {
         return new WebResult();
     }
@@ -127,6 +129,11 @@ public class WebResult {
         return this;
     }
 
+    public WebResult keepNullValue() {
+        __keepNullValue = true;
+        return this;
+    }
+
     public IView toJSON() {
         return toJSON(null);
     }
@@ -146,7 +153,10 @@ public class WebResult {
             _jsonObj.putAll(__attrs);
         }
         //
-        JsonView _view = View.jsonView(_jsonObj).withJsonCallback(callback);
+        JsonView _view = new JsonView(_jsonObj).withJsonCallback(callback);
+        if (__keepNullValue) {
+            _view.keepNullValue();
+        }
         if (__withContentType) {
             _view.withContentType();
         }
