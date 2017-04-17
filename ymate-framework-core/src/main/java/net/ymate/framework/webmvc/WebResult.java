@@ -48,6 +48,10 @@ public class WebResult {
 
     private boolean __keepNullValue;
 
+    private boolean __quoteFieldNames;
+
+    private boolean __useSingleQuotes;
+
     public static WebResult create() {
         return new WebResult();
     }
@@ -134,6 +138,16 @@ public class WebResult {
         return this;
     }
 
+    public WebResult quoteFieldNames() {
+        __quoteFieldNames = true;
+        return this;
+    }
+
+    public WebResult useSingleQuotes() {
+        __useSingleQuotes = true;
+        return this;
+    }
+
     public IView toJSON() {
         return toJSON(null);
     }
@@ -154,6 +168,12 @@ public class WebResult {
         }
         //
         JsonView _view = new JsonView(_jsonObj).withJsonCallback(callback);
+        if (__quoteFieldNames) {
+            _view.quoteFieldNames();
+            if (__useSingleQuotes) {
+                _view.useSingleQuotes();
+            }
+        }
         if (__keepNullValue) {
             _view.keepNullValue();
         }
