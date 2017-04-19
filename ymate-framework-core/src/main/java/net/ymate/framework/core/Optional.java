@@ -52,6 +52,11 @@ public class Optional {
     public static final String SYSTEM_EXCEPTION_ANALYSIS_DISABLED = "webmvc.exception_analysis_disabled";
 
     /**
+     * 系统错误消息是否指定ContentType响应头
+     */
+    public static final String SYSTEM_ERROR_WITH_CONTENT_TYPE = "webmvc.error_with_content_type";
+
+    /**
      * 系统默认国际化错误消息KEY
      */
     public static final String SYSTEM_ERROR_DEFAULT_I18N_KEY = "webmvc.error_default_i18n_key";
