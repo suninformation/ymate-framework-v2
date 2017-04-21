@@ -165,7 +165,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         }
         _errSB.append("-------------------------------------------------\n");
         //
-        Logs.get(owner.getOwner()).getLogger().error(_errSB.toString());
+        Logs.get().getLogger().error(_errSB.toString());
     }
 
     public void onError(IWebMvc owner, Throwable e) {
@@ -175,7 +175,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
             if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
                 __doParseExceptionDetail(owner, RuntimeUtils.unwrapThrow(e));
             } else {
-                Logs.get(owner.getOwner()).getLogger().error(RuntimeUtils.unwrapThrow(e));
+                Logs.get().getLogger().error(RuntimeUtils.unwrapThrow(e));
             }
             __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null));
         } catch (Throwable e1) {
