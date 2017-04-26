@@ -162,12 +162,12 @@ public class ParamUtils {
      * @return 返回最终生成的签名
      */
     public static String createSignature(Map<String, String> queryParamMap, boolean encode, String... extraParams) {
-        String _queryParamStr = buildQueryParamStr(queryParamMap, encode, null);
+        StringBuilder _queryParamStr = new StringBuilder(buildQueryParamStr(queryParamMap, encode, null));
         if (extraParams != null && extraParams.length > 0) {
             for (String _extraParam : extraParams) {
-                _queryParamStr += "&" + _extraParam;
+                _queryParamStr.append("&").append(_extraParam);
             }
         }
-        return DigestUtils.md5Hex(_queryParamStr).toUpperCase();
+        return DigestUtils.md5Hex(_queryParamStr.toString()).toUpperCase();
     }
 }
