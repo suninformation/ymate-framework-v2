@@ -81,6 +81,12 @@ public class Optional {
      */
     public static final String SYSTEM_USER_SESSION_HANDLER_CLASS = "webmvc.user_session_handler_class";
 
+    public static final String SYSTEM_USER_SESSION_CONFIRM_HANDLER_CLASS = "webmvc.user_session_confirm_handler_class";
+
+    public static final String CONFIRM_REDIRECT_URL = "webmvc.confirm_redirect_url";
+
+    public static final String CONFIRM_ATTR_KEY = "webmvc.confirm_attr_key";
+
     /**
      * 控制器请求URL后缀参数名称
      */
