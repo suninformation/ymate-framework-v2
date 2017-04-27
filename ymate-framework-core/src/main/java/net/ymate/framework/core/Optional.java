@@ -81,11 +81,20 @@ public class Optional {
      */
     public static final String SYSTEM_USER_SESSION_HANDLER_CLASS = "webmvc.user_session_handler_class";
 
+    /**
+     * 会话安全确认处理器类
+     */
     public static final String SYSTEM_USER_SESSION_CONFIRM_HANDLER_CLASS = "webmvc.user_session_confirm_handler_class";
 
+    /**
+     * 会话安全确认重定向URL地址, 默认值: "confirm?redirect_url=${redirect_url}"
+     */
     public static final String CONFIRM_REDIRECT_URL = "webmvc.confirm_redirect_url";
 
-    public static final String CONFIRM_ATTR_KEY = "webmvc.confirm_attr_key";
+    /**
+     * 会话安全确认超时时间(分钟), 默认值: 30
+     */
+    public static final String CONFIRM_TIMEOUT = "webmvc.confirm_timeout";
 
     /**
      * 控制器请求URL后缀参数名称

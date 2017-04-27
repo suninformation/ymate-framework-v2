@@ -15,10 +15,12 @@
  */
 package net.ymate.framework.webmvc;
 
+import net.ymate.framework.core.Optional;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.DateTimeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 
@@ -34,7 +36,8 @@ public interface IUserSessionConfirmHandler {
 
         public boolean handle(InterceptContext context) throws Exception {
             UserSessionConfirmStatus _confirmStatus = getSessionConfirmStatus();
-            return _confirmStatus != null && BlurObject.bind(_confirmStatus.getStatus()).toBooleanValue() && System.currentTimeMillis() - _confirmStatus.getLastModifyTime() < DateTimeUtils.MINUTE * 30;
+            int _timeout = BlurObject.bind(StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_TIMEOUT), "30")).toIntValue();
+            return _confirmStatus != null && BlurObject.bind(_confirmStatus.getStatus()).toBooleanValue() && System.currentTimeMillis() - _confirmStatus.getLastModifyTime() < DateTimeUtils.MINUTE * _timeout;
         }
 
         public UserSessionConfirmStatus getSessionConfirmStatus() {
