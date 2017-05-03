@@ -44,13 +44,15 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                 if (_sessionBean != null) {
                     String _redirectUrl = WebUtils.buildRedirectURL(context, null, true);
                     String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_AUTHORIZED_KEY, "用户已经授权登录");
-                    if (WebUtils.isAjax(WebContext.getRequest())) {
-                        return WebResult
+                    //
+                    if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
+                        WebResult _result = WebResult
                                 .CODE(ErrorCode.USER_SESSION_AUTHORIZED)
                                 .msg(_message)
-                                .attr(Optional.REDIRECT_URL, _redirectUrl)
-                                .toJSON();
+                                .attr(Optional.REDIRECT_URL, _redirectUrl);
+                        return WebResult.formatView(_result);
                     }
+                    //
                     if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
                         return View.redirectView(_redirectUrl);
                     }

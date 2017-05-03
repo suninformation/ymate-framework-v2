@@ -16,6 +16,8 @@
 package net.ymate.framework.webmvc;
 
 import com.alibaba.fastjson.JSONObject;
+import net.ymate.framework.core.Optional;
+import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.ClassUtils;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
@@ -255,6 +257,10 @@ public class WebResult {
         return toXML(false);
     }
 
+    public static IView formatView(WebResult result) {
+        return formatView(null, "format", "callback", result);
+    }
+
     public static IView formatView(String path, WebResult result) {
         return formatView(path, "format", "callback", result);
     }
@@ -270,6 +276,9 @@ public class WebResult {
         IView _view = null;
         String _format = StringUtils.trimToNull(WebContext.getRequest().getParameter(paramFormat));
         if (_format != null && result != null) {
+            if (BlurObject.bind(WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_WITH_CONTENT_TYPE)).toBooleanValue()) {
+                result.withContentType();
+            }
             if ("json".equalsIgnoreCase(_format)) {
                 _view = result.toJSON(StringUtils.trimToNull(WebContext.getRequest().getParameter(paramCallback)));
             } else if ("xml".equalsIgnoreCase(_format)) {

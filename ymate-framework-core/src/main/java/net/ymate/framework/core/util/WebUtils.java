@@ -139,6 +139,22 @@ public class WebUtils {
         return StringUtils.isNotBlank(_httpx) && "XMLHttpRequest".equalsIgnoreCase(_httpx);
     }
 
+    public static boolean isAjax(HttpServletRequest request, boolean ifJson, boolean ifXml) {
+        if (isAjax(request)) {
+            return true;
+        }
+        if (ifJson || ifXml) {
+            String _format = StringUtils.trimToNull(WebContext.getRequest().getParameter("format"));
+            if (ifJson && StringUtils.equalsIgnoreCase(_format, "json")) {
+                return true;
+            }
+            if (ifXml && StringUtils.equalsIgnoreCase(_format, "xml")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @param request HttpServletRequest对象
      * @return 判断当前请求是否采用POST方式提交

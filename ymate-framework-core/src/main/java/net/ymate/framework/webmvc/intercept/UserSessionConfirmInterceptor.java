@@ -58,10 +58,11 @@ public class UserSessionConfirmInterceptor implements IInterceptor {
                         //
                         String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_REDIRECT_URL), "confirm?redirect_url=${redirect_url}"), true);
                         _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
-                        if (WebUtils.isAjax(WebContext.getRequest())) {
-                            return WebResult.SUCCESS()
-                                    .attr(Optional.REDIRECT_URL, _redirectUrl)
-                                    .toJSON();
+                        //
+                        if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
+                            WebResult _result = WebResult.SUCCESS()
+                                    .attr(Optional.REDIRECT_URL, _redirectUrl);
+                            return WebResult.formatView(_result);
                         }
                         return View.redirectView(_redirectUrl);
                     }

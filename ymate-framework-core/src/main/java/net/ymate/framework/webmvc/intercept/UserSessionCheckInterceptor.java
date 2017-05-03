@@ -63,12 +63,13 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                     _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
                     //
                     String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_TIMEOUT_KEY, "用户未授权登录或会话已过期，请重新登录");
-                    if (WebUtils.isAjax(WebContext.getRequest())) {
-                        return WebResult
+                    //
+                    if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
+                        WebResult _result = WebResult
                                 .CODE(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT)
                                 .msg(_message)
-                                .attr(Optional.REDIRECT_URL, _redirectUrl)
-                                .toJSON();
+                                .attr(Optional.REDIRECT_URL, _redirectUrl);
+                        return WebResult.formatView(_result);
                     }
                     if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
                         return View.redirectView(_redirectUrl);

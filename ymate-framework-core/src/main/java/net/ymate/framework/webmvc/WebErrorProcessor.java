@@ -61,8 +61,6 @@ public class WebErrorProcessor implements IWebErrorProcessor {
 
     private boolean __disabledAnalysis;
 
-    private boolean __errorWithContentType;
-
     protected void __doInit(IWebMvc owner) {
         if (!__inited) {
             synchronized (_LOG) {
@@ -70,7 +68,6 @@ public class WebErrorProcessor implements IWebErrorProcessor {
                     __resourceName = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
                     __errorDefaultI18nKey = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY), Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY);
                     __disabledAnalysis = BlurObject.bind(owner.getOwner().getConfig().getParam(Optional.SYSTEM_EXCEPTION_ANALYSIS_DISABLED)).toBooleanValue();
-                    __errorWithContentType = BlurObject.bind(owner.getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_WITH_CONTENT_TYPE)).toBooleanValue();
                     //
                     __inited = true;
                 }
@@ -83,20 +80,9 @@ public class WebErrorProcessor implements IWebErrorProcessor {
     }
 
     protected void __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
-        String _format = StringUtils.trimToNull(WebContext.getRequest().getParameter("format"));
-        //
-        if (WebUtils.isAjax(WebContext.getRequest()) || StringUtils.equalsIgnoreCase(_format, "json")) {
+        if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
             WebResult _result = WebResult.CODE(code).msg(msg);
-            if (__errorWithContentType) {
-                _result.withContentType();
-            }
-            _result.toJSON(StringUtils.trimToNull(WebContext.getRequest().getParameter("callback"))).render();
-        } else if (StringUtils.equalsIgnoreCase(_format, "xml")) {
-            WebResult _result = WebResult.CODE(code).msg(msg);
-            if (__errorWithContentType) {
-                _result.withContentType();
-            }
-            _result.toXML(true).render();
+            WebResult.formatView(_result).render();
         } else {
             WebUtils.buildErrorView(owner, code, msg).render();
         }
@@ -188,24 +174,13 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         //
         __doInit(owner);
         //
-        String _format = StringUtils.trimToNull(WebContext.getRequest().getParameter("format"));
-        boolean _isJSON = StringUtils.equalsIgnoreCase(_format, "json");
-        boolean _isXML = StringUtils.equalsIgnoreCase(_format, "xml");
-        //
-        if (WebUtils.isAjax(WebContext.getRequest()) || _isJSON || _isXML) {
+        if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
             WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(__doGetI18nMsg(Optional.SYSTEM_PARAMS_VALIDATION_INVALID_KEY, "请求参数验证无效"));
-            if (__errorWithContentType) {
-                _result.withContentType();
-            }
             try {
                 for (ValidateResult _vResult : results.values()) {
                     _result.dataAttr(_vResult.getName(), _vResult.getMsg());
                 }
-                if (_isXML) {
-                    _view = _result.toXML(true);
-                } else {
-                    _view = _result.toJSON(StringUtils.trimToNull(WebContext.getRequest().getParameter("callback")));
-                }
+                _view = WebResult.formatView(_result);
             } catch (Exception e) {
                 try {
                     __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null));
