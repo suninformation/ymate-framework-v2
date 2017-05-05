@@ -129,6 +129,20 @@ public class WebUtils {
         return "";
     }
 
+    public static String fixURLParams(String url, String... params) {
+        if (params != null && params.length > 0) {
+            StringBuilder _paramSB = new StringBuilder(url);
+            if (!url.contains("?")) {
+                _paramSB.append("?");
+            } else {
+                _paramSB.append("&");
+            }
+            _paramSB.append(StringUtils.join(params, "&"));
+            return _paramSB.toString();
+        }
+        return url;
+    }
+
     /**
      * @param request HttpServletRequest对象
      * @return 是否AJAX请求（需要在使用Ajax请求时设置请求头）
