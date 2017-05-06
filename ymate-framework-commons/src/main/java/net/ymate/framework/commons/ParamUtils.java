@@ -79,6 +79,33 @@ public class ParamUtils {
         }
     }
 
+    public static String appendQueryParamValue(String url, Map<String, String> params, boolean encode, String charset) {
+        if (params != null && !params.isEmpty()) {
+            StringBuilder _paramSB = new StringBuilder(url);
+            if (!url.contains("?")) {
+                _paramSB.append("?");
+            } else {
+                _paramSB.append("&");
+            }
+            for (Map.Entry<String, String> _param : params.entrySet()) {
+                if (encode) {
+                    try {
+                        _paramSB.append(_param.getKey()).append("=").append(URLEncoder.encode(_param.getValue(), StringUtils.defaultIfBlank(charset, "UTF-8"))).append("&");
+                    } catch (UnsupportedEncodingException e) {
+                        _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+                    }
+                } else {
+                    _paramSB.append(_param.getKey()).append("=").append(_param.getValue()).append("&");
+                }
+            }
+            if (_paramSB.length() > 0 && _paramSB.charAt(_paramSB.length() - 1) == '&') {
+                _paramSB.setLength(_paramSB.length() - 1);
+            }
+            return _paramSB.toString();
+        }
+        return url;
+    }
+
     public static Map<String, String> convertParamMap(Map<String, Object> sourceMap) {
         Map<String, String> _returnValue = new HashMap<String, String>(sourceMap.size());
         for (Map.Entry<String, Object> _ent : sourceMap.entrySet()) {
