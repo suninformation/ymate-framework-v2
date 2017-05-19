@@ -77,6 +77,31 @@ public class Optional {
     public static final String SYSTEM_SESSION_AUTHORIZED_KEY = "webmvc.session_authorized_key";
 
     /**
+     * 请求的资源未授权或无权限KEY
+     */
+    public static final String SYSTEM_REQUEST_RESOURCE_UNAUTHORIZED_KEY = "webmvc.request_resource_unauthorized_key";
+
+    /**
+     * 请求的操作被禁止KEY
+     */
+    public static final String SYSTEM_REQUEST_OPERATION_FORBIDDEN_KEY = "webmvc.request_operation_forbidden_key";
+
+    /**
+     * 访问的资源未找到或不存在KEY
+     */
+    public static final String SYSTEM_RESOURCE_NOT_FOUND_OR_NOT_EXIST_KEY = "webmvc.resource_not_found_or_not_exist_key";
+
+    /**
+     * 请求方法不支持或不正确KEY
+     */
+    public static final String SYSTEM_REQUEST_METHOD_NOT_ALLOWED_KEY = "webmvc.request_method_not_allowed_key";
+
+    /**
+     * 据版本不匹配KEY
+     */
+    public static final String SYSTEM_DATA_VERSION_NOT_MATCH_KEY = "webmvc.data_version_not_match_key";
+
+    /**
      * 会话处理器类
      */
     public static final String SYSTEM_USER_SESSION_HANDLER_CLASS = "webmvc.user_session_handler_class";
