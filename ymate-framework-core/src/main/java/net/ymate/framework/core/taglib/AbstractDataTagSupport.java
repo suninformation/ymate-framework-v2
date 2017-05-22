@@ -16,10 +16,12 @@
 package net.ymate.framework.core.taglib;
 
 import net.ymate.platform.persistence.Fields;
+import net.ymate.platform.persistence.IResultSet;
 import net.ymate.platform.persistence.Page;
 import net.ymate.platform.persistence.jdbc.query.OrderBy;
 import org.apache.commons.lang.StringUtils;
 
+import javax.servlet.jsp.JspException;
 import java.util.Arrays;
 
 /**
@@ -128,6 +130,10 @@ public abstract class AbstractDataTagSupport extends AbstractTagSupport {
             return _orderBy;
         }
         return null;
+    }
+
+    protected boolean __doInitIterator(IResultSet<?> resultSet) throws JspException {
+        return __doInitIterator(resultSet.getResultData().iterator(), resultSet.getPageCount(), resultSet.getRecordCount());
     }
 
     public String getId() {

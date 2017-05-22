@@ -16,7 +16,6 @@
 package net.ymate.framework.core.taglib;
 
 import net.ymate.platform.core.util.RuntimeUtils;
-import net.ymate.platform.persistence.IResultSet;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -182,10 +181,6 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
     protected void __doProcessIteratorTagDataStatus(Object data, int sequence) throws JspException {
         pageContext.setAttribute(getVar(), data);
         pageContext.setAttribute(getVar() + "_sequence", sequence);
-    }
-
-    protected boolean __doInitIterator(IResultSet<?> resultSet) throws JspException {
-        return __doInitIterator(resultSet.getResultData().iterator(), resultSet.getPageCount(), resultSet.getRecordCount());
     }
 
     protected boolean __doInitIterator(Iterator<?> iterator, int pageCount, long recordCount) throws JspException {
