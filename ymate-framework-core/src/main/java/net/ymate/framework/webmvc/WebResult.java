@@ -265,6 +265,10 @@ public class WebResult {
         return formatView(path, "format", "callback", result);
     }
 
+    public static IView formatView(WebResult result, String defaultFormat) {
+        return formatView(null, "format", defaultFormat, "callback", result);
+    }
+
     /**
      * @param path          JSP模块路径
      * @param paramFormat   数据格式，可选值：json|jsonp|xml
@@ -273,8 +277,12 @@ public class WebResult {
      * @return 根据paramFormat等参数判断返回对应的视图对象
      */
     public static IView formatView(String path, String paramFormat, String paramCallback, WebResult result) {
+        return formatView(path, paramFormat, null, paramCallback, result);
+    }
+
+    public static IView formatView(String path, String paramFormat, String defaultFormat, String paramCallback, WebResult result) {
         IView _view = null;
-        String _format = StringUtils.trimToNull(WebContext.getRequest().getParameter(paramFormat));
+        String _format = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(paramFormat), StringUtils.trimToNull(defaultFormat));
         if (_format != null && result != null) {
             if (BlurObject.bind(WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_WITH_CONTENT_TYPE)).toBooleanValue()) {
                 result.withContentType();

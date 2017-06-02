@@ -82,7 +82,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
     protected void __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
         if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
             WebResult _result = WebResult.CODE(code).msg(msg);
-            WebResult.formatView(_result).render();
+            WebResult.formatView(_result, "json").render();
         } else {
             WebUtils.buildErrorView(owner, code, msg).render();
         }
