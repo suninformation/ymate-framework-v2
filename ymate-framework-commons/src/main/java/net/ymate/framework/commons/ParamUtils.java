@@ -165,7 +165,7 @@ public class ParamUtils {
                 _payHtml.append("<input type=\"hidden\" name=\"")
                         .append(_entry.getKey())
                         .append("\" value=\"")
-                        .append(_entry.getValue())
+                        .append(StringUtils.replace(_entry.getValue(), "\"", "&quot;"))
                         .append("\"/>");
             }
         }
