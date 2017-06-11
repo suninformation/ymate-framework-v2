@@ -154,25 +154,46 @@ public class ParamUtils {
     }
 
     public static String buildActionForm(String actionUrl, boolean usePost, Map<String, String> params) {
+        return buildActionForm(actionUrl, usePost, false, false, null, params);
+    }
+
+    public static String buildActionForm(String actionUrl, boolean usePost, boolean encode, boolean enctype, String charset, Map<String, String> params) {
+        String _charset = StringUtils.defaultIfBlank(charset, "UTF-8");
         StringBuilder _payHtml = new StringBuilder();
         _payHtml.append("<form id=\"_payment_submit\" name=\"_payment_submit\" action=\"")
                 .append(actionUrl).append("\" method=\"")
-                .append(usePost ? "POST" : "GET")
-                .append("\">");
+                .append(usePost ? "POST" : "GET").append("\"");
+        if (enctype) {
+            _payHtml.append("\" enctype=\"application/x-www-form-urlencoded;charset=").append(_charset).append("\"");
+        }
+        _payHtml.append(">");
         //
         for (Map.Entry<String, String> _entry : params.entrySet()) {
-            if (_entry.getKey() != null) {
-                _payHtml.append("<input type=\"hidden\" name=\"")
-                        .append(_entry.getKey())
-                        .append("\" value=\"")
-                        .append(StringUtils.replace(_entry.getValue(), "\"", "&quot;"))
-                        .append("\"/>");
-            }
+            __doAppendHiddenElement(_payHtml, _entry.getKey(), _entry.getValue(), encode, _charset);
         }
         // submit按钮控件请不要含有name属性
         _payHtml.append("<input type=\"submit\" value=\"doSubmit\" style=\"display:none;\"></form>");
         _payHtml.append("<script>document.forms['_payment_submit'].submit();</script>");
         return _payHtml.toString();
+    }
+
+    private static void __doAppendHiddenElement(StringBuilder stringBuilder, String key, String value, boolean encode, String charset) {
+        if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
+            String _splitStr = StringUtils.contains(value, '\"') ? "\'" : "\"";
+            //
+            stringBuilder.append("<input type=").append(_splitStr).append("hidden").append(_splitStr)
+                    .append(" name=").append(_splitStr).append(key).append(_splitStr);
+            //
+            String _valueStr = value;
+            if (encode) {
+                try {
+                    _valueStr = URLEncoder.encode(_valueStr, charset);
+                } catch (UnsupportedEncodingException e) {
+                    _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+                }
+            }
+            stringBuilder.append(" value=").append(_splitStr).append(_valueStr).append(_splitStr).append(">");
+        }
     }
 
     /**
