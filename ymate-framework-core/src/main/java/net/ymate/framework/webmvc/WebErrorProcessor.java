@@ -79,12 +79,12 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         return I18N.formatMessage(__resourceName, StringUtils.defaultIfBlank(msgKey, __errorDefaultI18nKey), StringUtils.defaultIfBlank(defaultMsg, "系统繁忙, 请稍后重试!"));
     }
 
-    protected void __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
+    protected IView __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
         if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
             WebResult _result = WebResult.CODE(code).msg(msg);
-            WebResult.formatView(_result, "json").render();
+            return WebResult.formatView(_result, "json");
         } else {
-            WebUtils.buildErrorView(owner, code, msg).render();
+            return WebUtils.buildErrorView(owner, code, msg);
         }
     }
 
@@ -163,7 +163,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
             } else {
                 Logs.get().getLogger().error(RuntimeUtils.unwrapThrow(e));
             }
-            __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null));
+            __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null)).render();
         } catch (Throwable e1) {
             _LOG.warn("", RuntimeUtils.unwrapThrow(e1));
         }
@@ -180,10 +180,10 @@ public class WebErrorProcessor implements IWebErrorProcessor {
                 for (ValidateResult _vResult : results.values()) {
                     _result.dataAttr(_vResult.getName(), _vResult.getMsg());
                 }
-                _view = WebResult.formatView(_result);
+                _view = WebResult.formatView(_result, "json");
             } catch (Exception e) {
                 try {
-                    __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null));
+                    _view = WebResult.formatView(WebResult.CODE(ErrorCode.INTERNAL_SYSTEM_ERROR).msg(__doGetI18nMsg(null, null)), "json");
                 } catch (Exception e1) {
                     _LOG.warn("", RuntimeUtils.unwrapThrow(e1));
                 }
