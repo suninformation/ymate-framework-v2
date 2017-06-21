@@ -22,8 +22,10 @@ import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
+import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.View;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 已登录用户拦截器
@@ -42,7 +44,16 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                     _sessionBean = null;
                 }
                 if (_sessionBean != null) {
-                    String _redirectUrl = WebUtils.buildRedirectURL(context, null, true);
+                    //
+                    String _redirectUrl = null;
+                    if (context.getContextParams().containsKey(Optional.CUSTOM_REDIRECT)) {
+                        String _custom = context.getContextParams().get(Optional.CUSTOM_REDIRECT);
+                        if (StringUtils.equalsIgnoreCase(_custom, Optional.CUSTOM_REDIRECT)) {
+                            _custom = null;
+                        }
+                        _redirectUrl = context.getOwner().getConfig().getParam(StringUtils.defaultIfBlank(_custom, Optional.REDIRECT_CUSTOM_URL));
+                    }
+                    _redirectUrl = WebUtils.buildRedirectURL(context, _redirectUrl, true);
                     String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_AUTHORIZED_KEY, "用户已经授权登录");
                     //
                     if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
@@ -56,7 +67,7 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                     if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
                         return View.redirectView(_redirectUrl);
                     }
-                    return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_AUTHORIZED, _message, _redirectUrl, 3);
+                    return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_AUTHORIZED, _message, _redirectUrl, BlurObject.bind(context.getOwner().getConfig().getParam(Optional.REDIRECT_TIME_INTERVAL)).toIntValue());
                 }
                 break;
         }

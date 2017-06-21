@@ -22,6 +22,7 @@ import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
+import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.View;
@@ -59,7 +60,16 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                         _returnUrlBuffer.append("?").append(_queryStr);
                     }
                     //
-                    String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.REDIRECT_LOGIN_URL), "login?redirect_url=${redirect_url}"), true);
+                    String _redirectParamName = Optional.REDIRECT_LOGIN_URL;
+                    if (context.getContextParams().containsKey(Optional.CUSTOM_REDIRECT)) {
+                        String _custom = context.getContextParams().get(Optional.CUSTOM_REDIRECT);
+                        if (StringUtils.equalsIgnoreCase(_custom, Optional.CUSTOM_REDIRECT)) {
+                            _custom = null;
+                        }
+                        _redirectParamName = StringUtils.defaultIfBlank(_custom, Optional.REDIRECT_CUSTOM_URL);
+                    }
+                    //
+                    String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(_redirectParamName), "login?redirect_url=${redirect_url}"), true);
                     _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
                     //
                     String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_TIMEOUT_KEY, "用户未授权登录或会话已过期，请重新登录");
@@ -74,7 +84,7 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                     if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
                         return View.redirectView(_redirectUrl);
                     }
-                    return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, _message, _redirectUrl, 3);
+                    return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, _message, _redirectUrl, BlurObject.bind(context.getOwner().getConfig().getParam(Optional.REDIRECT_TIME_INTERVAL)).toIntValue());
                 } else {
                     // 更新会话最后活动时间
                     _sessionBean.touch();

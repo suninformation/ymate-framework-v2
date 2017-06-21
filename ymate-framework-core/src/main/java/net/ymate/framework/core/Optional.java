@@ -31,6 +31,8 @@ public class Optional {
 
     public static final String OBSERVE_SILENCE = "observe_silence";
 
+    public static final String CUSTOM_REDIRECT = "custom_redirect";
+
     /**
      * 国际化资源文件参数名称
      */
@@ -135,6 +137,16 @@ public class Optional {
      * 重定向主页URL地址参数名称, 默认值: ""
      */
     public static final String REDIRECT_HOME_URL = "webmvc.redirect_home_url";
+
+    /**
+     * 自定义重定向URL地址参数名称
+     */
+    public static final String REDIRECT_CUSTOM_URL = "webmvc.redirect_custom_url";
+
+    /**
+     * 重定向自动跳转时间间隔参数名称
+     */
+    public static final String REDIRECT_TIME_INTERVAL = "webmvc.redirect_time_interval";
 
     /**
      * 允许上传的文件类型验证参数名称
