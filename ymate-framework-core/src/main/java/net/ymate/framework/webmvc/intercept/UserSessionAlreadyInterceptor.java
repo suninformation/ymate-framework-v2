@@ -45,15 +45,7 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                 }
                 if (_sessionBean != null) {
                     //
-                    String _redirectUrl = null;
-                    if (context.getContextParams().containsKey(Optional.CUSTOM_REDIRECT)) {
-                        String _custom = context.getContextParams().get(Optional.CUSTOM_REDIRECT);
-                        if (StringUtils.equalsIgnoreCase(_custom, Optional.CUSTOM_REDIRECT)) {
-                            _custom = null;
-                        }
-                        _redirectUrl = context.getOwner().getConfig().getParam(StringUtils.defaultIfBlank(_custom, Optional.REDIRECT_CUSTOM_URL));
-                    }
-                    _redirectUrl = WebUtils.buildRedirectURL(context, _redirectUrl, true);
+                    String _redirectUrl = WebUtils.buildRedirectURL(context, WebUtils.buildRedirectCustomURL(context, null), true);
                     String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_AUTHORIZED_KEY, "用户已经授权登录");
                     //
                     if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {

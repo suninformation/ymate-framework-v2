@@ -411,6 +411,22 @@ public class WebUtils {
         return _redirectUrl;
     }
 
+    public static String buildRedirectCustomURL(InterceptContext context, String defaultValue) {
+        String _returnValue = null;
+        if (context.getContextParams().containsKey(Optional.CUSTOM_REDIRECT)) {
+            String _value = context.getContextParams().get(Optional.CUSTOM_REDIRECT);
+            if (StringUtils.equalsIgnoreCase(_value, Optional.CUSTOM_REDIRECT)) {
+                _value = Optional.REDIRECT_CUSTOM_URL;
+            } else if (StringUtils.startsWithIgnoreCase(_value, "http://") || StringUtils.startsWithIgnoreCase(_value, "https://")) {
+                return _value;
+            }
+            if (StringUtils.isNotBlank(_value)) {
+                _returnValue = context.getOwner().getConfig().getParam(_value);
+            }
+        }
+        return StringUtils.trimToEmpty(StringUtils.defaultIfBlank(_returnValue, defaultValue));
+    }
+
     public static IView buildErrorView(IWebMvc owner, int code, String msg) {
         return buildErrorView(owner, code, msg, null, 0);
     }

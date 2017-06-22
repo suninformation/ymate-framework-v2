@@ -60,16 +60,7 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                         _returnUrlBuffer.append("?").append(_queryStr);
                     }
                     //
-                    String _redirectParamName = Optional.REDIRECT_LOGIN_URL;
-                    if (context.getContextParams().containsKey(Optional.CUSTOM_REDIRECT)) {
-                        String _custom = context.getContextParams().get(Optional.CUSTOM_REDIRECT);
-                        if (StringUtils.equalsIgnoreCase(_custom, Optional.CUSTOM_REDIRECT)) {
-                            _custom = null;
-                        }
-                        _redirectParamName = StringUtils.defaultIfBlank(_custom, Optional.REDIRECT_CUSTOM_URL);
-                    }
-                    //
-                    String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(_redirectParamName), "login?redirect_url=${redirect_url}"), true);
+                    String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(WebUtils.buildRedirectCustomURL(context, null), "login?redirect_url=${redirect_url}"), true);
                     _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
                     //
                     String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_TIMEOUT_KEY, "用户未授权登录或会话已过期，请重新登录");
