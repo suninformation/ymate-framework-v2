@@ -82,6 +82,7 @@ public class NavbarTag extends ElementsTag {
             if (fluid) {
                 tagContent.append("-fluid");
             }
+            tagContent.append("\">");
         }
         //
         if (StringUtils.isNotBlank(headBody) || StringUtils.isNotBlank(brand) || StringUtils.isNotBlank(collapseId)) {
