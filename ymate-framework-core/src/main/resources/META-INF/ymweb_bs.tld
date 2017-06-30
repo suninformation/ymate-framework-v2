@@ -2321,6 +2321,11 @@
             <type>java.lang.String</type>
         </attribute>
         <attribute>
+            <name>draggable</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
             <name>small</name>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Boolean</type>

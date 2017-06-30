@@ -32,6 +32,8 @@ public class ModalTag extends ElementsTag {
 
     private String dialogClass;
 
+    private boolean draggable;
+
     private boolean small;
     private boolean large;
 
@@ -64,6 +66,9 @@ public class ModalTag extends ElementsTag {
         }
         if (StringUtils.isNotBlank(dialogClass)) {
             tagContent.append(" ").append(dialogClass);
+        }
+        if (draggable) {
+            tagContent.append("\" data-draggable=\"draggable");
         }
         tagContent.append("\">").append("<div class=\"modal-content\">").append(bodyContent).append("</div>").append("</div>");
         return __doTagEnd(tagContent);
@@ -99,6 +104,14 @@ public class ModalTag extends ElementsTag {
 
     public void setDialogClass(String dialogClass) {
         this.dialogClass = dialogClass;
+    }
+
+    public boolean isDraggable() {
+        return draggable;
+    }
+
+    public void setDraggable(boolean draggable) {
+        this.draggable = draggable;
     }
 
     public boolean isSmall() {
