@@ -154,11 +154,11 @@ public class FormControlTag extends ElementsTag {
         if (StringUtils.isNotBlank(helpBlock) || StringUtils.isNotBlank(helpBlockClass)) {
             tagContent.append("<span class=\"help-block ").append(StringUtils.trimToEmpty(helpBlockClass)).append("\">").append(StringUtils.trimToEmpty(helpBlock)).append("</span>");
         }
-        if (labelWidth != null && labelWidth > 0) {
-            tagContent.append("</div>");
-        }
         if (StringUtils.isNotBlank(type)) {
-            return __doTagEnd(tagContent);
+            tagContent = __doTagEnd(tagContent);
+        }
+        if (StringUtils.isNotBlank(label) && labelWidth != null && labelWidth > 0) {
+            tagContent.append("</div>");
         }
         return tagContent;
     }
