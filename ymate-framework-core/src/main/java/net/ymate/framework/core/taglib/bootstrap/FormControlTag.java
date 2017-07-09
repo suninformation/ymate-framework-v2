@@ -125,10 +125,6 @@ public class FormControlTag extends ElementsTag {
 
     @Override
     protected StringBuilder __doTagContent(StringBuilder tagContent, StringBuilder bodyContent) {
-        if (StringUtils.equalsIgnoreCase(type, "checkbox") || StringUtils.equalsIgnoreCase(type, "radio")) {
-            return super.__doTagContent(tagContent, bodyContent);
-        }
-        //
         StringBuilder _tmpSB = new StringBuilder();
         if (StringUtils.isNotBlank(label)) {
             _tmpSB.append("<label class=\"control-label");
