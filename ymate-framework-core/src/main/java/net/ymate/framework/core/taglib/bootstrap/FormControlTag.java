@@ -144,14 +144,14 @@ public class FormControlTag extends ElementsTag {
             }
         }
         tagContent.insert(0, _tmpSB).append(bodyContent);
+        if (StringUtils.isNotBlank(type)) {
+            tagContent = __doTagEnd(tagContent);
+        }
         if (__formGroup != null && StringUtils.isNotBlank(__formGroup.getFeedbackIcon())) {
             tagContent.append("<span class=\"").append(__formGroup.getFeedbackIcon()).append(" form-control-feedback\"></span>");
         }
         if (StringUtils.isNotBlank(helpBlock) || StringUtils.isNotBlank(helpBlockClass)) {
             tagContent.append("<span class=\"help-block ").append(StringUtils.trimToEmpty(helpBlockClass)).append("\">").append(StringUtils.trimToEmpty(helpBlock)).append("</span>");
-        }
-        if (StringUtils.isNotBlank(type)) {
-            tagContent = __doTagEnd(tagContent);
         }
         if (StringUtils.isNotBlank(label) && labelWidth != null && labelWidth > 0) {
             tagContent.append("</div>");
