@@ -146,10 +146,9 @@ public class Unpackers implements IModule, IUnpackers {
                     //
                     String _entryName = StringUtils.substringAfter(_entry.getName(), prefixPath);
                     File _targetFile = new File(RuntimeUtils.getRootPath(false), _entryName);
-                    if (_targetFile.getParentFile().mkdirs()) {
-                        IOUtils.copyLarge(jarFile.getInputStream(_entry), new FileOutputStream(_targetFile));
-                        _results = true;
-                    }
+                    _targetFile.getParentFile().mkdirs();
+                    IOUtils.copyLarge(jarFile.getInputStream(_entry), new FileOutputStream(_targetFile));
+                    _results = true;
                 }
             }
         }
