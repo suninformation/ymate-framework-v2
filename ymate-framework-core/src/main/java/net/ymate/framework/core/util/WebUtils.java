@@ -55,6 +55,8 @@ public class WebUtils {
 
     private static final Log _LOG = LogFactory.getLog(WebUtils.class);
 
+    private static String __resourceName;
+
     /**
      * @param request      HttpServletRequest对象
      * @param requestPath  控制器路径
@@ -343,6 +345,17 @@ public class WebUtils {
         return new String(CodecUtils.DES.decrypt(Base64.decodeBase64(dataStr), DigestUtils.md5(key)));
     }
 
+    public static String getResourceName(YMP owner) {
+        if (__resourceName == null) {
+            synchronized (WebUtils.class) {
+                if (__resourceName == null) {
+                    __resourceName = StringUtils.defaultIfBlank(owner.getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+                }
+            }
+        }
+        return __resourceName;
+    }
+
     /**
      * 加载i18n资源键值
      *
@@ -351,8 +364,7 @@ public class WebUtils {
      * @return 返回resKey指定的键值
      */
     public static String i18nStr(YMP owner, String resKey) {
-        String _resourceName = StringUtils.defaultIfBlank(owner.getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-        return I18N.load(_resourceName, resKey);
+        return I18N.load(getResourceName(owner), resKey);
     }
 
     /**
@@ -364,8 +376,7 @@ public class WebUtils {
      * @return 返回resKey指定的键值
      */
     public static String i18nStr(YMP owner, String resKey, String defaultValue) {
-        String _resourceName = StringUtils.defaultIfBlank(owner.getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-        return I18N.load(_resourceName, resKey, defaultValue);
+        return I18N.load(getResourceName(owner), resKey, defaultValue);
     }
 
     public static String messageWithTemplate(YMP owner, String message) {
