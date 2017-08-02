@@ -48,7 +48,7 @@ public class Unpackers implements IModule, IUnpackers {
 
     private static final Log _LOG = LogFactory.getLog(Unpackers.class);
 
-    public static final Version VERSION = new Version(1, 0, 0, Unpackers.class.getPackage().getImplementationVersion(), Version.VersionType.Alphal);
+    public static final Version VERSION = new Version(2, 0, 1, Unpackers.class.getPackage().getImplementationVersion(), Version.VersionType.Release);
 
     private static volatile IUnpackers __instance;
 
