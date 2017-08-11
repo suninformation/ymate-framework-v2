@@ -117,6 +117,19 @@ public class UserSessionBean implements Serializable {
     }
 
     /**
+     * @param name 属性名称
+     * @param <T>  返回值类型
+     * @return 获取当前会话中指定名称的属性值, 若会话对象不存在或属性不存在将返回null值
+     */
+    public static <T extends Serializable> T current(String name) {
+        UserSessionBean _sessionBean = current();
+        if (_sessionBean != null) {
+            return _sessionBean.getAttribute(name);
+        }
+        return null;
+    }
+
+    /**
      * @return 更新会话最后活动时间(毫秒)
      */
     public UserSessionBean touch() {
