@@ -25,10 +25,7 @@ import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.log.Logs;
 import net.ymate.platform.validation.ValidateResult;
-import net.ymate.platform.webmvc.IRequestContext;
-import net.ymate.platform.webmvc.IWebErrorProcessor;
-import net.ymate.platform.webmvc.IWebMvc;
-import net.ymate.platform.webmvc.RequestMeta;
+import net.ymate.platform.webmvc.*;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.support.GenericResponseWrapper;
 import net.ymate.platform.webmvc.view.IView;
@@ -49,7 +46,7 @@ import java.util.Map;
  * @author 刘镇 (suninformation@163.com) on 14/7/6 下午1:47
  * @version 1.0
  */
-public class WebErrorProcessor implements IWebErrorProcessor {
+public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable {
 
     private static final Log _LOG = LogFactory.getLog(WebErrorProcessor.class);
 
@@ -61,18 +58,19 @@ public class WebErrorProcessor implements IWebErrorProcessor {
 
     private boolean __disabledAnalysis;
 
-    protected void __doInit(IWebMvc owner) {
+    @Override
+    public void init(WebMVC owner) throws Exception {
         if (!__inited) {
-            synchronized (_LOG) {
-                if (!__inited) {
-                    __resourceName = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-                    __errorDefaultI18nKey = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY), Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY);
-                    __disabledAnalysis = BlurObject.bind(owner.getOwner().getConfig().getParam(Optional.SYSTEM_EXCEPTION_ANALYSIS_DISABLED)).toBooleanValue();
-                    //
-                    __inited = true;
-                }
-            }
+            __resourceName = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+            __errorDefaultI18nKey = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY), Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY);
+            __disabledAnalysis = BlurObject.bind(owner.getOwner().getConfig().getParam(Optional.SYSTEM_EXCEPTION_ANALYSIS_DISABLED)).toBooleanValue();
+            //
+            __inited = true;
         }
+    }
+
+    @Override
+    public void destroy() throws Exception {
     }
 
     protected String __doGetI18nMsg(String msgKey, String defaultMsg) {
@@ -154,10 +152,9 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         Logs.get().getLogger().error(_errSB.toString());
     }
 
+    @Override
     public void onError(IWebMvc owner, Throwable e) {
         try {
-            __doInit(owner);
-            //
             if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
                 __doParseExceptionDetail(owner, RuntimeUtils.unwrapThrow(e));
             } else {
@@ -169,10 +166,9 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         }
     }
 
+    @Override
     public IView onValidation(IWebMvc owner, Map<String, ValidateResult> results) {
         IView _view = null;
-        //
-        __doInit(owner);
         //
         if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
             WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(__doGetI18nMsg(Optional.SYSTEM_PARAMS_VALIDATION_INVALID_KEY, "请求参数验证无效"));
@@ -196,6 +192,7 @@ public class WebErrorProcessor implements IWebErrorProcessor {
         return _view;
     }
 
+    @Override
     public IView onConvention(IWebMvc owner, IRequestContext requestContext) throws Exception {
         String[] _fileTypes = {".html", ".jsp", ".ftl", ".vm"};
         for (String _fileType : _fileTypes) {
