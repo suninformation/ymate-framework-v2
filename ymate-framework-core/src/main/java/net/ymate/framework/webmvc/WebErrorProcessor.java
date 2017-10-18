@@ -17,8 +17,11 @@ package net.ymate.framework.webmvc;
 
 import com.alibaba.fastjson.JSON;
 import net.ymate.framework.core.Optional;
+import net.ymate.framework.core.support.ExceptionProcessHelper;
+import net.ymate.framework.core.support.IExceptionProcessor;
 import net.ymate.framework.core.util.ViewPathUtils;
 import net.ymate.framework.core.util.WebUtils;
+import net.ymate.framework.exception.*;
 import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.DateTimeUtils;
@@ -50,6 +53,8 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
 
     private static final Log _LOG = LogFactory.getLog(WebErrorProcessor.class);
 
+    private static final ExceptionProcessHelper __exceptionProcessHelper = new ExceptionProcessHelper();
+
     private boolean __inited;
 
     private String __resourceName;
@@ -65,12 +70,57 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
             __errorDefaultI18nKey = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY), Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY);
             __disabledAnalysis = BlurObject.bind(owner.getOwner().getConfig().getParam(Optional.SYSTEM_EXCEPTION_ANALYSIS_DISABLED)).toBooleanValue();
             //
+            __doRegisterExceptionProcessors();
+            //
             __inited = true;
         }
     }
 
     @Override
     public void destroy() throws Exception {
+    }
+
+    protected ExceptionProcessHelper getExceptionProcessHelper() {
+        return __exceptionProcessHelper;
+    }
+
+    protected void __doRegisterExceptionProcessors() {
+        __exceptionProcessHelper.registerProcessor(DataVersionMismatchException.class, new IExceptionProcessor() {
+            @Override
+            public IExceptionProcessor.Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.DATA_VERSION_NOT_MATCH, __doGetI18nMsg(Optional.SYSTEM_DATA_VERSION_NOT_MATCH_KEY, "数据版本不匹配"));
+            }
+        });
+        __exceptionProcessHelper.registerProcessor(RequestForbiddenException.class, new IExceptionProcessor() {
+            @Override
+            public IExceptionProcessor.Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.REQUEST_OPERATION_FORBIDDEN, __doGetI18nMsg(Optional.SYSTEM_REQUEST_OPERATION_FORBIDDEN_KEY, "请求的操作被禁止"));
+            }
+        });
+        __exceptionProcessHelper.registerProcessor(RequestMethodNotAllowedException.class, new IExceptionProcessor() {
+            @Override
+            public IExceptionProcessor.Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.REQUEST_METHOD_NOT_ALLOWED, __doGetI18nMsg(Optional.SYSTEM_REQUEST_METHOD_NOT_ALLOWED_KEY, "请求方法不支持或不正确"));
+            }
+        });
+        __exceptionProcessHelper.registerProcessor(RequestUnauthorizedException.class, new IExceptionProcessor() {
+            @Override
+            public IExceptionProcessor.Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.REQUEST_RESOURCE_UNAUTHORIZED, __doGetI18nMsg(Optional.SYSTEM_REQUEST_RESOURCE_UNAUTHORIZED_KEY, "请求的资源未授权或无权限"));
+            }
+        });
+        __exceptionProcessHelper.registerProcessor(ResourceNotFoundException.class, new IExceptionProcessor() {
+            @Override
+            public IExceptionProcessor.Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.RESOURCE_NOT_FOUND_OR_NOT_EXIST, __doGetI18nMsg(Optional.SYSTEM_RESOURCE_NOT_FOUND_OR_NOT_EXIST_KEY, "访问的资源未找到或不存在"));
+            }
+        });
+        __exceptionProcessHelper.registerProcessor(UserSessionInvalidException.class, new IExceptionProcessor() {
+            @Override
+            public IExceptionProcessor.Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, __doGetI18nMsg(Optional.SYSTEM_SESSION_TIMEOUT_KEY, "用户未授权登录或会话已过期"));
+            }
+        });
     }
 
     protected String __doGetI18nMsg(String msgKey, String defaultMsg) {
@@ -155,12 +205,19 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
     @Override
     public void onError(IWebMvc owner, Throwable e) {
         try {
-            if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
-                __doParseExceptionDetail(owner, RuntimeUtils.unwrapThrow(e));
+            Throwable _unwrapThrow = RuntimeUtils.unwrapThrow(e);
+            IExceptionProcessor _processor = __exceptionProcessHelper.bind(_unwrapThrow.getClass());
+            if (_processor != null) {
+                IExceptionProcessor.Result _result = _processor.process(_unwrapThrow);
+                __doShowErrorMsg(owner, _result.getCode(), __doGetI18nMsg(_result.getMessage(), _result.getMessage())).render();
             } else {
-                Logs.get().getLogger().error(RuntimeUtils.unwrapThrow(e));
+                if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
+                    __doParseExceptionDetail(owner, _unwrapThrow);
+                } else {
+                    Logs.get().getLogger().error(_unwrapThrow);
+                }
+                __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null)).render();
             }
-            __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null)).render();
         } catch (Throwable e1) {
             _LOG.warn("", RuntimeUtils.unwrapThrow(e1));
         }

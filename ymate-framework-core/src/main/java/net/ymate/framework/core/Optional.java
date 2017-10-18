@@ -99,7 +99,7 @@ public class Optional {
     public static final String SYSTEM_REQUEST_METHOD_NOT_ALLOWED_KEY = "webmvc.request_method_not_allowed_key";
 
     /**
-     * 据版本不匹配KEY
+     * 数据版本不匹配KEY
      */
     public static final String SYSTEM_DATA_VERSION_NOT_MATCH_KEY = "webmvc.data_version_not_match_key";
 
