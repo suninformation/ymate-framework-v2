@@ -293,23 +293,23 @@ public class WebResult {
                 _view = result.toXML(true);
             }
         }
-        if (_view == null) {
-            if (StringUtils.isNotBlank(path)) {
-                _view = new JspView(path);
-                if (result != null) {
-                    if (StringUtils.isNotBlank(result.msg())) {
-                        _view.addAttribute("msg", result.msg());
-                    }
-                    if (result.data() != null) {
-                        _view.addAttribute("data", result.data());
-                    }
-                    for (Map.Entry<String, Object> _entry : result.attrs().entrySet()) {
-                        _view.addAttribute(_entry.getKey(), _entry.getValue());
-                    }
+        if (_view == null && StringUtils.isNotBlank(path)) {
+            _view = new JspView(path);
+            if (result != null) {
+                _view.addAttribute("ret", result.code());
+                //
+                if (StringUtils.isNotBlank(result.msg())) {
+                    _view.addAttribute("msg", result.msg());
                 }
-            } else {
-                _view = new NullView();
+                if (result.data() != null) {
+                    _view.addAttribute("data", result.data());
+                }
+                for (Map.Entry<String, Object> _entry : result.attrs().entrySet()) {
+                    _view.addAttribute(_entry.getKey(), _entry.getValue());
+                }
             }
+        } else {
+            _view = new NullView();
         }
         return _view;
     }
