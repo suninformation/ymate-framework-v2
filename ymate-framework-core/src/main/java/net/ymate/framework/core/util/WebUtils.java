@@ -44,6 +44,8 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Web通用工具类
@@ -384,12 +386,9 @@ public class WebUtils {
     }
 
     public static String messageWithTemplate(YMP owner, String name, String message) {
-        ExpressionUtils _item = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ITEM), "${message}<br>"));
-        _item.set("name", name);
-        _item.set("message", message);
-        //
-        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${title} ${items}"));
-        return StringUtils.trimToEmpty(_element.set("items", _item.clean().getResult()).clean().getResult());
+        Collection<ValidateResult> _messages = new HashSet<ValidateResult>();
+        _messages.add(new ValidateResult(name, message));
+        return messageWithTemplate(owner, null, _messages);
     }
 
     public static String messageWithTemplate(YMP owner, String title, Collection<ValidateResult> messages) {
@@ -450,6 +449,10 @@ public class WebUtils {
     }
 
     public static IView buildErrorView(IWebMvc owner, int code, String msg, String redirectUrl, int timeInterval) {
+        return buildErrorView(owner, code, msg, redirectUrl, timeInterval, null);
+    }
+
+    public static IView buildErrorView(IWebMvc owner, int code, String msg, String redirectUrl, int timeInterval, Map<String, Object> data) {
         IView _view = null;
         String _errorViewPath = StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(Optional.ERROR_VIEW), "error.jsp");
         if (StringUtils.endsWithIgnoreCase(_errorViewPath, ".ftl")) {
@@ -461,6 +464,9 @@ public class WebUtils {
         }
         _view.addAttribute("ret", code);
         _view.addAttribute("msg", msg);
+        if (data != null && !data.isEmpty()) {
+            _view.addAttribute("data", data);
+        }
         //
         if (StringUtils.isNotBlank(redirectUrl) && timeInterval > 0) {
             _view.addHeader("REFRESH", timeInterval + ";URL=" + redirectUrl);

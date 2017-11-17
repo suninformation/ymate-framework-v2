@@ -103,6 +103,13 @@ public class Optional {
      */
     public static final String SYSTEM_DATA_VERSION_NOT_MATCH_KEY = "webmvc.data_version_not_match_key";
 
+    // ----------
+
+    /**
+     * 默认异常响应视图格式, 默认值: "", 可选范围: json|xml
+     */
+    public static final String ERROR_DEFAULT_VIEW_FORMAT = "webmvc.error_default_view_format";
+
     /**
      * 会话处理器类
      */

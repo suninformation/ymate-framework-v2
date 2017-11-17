@@ -62,6 +62,8 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
 
     private String __errorDefaultI18nKey;
 
+    private String __errorDefaultViewFormat;
+
     private boolean __disabledAnalysis;
 
     @Override
@@ -69,6 +71,7 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
         if (!__inited) {
             __resourceName = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
             __errorDefaultI18nKey = StringUtils.defaultIfBlank(owner.getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY), Optional.SYSTEM_ERROR_DEFAULT_I18N_KEY);
+            __errorDefaultViewFormat = StringUtils.trimToEmpty(owner.getOwner().getConfig().getParam(Optional.ERROR_DEFAULT_VIEW_FORMAT)).toLowerCase();
             __disabledAnalysis = BlurObject.bind(owner.getOwner().getConfig().getParam(Optional.SYSTEM_EXCEPTION_ANALYSIS_DISABLED)).toBooleanValue();
             //
             __doRegisterExceptionProcessors();
@@ -129,7 +132,7 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
     }
 
     protected IView __doShowErrorMsg(IWebMvc owner, int code, String msg) throws Exception {
-        if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
+        if (WebUtils.isAjax(WebContext.getRequest(), true, true) || "json".equals(__errorDefaultViewFormat)) {
             WebResult _result = WebResult.CODE(code).msg(msg);
             return WebResult.formatView(_result, "json");
         } else {
@@ -234,7 +237,7 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
             _dataMap.put(_vResult.getName(), _vResult.getMsg());
         }
         //
-        if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
+        if (WebUtils.isAjax(WebContext.getRequest(), true, true) || "json".equals(__errorDefaultViewFormat)) {
             try {
                 _view = WebResult.formatView(WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(_message).data(_dataMap), "json");
             } catch (Exception e) {
