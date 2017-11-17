@@ -86,9 +86,18 @@ public class UploadFileValidator extends AbstractValidator {
             _matched = true;
         } else if (vUploadFile.max() > 0 && value.getSize() > vUploadFile.max()) {
             _matched = true;
-        } else if (allowContentTypes.size() > 0 && !allowContentTypes.contains(value.getContentType())) {
-            _matched = true;
-            _isNotAllowContentType = true;
+        } else if (allowContentTypes.size() > 0) {
+            boolean _flag = false;
+            for (String _contentType : allowContentTypes) {
+                if (StringUtils.contains(value.getContentType(), _contentType)) {
+                    _flag = true;
+                    break;
+                }
+            }
+            if (!_flag) {
+                _matched = true;
+                _isNotAllowContentType = true;
+            }
         }
         if (_matched) {
             String _msg = StringUtils.trimToNull(vUploadFile.msg());
