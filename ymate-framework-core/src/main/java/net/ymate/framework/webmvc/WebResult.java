@@ -22,12 +22,13 @@ import net.ymate.platform.core.util.ClassUtils;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
+import net.ymate.platform.webmvc.view.impl.HttpStatusView;
 import net.ymate.platform.webmvc.view.impl.JsonView;
 import net.ymate.platform.webmvc.view.impl.JspView;
-import net.ymate.platform.webmvc.view.impl.NullView;
 import net.ymate.platform.webmvc.view.impl.TextView;
 import org.apache.commons.lang.StringUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -293,23 +294,29 @@ public class WebResult {
                 _view = result.toXML(true);
             }
         }
-        if (_view == null && StringUtils.isNotBlank(path)) {
-            _view = new JspView(path);
-            if (result != null) {
-                _view.addAttribute("ret", result.code());
-                //
-                if (StringUtils.isNotBlank(result.msg())) {
-                    _view.addAttribute("msg", result.msg());
+        if (_view == null) {
+            if (StringUtils.isNotBlank(path)) {
+                _view = new JspView(path);
+                if (result != null) {
+                    _view.addAttribute("ret", result.code());
+                    //
+                    if (StringUtils.isNotBlank(result.msg())) {
+                        _view.addAttribute("msg", result.msg());
+                    }
+                    if (result.data() != null) {
+                        _view.addAttribute("data", result.data());
+                    }
+                    for (Map.Entry<String, Object> _entry : result.attrs().entrySet()) {
+                        _view.addAttribute(_entry.getKey(), _entry.getValue());
+                    }
                 }
-                if (result.data() != null) {
-                    _view.addAttribute("data", result.data());
-                }
-                for (Map.Entry<String, Object> _entry : result.attrs().entrySet()) {
-                    _view.addAttribute(_entry.getKey(), _entry.getValue());
+            } else {
+                if (result != null && StringUtils.isNotBlank(result.msg())) {
+                    _view = new HttpStatusView(HttpServletResponse.SC_BAD_REQUEST, result.msg());
+                } else {
+                    _view = new HttpStatusView(HttpServletResponse.SC_BAD_REQUEST);
                 }
             }
-        } else {
-            _view = new NullView();
         }
         return _view;
     }
