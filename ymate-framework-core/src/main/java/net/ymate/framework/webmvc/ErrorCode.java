@@ -15,6 +15,10 @@
  */
 package net.ymate.framework.webmvc;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * ret = 0: 正确返回<br>
  * ret &gt; 0: 调用OpenAPI时发生错误，需要开发者进行相应的处理<br>
@@ -25,6 +29,52 @@ package net.ymate.framework.webmvc;
  * @version 1.0
  */
 public class ErrorCode {
+
+    public static Map<Integer, String> HTTP_STATUS;
+
+    static {
+        Map<Integer, String> _httpStatus = new HashMap<Integer, String>();
+        //
+        _httpStatus.put(400, "Bad Request");
+        _httpStatus.put(401, "Unauthorized");
+        _httpStatus.put(402, "Payment Required");
+        _httpStatus.put(403, "Forbidden");
+        _httpStatus.put(404, "Not Found");
+        _httpStatus.put(405, "Method Not Allowed");
+        _httpStatus.put(406, "Not Acceptable");
+        _httpStatus.put(407, "Proxy Authentication Required");
+        _httpStatus.put(408, "Request Timeout");
+        _httpStatus.put(409, "Conflict");
+        _httpStatus.put(410, "Gone");
+        _httpStatus.put(411, "Length Required");
+        _httpStatus.put(412, "Precondition Failed");
+        _httpStatus.put(413, "Request Entity Too Large");
+        _httpStatus.put(414, "Request URI Too Long");
+        _httpStatus.put(415, "Unsupported Media Type");
+        _httpStatus.put(416, "Requested Range Not Satisfiable");
+        _httpStatus.put(417, "Expectation Failed");
+        _httpStatus.put(421, "Too Many Connections");
+        _httpStatus.put(422, "Unprocessable Entity");
+        _httpStatus.put(423, "Locked");
+        _httpStatus.put(424, "Failed Dependency");
+        _httpStatus.put(425, "Unordered Collection");
+        _httpStatus.put(426, "Ungrade Required");
+        _httpStatus.put(449, "Retry With");
+        _httpStatus.put(451, "Unavailable For Legal Reasons");
+        //
+        _httpStatus.put(500, "Internal Server Error");
+        _httpStatus.put(501, "Not Implemented");
+        _httpStatus.put(502, "Bad Gateway");
+        _httpStatus.put(503, "Service Unavailable");
+        _httpStatus.put(504, "Gateway Timeout");
+        _httpStatus.put(505, "HTTP Version Not Supported");
+        _httpStatus.put(506, "Variant Also Negotiates");
+        _httpStatus.put(507, "Insufficient Storage");
+        _httpStatus.put(509, "Bandwith Limit Exceeded");
+        _httpStatus.put(510, "Not Extended");
+        //
+        HTTP_STATUS = Collections.unmodifiableMap(_httpStatus);
+    }
 
     /**
      * 请求成功

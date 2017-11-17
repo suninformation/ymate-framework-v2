@@ -16,6 +16,7 @@
 package net.ymate.framework.core.util;
 
 import net.ymate.framework.core.Optional;
+import net.ymate.framework.webmvc.ErrorCode;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.i18n.I18N;
@@ -473,5 +474,14 @@ public class WebUtils {
         }
         //
         return _view;
+    }
+
+    public static String httpStatusI18nMsg(int code) {
+        String _statusText = ErrorCode.HTTP_STATUS.get(code);
+        if (StringUtils.isBlank(_statusText)) {
+            code = 400;
+            _statusText = ErrorCode.HTTP_STATUS.get(code);
+        }
+        return i18nStr(YMP.get(), "webmvc.http_status_" + code, _statusText);
     }
 }
