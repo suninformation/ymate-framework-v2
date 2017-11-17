@@ -41,6 +41,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -227,13 +228,15 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
     public IView onValidation(IWebMvc owner, Map<String, ValidateResult> results) {
         IView _view = null;
         //
+        String _message = __doGetI18nMsg(Optional.SYSTEM_PARAMS_VALIDATION_INVALID_KEY, "请求参数验证无效");
+        Map<String, Object> _dataMap = new HashMap<String, Object>();
+        for (ValidateResult _vResult : results.values()) {
+            _dataMap.put(_vResult.getName(), _vResult.getMsg());
+        }
+        //
         if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
-            WebResult _result = WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(__doGetI18nMsg(Optional.SYSTEM_PARAMS_VALIDATION_INVALID_KEY, "请求参数验证无效"));
             try {
-                for (ValidateResult _vResult : results.values()) {
-                    _result.dataAttr(_vResult.getName(), _vResult.getMsg());
-                }
-                _view = WebResult.formatView(_result, "json");
+                _view = WebResult.formatView(WebResult.CODE(ErrorCode.INVALID_PARAMS_VALIDATION).msg(_message).data(_dataMap), "json");
             } catch (Exception e) {
                 try {
                     _view = WebResult.formatView(WebResult.CODE(ErrorCode.INTERNAL_SYSTEM_ERROR).msg(__doGetI18nMsg(null, null)), "json");
@@ -243,8 +246,8 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
             }
         } else {
             // 拼装所有的验证消息
-            String _resultMsg = WebUtils.messageWithTemplate(owner.getOwner(), results.values());
-            _view = WebUtils.buildErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _resultMsg);
+            String _resultMsg = WebUtils.messageWithTemplate(owner.getOwner(), _message, results.values());
+            _view = WebUtils.buildErrorView(owner, ErrorCode.INVALID_PARAMS_VALIDATION, _resultMsg).addAttribute("data", _dataMap);
         }
         return _view;
     }

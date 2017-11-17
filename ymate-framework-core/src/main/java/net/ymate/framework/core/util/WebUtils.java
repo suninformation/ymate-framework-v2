@@ -388,21 +388,28 @@ public class WebUtils {
         _item.set("name", name);
         _item.set("message", message);
         //
-        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${items}"));
-        return _element.set("items", _item.getResult()).getResult();
+        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${title} ${items}"));
+        return StringUtils.trimToEmpty(_element.set("items", _item.clean().getResult()).clean().getResult());
     }
 
-    public static String messageWithTemplate(YMP owner, Collection<ValidateResult> messages) {
+    public static String messageWithTemplate(YMP owner, String title, Collection<ValidateResult> messages) {
         StringBuilder _messages = new StringBuilder();
         for (ValidateResult _vResult : messages) {
             ExpressionUtils _item = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ITEM), "${message}<br>"));
             _item.set("name", _vResult.getName());
             _item.set("message", _vResult.getMsg());
             //
-            _messages.append(_item.getResult());
+            _messages.append(_item.clean().getResult());
         }
-        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${items}"));
-        return _element.set("items", _messages.toString()).getResult();
+        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${title}"));
+        if (StringUtils.isNotBlank(title)) {
+            _element.set("title", title);
+        }
+        return StringUtils.trimToEmpty(_element.set("items", _messages.toString()).clean().getResult());
+    }
+
+    public static String messageWithTemplate(YMP owner, Collection<ValidateResult> messages) {
+        return messageWithTemplate(owner, null, messages);
     }
 
     public static String buildRedirectURL(InterceptContext context, String redirectUrl, boolean needPrefix) {
