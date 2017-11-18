@@ -114,66 +114,83 @@ public class MathCalcHelper {
 
     //
 
-    public BlurObject add(double value) {
-        return BlurObject.bind(__value.add(new BigDecimal(Double.toString(value))));
+    public MathCalcHelper add(double value) {
+        __value = __value.add(new BigDecimal(Double.toString(value)));
+        return this;
     }
 
-    public BlurObject add(String value) {
-        return BlurObject.bind(__value.add(new BigDecimal(value)));
+    public MathCalcHelper add(String value) {
+        __value = __value.add(new BigDecimal(value));
+        return this;
     }
 
-    public BlurObject add(BigDecimal value) {
-        return BlurObject.bind(__value.add(value));
-    }
-
-    //
-
-    public BlurObject subtract(double value) {
-        return BlurObject.bind(__value.subtract(new BigDecimal(Double.toString(value))));
-    }
-
-    public BlurObject subtract(String value) {
-        return BlurObject.bind(__value.subtract(new BigDecimal(value)));
-    }
-
-    public BlurObject subtract(BigDecimal value) {
-        return BlurObject.bind(__value.subtract(value));
+    public MathCalcHelper add(BigDecimal value) {
+        __value = __value.add(value);
+        return this;
     }
 
     //
 
-    public BlurObject multiply(double value) {
-        return BlurObject.bind(__value.multiply(new BigDecimal(Double.toString(value))));
+    public MathCalcHelper subtract(double value) {
+        __value = __value.subtract(new BigDecimal(Double.toString(value)));
+        return this;
     }
 
-    public BlurObject multiply(String value) {
-        return BlurObject.bind(__value.multiply(new BigDecimal(value)));
+    public MathCalcHelper subtract(String value) {
+        __value = __value.subtract(new BigDecimal(value));
+        return this;
     }
 
-    public BlurObject multiply(BigDecimal value) {
-        return BlurObject.bind(__value.multiply(value));
+    public MathCalcHelper subtract(BigDecimal value) {
+        __value = __value.subtract(value);
+        return this;
     }
 
     //
 
-    public BlurObject divide(double value) {
+    public MathCalcHelper multiply(double value) {
+        __value = __value.multiply(new BigDecimal(Double.toString(value)));
+        return this;
+    }
+
+    public MathCalcHelper multiply(String value) {
+        __value = __value.multiply(new BigDecimal(value));
+        return this;
+    }
+
+    public MathCalcHelper multiply(BigDecimal value) {
+        __value = __value.multiply(value);
+        return this;
+    }
+
+    //
+
+    public MathCalcHelper divide(double value) {
         return divide(new BigDecimal(Double.toString(value)));
     }
 
-    public BlurObject divide(String value) {
+    public MathCalcHelper divide(String value) {
         return divide(new BigDecimal(value));
     }
 
-    public BlurObject divide(BigDecimal value) {
-        return BlurObject.bind(__value.divide(value,
+    public MathCalcHelper divide(BigDecimal value) {
+        __value = __value.divide(value,
                 (__scale >= 0 ? __scale : DEFAULT_DIV_SCALE),
-                (__roundingMode >= 0 ? __roundingMode : BigDecimal.ROUND_HALF_EVEN)));
+                (__roundingMode >= 0 ? __roundingMode : BigDecimal.ROUND_HALF_EVEN));
+        return this;
     }
 
     //
 
-    public BlurObject round() {
-        return BlurObject.bind(__value.setScale((__scale >= 0 ? __scale : DEFAULT_DIV_SCALE),
-                (__roundingMode >= 0 ? __roundingMode : BigDecimal.ROUND_HALF_EVEN)));
+    public MathCalcHelper round() {
+        __value = __value.setScale((__scale >= 0 ? __scale : DEFAULT_DIV_SCALE),
+                (__roundingMode >= 0 ? __roundingMode : BigDecimal.ROUND_HALF_EVEN));
+        return this;
+    }
+
+    //
+
+    public BlurObject toBlurObject() {
+        return BlurObject.bind(__value);
     }
 }
