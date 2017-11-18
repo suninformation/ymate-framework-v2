@@ -159,6 +159,30 @@
         </attribute>
     </tag>
 
+    <!-- HttpStatusI18nTag -->
+    <tag>
+        <display-name>HttpStatusI18nTag</display-name>
+        <name>httpStatusI18n</name>
+        <tag-class>net.ymate.framework.core.taglib.HttpStatusI18nTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>var</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>scope</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>code</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>int</type>
+        </attribute>
+    </tag>
+
     <!-- UrlTag -->
     <tag>
         <display-name>UrlTag</display-name>
