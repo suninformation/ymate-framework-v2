@@ -209,7 +209,7 @@ public class ParamUtils {
      * @param extraParams   扩展参数
      * @return 返回最终生成的签名
      */
-    public static String createSignature(Map<String, String> queryParamMap, boolean encode, String... extraParams) {
+    public static String createSignature(Map<String, ?> queryParamMap, boolean encode, String... extraParams) {
         StringBuilder _queryParamStr = new StringBuilder(buildQueryParamStr(queryParamMap, encode, null));
         if (extraParams != null && extraParams.length > 0) {
             for (String _extraParam : extraParams) {
