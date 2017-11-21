@@ -136,6 +136,11 @@ public class Optional {
     public static final String REQUEST_SUFFIX = "webmvc.request_suffix";
 
     /**
+     * 请求令牌参数名称, 默认值: Request-Token
+     */
+    public static final String REQUEST_TOKEN_NAME = "webmvc.request_token_name";
+
+    /**
      * 重定向登录URL地址参数名称, 默认值: "login?redirect_url=${redirect_url}"
      */
     public static final String REDIRECT_LOGIN_URL = "webmvc.redirect_login_url";
