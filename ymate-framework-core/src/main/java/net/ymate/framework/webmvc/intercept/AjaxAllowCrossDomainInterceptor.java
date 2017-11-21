@@ -21,9 +21,10 @@ import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
-import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 为允许跨域的请求添加必要的请求头参数
@@ -34,29 +35,32 @@ import org.apache.commons.lang.StringUtils;
 public class AjaxAllowCrossDomainInterceptor implements IInterceptor {
 
     public Object intercept(InterceptContext context) throws Exception {
-        boolean _allowCrossDomain = BlurObject.bind(context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_DOMAIN)).toBooleanValue();
-        if (_allowCrossDomain) {
-            String _hosts = context.getOwner().getConfig().getParam(Optional.ALLOW_ORIGIN_HOSTS);
-            boolean _notAllowCredentials = BlurObject.bind(context.getContextParams().get(Optional.NOT_ALLOW_CREDENTIALS)).toBooleanValue();
-            switch (context.getDirection()) {
-                case BEFORE:
-                    if (Type.HttpMethod.OPTIONS.equals(WebContext.getRequestContext().getHttpMethod())) {
-                        return __addHeadersToView(View.nullView(), _hosts, _notAllowCredentials);
-                    }
-                    break;
-                case AFTER:
-                    if (!Type.HttpMethod.OPTIONS.equals(WebContext.getRequestContext().getHttpMethod()) && context.getResultObject() instanceof IView) {
-                        __addHeadersToView((IView) context.getResultObject(), _hosts, _notAllowCredentials);
-                    }
-                    break;
+        if (Direction.BEFORE.equals(context.getDirection())) {
+            boolean _allowCrossDomain = BlurObject.bind(context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_DOMAIN)).toBooleanValue();
+            boolean _allowOptions = BlurObject.bind(StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.ALLOW_OPTIONS_AUTO_REPLY), "true")).toBooleanValue();
+            if (_allowCrossDomain) {
+                String _hosts = context.getOwner().getConfig().getParam(Optional.ALLOW_ORIGIN_HOSTS);
+                String _methods = context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_METHODS);
+                String _headers = context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_HEADERS);
+                __addHeadersToView(_hosts, _methods, _headers, BlurObject.bind(context.getContextParams().get(Optional.NOT_ALLOW_CREDENTIALS)).toBooleanValue());
+                //
+                if (_allowOptions && Type.HttpMethod.OPTIONS.equals(WebContext.getRequestContext().getHttpMethod())) {
+                    return View.nullView();
+                }
             }
         }
         return null;
     }
 
-    private IView __addHeadersToView(IView view, String hosts, boolean notAllowCredentials) {
-        view.addHeader("Access-Control-Allow-Origin", StringUtils.defaultIfBlank(hosts, "*"));
-        view.addHeader("Access-Control-Allow-Credentials", notAllowCredentials ? "false" : "true");
-        return view;
+    private void __addHeadersToView(String hosts, String methods, String headers, boolean notAllowCredentials) {
+        HttpServletResponse _response = WebContext.getResponse();
+        _response.addHeader("Access-Control-Allow-Origin", StringUtils.defaultIfBlank(hosts, "*"));
+        if (StringUtils.isNotBlank(methods)) {
+            _response.addHeader("Access-Control-Allow-Methods", StringUtils.upperCase(methods));
+        }
+        if (StringUtils.isNotBlank(headers)) {
+            _response.addHeader("Access-Control-Allow-Headers", headers);
+        }
+        _response.addHeader("Access-Control-Allow-Credentials", notAllowCredentials ? "false" : "true");
     }
 }

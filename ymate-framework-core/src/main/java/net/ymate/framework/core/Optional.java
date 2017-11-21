@@ -176,9 +176,24 @@ public class Optional {
     public static final String ALLOW_CROSS_DOMAIN = "webmvc.allow_cross_domain";
 
     /**
+     * 针对OPTIONS请求是否自动回复, 默认: true
+     */
+    public static final String ALLOW_OPTIONS_AUTO_REPLY = "webmvc.allow_options_auto_reply";
+
+    /**
      * 允许跨域的原始主机
      */
     public static final String ALLOW_ORIGIN_HOSTS = "webmvc.allow_origin_hosts";
+
+    /**
+     * 允许跨域请求的方法
+     */
+    public static final String ALLOW_CROSS_METHODS = "webmvc.allow_cross_metods";
+
+    /**
+     * 允许跨域请求携带的请求头
+     */
+    public static final String ALLOW_CROSS_HEADERS = "webmvc.allow_cross_headers";
 
     /**
      * 是否允许跨域请求带有验证信息
