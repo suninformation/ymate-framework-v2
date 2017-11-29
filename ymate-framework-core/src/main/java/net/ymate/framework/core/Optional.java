@@ -116,6 +116,11 @@ public class Optional {
     public static final String SYSTEM_USER_SESSION_HANDLER_CLASS = "webmvc.user_session_handler_class";
 
     /**
+     * 会话数据存储适配器类
+     */
+    public static final String SYSTEM_USER_SESSION_STORAGE_ADAPTER_CLASS = "webmvc.user_session_storage_adapter_class";
+
+    /**
      * 会话安全确认处理器类
      */
     public static final String SYSTEM_USER_SESSION_CONFIRM_HANDLER_CLASS = "webmvc.user_session_confirm_handler_class";

@@ -25,7 +25,6 @@ import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.View;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * 已登录用户拦截器

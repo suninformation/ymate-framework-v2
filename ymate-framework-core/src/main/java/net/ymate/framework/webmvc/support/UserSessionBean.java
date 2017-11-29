@@ -17,13 +17,12 @@ package net.ymate.framework.webmvc.support;
 
 import net.ymate.framework.core.Optional;
 import net.ymate.framework.webmvc.IUserSessionHandler;
-import net.ymate.framework.webmvc.intercept.UserSessionCheckInterceptor;
+import net.ymate.framework.webmvc.IUserSessionStorageAdapter;
+import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.util.ClassUtils;
-import net.ymate.platform.webmvc.context.WebContext;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +34,8 @@ import java.util.Map;
  * @version 1.0
  */
 public class UserSessionBean implements Serializable {
+
+    private static volatile IUserSessionStorageAdapter __storageAdapter;
 
     private static volatile IUserSessionHandler __sessionHandler;
 
@@ -50,30 +51,51 @@ public class UserSessionBean implements Serializable {
 
     private Map<String, Serializable> __attributes;
 
+    private static void __init() {
+        if (!__initedFlag) {
+            synchronized (UserSessionBean.class) {
+                if (__sessionHandler == null) {
+                    String _handleClassName = YMP.get().getConfig().getParam(Optional.SYSTEM_USER_SESSION_HANDLER_CLASS);
+                    if (StringUtils.isNotBlank(_handleClassName)) {
+                        __sessionHandler = ClassUtils.impl(_handleClassName, IUserSessionHandler.class, UserSessionBean.class);
+                    }
+                }
+                if (__storageAdapter == null) {
+                    String _handleClassName = YMP.get().getConfig().getParam(Optional.SYSTEM_USER_SESSION_STORAGE_ADAPTER_CLASS);
+                    if (StringUtils.isNotBlank(_handleClassName)) {
+                        __storageAdapter = ClassUtils.impl(_handleClassName, IUserSessionStorageAdapter.class, UserSessionBean.class);
+                    }
+                    if (__storageAdapter == null) {
+                        __storageAdapter = IUserSessionStorageAdapter.DEFAULT;
+                    }
+                }
+                __initedFlag = true;
+            }
+        }
+    }
+
     /**
      * @return 返回会话处理器接口实现类(至少尝试初始化一次)
      */
     public static IUserSessionHandler getSessionHandler() {
-        if (__sessionHandler == null && !__initedFlag) {
-            synchronized (UserSessionBean.class) {
-                if (__sessionHandler == null) {
-                    String _handleClassName = WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.SYSTEM_USER_SESSION_HANDLER_CLASS);
-                    if (StringUtils.isNotBlank(_handleClassName)) {
-                        __sessionHandler = ClassUtils.impl(_handleClassName, IUserSessionHandler.class, UserSessionCheckInterceptor.class);
-                    }
-                    __initedFlag = true;
-                }
-            }
-        }
+        __init();
         return __sessionHandler;
     }
 
+    private static IUserSessionStorageAdapter getSessionStorageAdapter() {
+        __init();
+        return __storageAdapter;
+    }
+
     private UserSessionBean() {
-        this(WebContext.getRequest().getSession().getId());
+        this(null);
     }
 
     private UserSessionBean(String id) {
-        this.id = id;
+        this.id = StringUtils.isNotBlank(id) ? id : getSessionStorageAdapter().createSessionId();
+        if (StringUtils.isBlank(this.id)) {
+            throw new NullArgumentException("id");
+        }
         this.createTime = System.currentTimeMillis();
         this.lastActivateTime = this.createTime;
         this.__attributes = new HashMap<String, Serializable>();
@@ -87,24 +109,17 @@ public class UserSessionBean implements Serializable {
     }
 
     public static UserSessionBean create(String id) {
-        if (StringUtils.isBlank(id)) {
-            throw new NullArgumentException("id");
-        }
         return new UserSessionBean(id);
     }
 
     public static UserSessionBean createIfNeed() {
-        UserSessionBean _sessionBean = current();
-        if (_sessionBean == null) {
-            _sessionBean = new UserSessionBean();
-        }
-        return _sessionBean;
+        return createIfNeed(null);
     }
 
     public static UserSessionBean createIfNeed(String id) {
         UserSessionBean _sessionBean = current();
         if (_sessionBean == null) {
-            _sessionBean = new UserSessionBean(id);
+            _sessionBean = create(id);
         }
         return _sessionBean;
     }
@@ -113,7 +128,7 @@ public class UserSessionBean implements Serializable {
      * @return 获取当前会话中的UserSessionBean对象, 若不存在将返回null值
      */
     public static UserSessionBean current() {
-        return (UserSessionBean) WebContext.getRequest().getSession().getAttribute(UserSessionBean.class.getName());
+        return getSessionStorageAdapter().currentUserSessionBean();
     }
 
     /**
@@ -156,7 +171,7 @@ public class UserSessionBean implements Serializable {
     }
 
     public UserSessionBean save() {
-        WebContext.getRequest().getSession().setAttribute(UserSessionBean.class.getName(), this);
+        __storageAdapter.saveOrUpdate(this);
         return this;
     }
 
@@ -164,16 +179,12 @@ public class UserSessionBean implements Serializable {
      * @return 若当前会话尚未存储或与当前存储会话Id不一致时替换原对象
      */
     public UserSessionBean saveIfNeed() {
-        HttpSession _session = WebContext.getRequest().getSession();
-        UserSessionBean _sessionBean = (UserSessionBean) _session.getAttribute(UserSessionBean.class.getName());
-        if (_sessionBean == null || !StringUtils.equals(this.getId(), _sessionBean.getId())) {
-            _session.setAttribute(UserSessionBean.class.getName(), this);
-        }
+        __storageAdapter.saveIfNeed(this);
         return this;
     }
 
     public void destroy() {
-        WebContext.getRequest().getSession().removeAttribute(UserSessionBean.class.getName());
+        __storageAdapter.remove(this);
     }
 
     public String getId() {
