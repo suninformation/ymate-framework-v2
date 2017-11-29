@@ -31,26 +31,44 @@ import java.io.Writer;
  */
 public class XStreamHelper {
 
+    public interface INodeFilter {
+
+        /**
+         * @param name 节点名称
+         * @return 返回true则添加CDATA标签
+         */
+        boolean doFilter(String name);
+    }
+
     public static class WeChatDomDriver extends DomDriver {
+
+        private INodeFilter __nodeFilter;
 
         public WeChatDomDriver(String encoding, NameCoder nameCoder) {
             super(encoding, nameCoder);
         }
 
+        public WeChatDomDriver(String encoding, NameCoder nameCoder, INodeFilter nodeFilter) {
+            super(encoding, nameCoder);
+            __nodeFilter = nodeFilter;
+        }
+
         public HierarchicalStreamWriter createWriter(Writer out) {
             return new PrettyPrintWriter(out, this.getNameCoder()) {
+                String name;
                 boolean cdata = false;
 
                 @Override
                 @SuppressWarnings("rawtypes")
                 public void startNode(String name, Class clazz) {
                     super.startNode(name, clazz);
-                    cdata = String.class.equals(clazz);
+                    this.name = name;
+                    this.cdata = String.class.equals(clazz);
                 }
 
                 @Override
                 protected void writeText(QuickWriter writer, String text) {
-                    if (cdata) {
+                    if (cdata && (__nodeFilter == null || __nodeFilter.doFilter(name))) {
                         writer.write("<![CDATA[");
                         writer.write(text);
                         writer.write("]]>");
@@ -66,16 +84,21 @@ public class XStreamHelper {
      * 初始化XStream可支持String类型字段加入CDATA标签"&lt;![CDATA["和结尾处加上"]]&gt;"， 以供XStream输出时进行识别
      *
      * @param isAddCDATA 是否支持CDATA标签
+     * @param nodeFilter CDATA节点过滤
      * @return 返回构建后的XStreamp实例对象
      */
-    public static XStream createXStream(boolean isAddCDATA) {
+    public static XStream createXStream(boolean isAddCDATA, INodeFilter nodeFilter) {
         XStream xstream = null;
         if (isAddCDATA) {
-            xstream = new XStream(new WeChatDomDriver("UTF-8", new XmlFriendlyNameCoder("-_", "_")));
+            xstream = new XStream(new WeChatDomDriver("UTF-8", new XmlFriendlyNameCoder("-_", "_"), nodeFilter));
         } else {
             xstream = new XStream(new DomDriver("UTF-8", new XmlFriendlyNameCoder("-_", "_")));
         }
         return xstream;
+    }
+
+    public static XStream createXStream(boolean isAddCDATA) {
+        return createXStream(isAddCDATA, null);
     }
 
 }
