@@ -45,8 +45,12 @@ public interface IHttpResponse {
         private Map<String, String> __headers;
 
         public NEW(HttpResponse response) throws IOException {
+            this(response, HttpClientHelper.DEFAULT_CHARSET);
+        }
+
+        public NEW(HttpResponse response, String defaultCharset) throws IOException {
             __statusCode = response.getStatusLine().getStatusCode();
-            __content = EntityUtils.toString(response.getEntity(), HttpClientHelper.DEFAULT_CHARSET);
+            __content = EntityUtils.toString(response.getEntity(), defaultCharset);
             Header _header = response.getEntity().getContentEncoding();
             if (_header != null) {
                 __contentEncoding = _header.getValue();
