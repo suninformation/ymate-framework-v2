@@ -55,6 +55,8 @@ public class WebResult {
 
     private boolean __useSingleQuotes;
 
+    private IDateFilter __dataFilter;
+
     public static WebResult create() {
         return new WebResult();
     }
@@ -131,6 +133,11 @@ public class WebResult {
         return this;
     }
 
+    public WebResult dataFilter(IDateFilter dateFilter) {
+        __dataFilter = dateFilter;
+        return this;
+    }
+
     public WebResult withContentType() {
         __withContentType = true;
         return this;
@@ -151,6 +158,26 @@ public class WebResult {
         return this;
     }
 
+    private Map<String, Object> __doFilter(boolean attr, Map<String, Object> targetMap) {
+        if (__dataFilter != null && targetMap != null && !targetMap.isEmpty()) {
+            Map<String, Object> _filtered = new HashMap<String, Object>();
+            for (Map.Entry<String, Object> _entry : __datas.entrySet()) {
+                Object _item = __dataFilter.filter(attr, _entry.getKey(), _entry.getValue());
+                if (_item != null) {
+                    _filtered.put(_entry.getKey(), _entry.getValue());
+                }
+            }
+            return _filtered;
+        }
+        return targetMap;
+    }
+
+    public WebResult doFilter() {
+        __datas = __doFilter(true, __datas);
+        __attrs = __doFilter(false, __attrs);
+        return this;
+    }
+
     public IView toJSON() {
         return toJSON(null);
     }
@@ -163,10 +190,10 @@ public class WebResult {
         if (StringUtils.isNotBlank(__msg)) {
             _jsonObj.put("msg", __msg);
         }
-        if (!__datas.isEmpty()) {
+        if (__datas != null && !__datas.isEmpty()) {
             _jsonObj.put("data", __datas);
         }
-        if (!__attrs.isEmpty()) {
+        if (__attrs != null && !__attrs.isEmpty()) {
             _jsonObj.putAll(__attrs);
         }
         //
@@ -196,14 +223,14 @@ public class WebResult {
                 _content.append("<msg>").append(__msg).append("</msg>");
             }
         }
-        if (!__datas.isEmpty()) {
+        if (__datas != null && !__datas.isEmpty()) {
             _content.append("<data>");
             for (Map.Entry<String, Object> _entry : __datas.entrySet()) {
                 __doAppendContent(_content, cdata, _entry.getKey(), _entry.getValue());
             }
             _content.append("</data>");
         }
-        if (!__attrs.isEmpty()) {
+        if (__attrs != null && !__attrs.isEmpty()) {
             for (Map.Entry<String, Object> _entry : __attrs.entrySet()) {
                 __doAppendContent(_content, cdata, _entry.getKey(), _entry.getValue());
             }
@@ -319,5 +346,19 @@ public class WebResult {
             }
         }
         return _view;
+    }
+
+    /**
+     * 数据过滤器接口
+     */
+    public interface IDateFilter {
+
+        /**
+         * @param dataAttr  当前数据是否为data属性
+         * @param itemName  属性名称
+         * @param itemValue 属性值对象
+         * @return 若返回null则该属性将被忽略
+         */
+        Object filter(boolean dataAttr, String itemName, Object itemValue);
     }
 }
