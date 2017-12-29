@@ -26,7 +26,6 @@ import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
-import net.ymate.platform.log.Logs;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.webmvc.*;
 import net.ymate.platform.webmvc.context.WebContext;
@@ -88,6 +87,22 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
         return __exceptionProcessHelper;
     }
 
+    protected String getResourceName() {
+        return __resourceName;
+    }
+
+    protected boolean isDisabledAnalysis() {
+        return __disabledAnalysis;
+    }
+
+    protected String getErrorDefaultI18nKey() {
+        return __errorDefaultI18nKey;
+    }
+
+    protected String getErrorDefaultViewFormat() {
+        return __errorDefaultViewFormat;
+    }
+
     protected void __doRegisterExceptionProcessors() {
         __exceptionProcessHelper.registerProcessor(DataVersionMismatchException.class, new IExceptionProcessor() {
             @Override
@@ -140,7 +155,7 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
         }
     }
 
-    protected void __doParseExceptionDetail(IWebMvc owner, Throwable e) {
+    protected String __doParseExceptionDetail(IWebMvc owner, Throwable e) {
         IRequestContext _requestCtx = WebContext.getRequestContext();
         HttpServletRequest _request = WebContext.getRequest();
         WebContext _context = WebContext.getContext();
@@ -192,18 +207,25 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
         for (Map.Entry<String, Object> _entry : _context.getSession().entrySet()) {
             _errSB.append("\t  ").append(_entry.getKey()).append(": ").append(JSON.toJSONString(_entry.getValue())).append("\n");
         }
-        //
-        _errSB.append("-- Exception: ").append(e.getClass().getName()).append("\n");
-        _errSB.append("-- Message: ").append(e.getMessage()).append("\n");
-        //
-        _errSB.append("-- StackTrace:\n");
-        StackTraceElement[] _stacks = e.getStackTrace();
-        for (StackTraceElement _stack : _stacks) {
-            _errSB.append("\t  at ").append(_stack).append("\n");
-        }
+        _errSB.append(__doExceptionToString(e));
         _errSB.append("-------------------------------------------------\n");
         //
-        Logs.get().getLogger().error(_errSB.toString());
+        return _errSB.toString();
+    }
+
+    protected StringBuilder __doExceptionToString(Throwable e) {
+        StringBuilder _errSB = new StringBuilder();
+        if (e != null) {
+            _errSB.append("-- Exception: ").append(e.getClass().getName()).append("\n");
+            _errSB.append("-- Message: ").append(e.getMessage()).append("\n");
+            //
+            _errSB.append("-- StackTrace:\n");
+            StackTraceElement[] _stacks = e.getStackTrace();
+            for (StackTraceElement _stack : _stacks) {
+                _errSB.append("\t  at ").append(_stack).append("\n");
+            }
+        }
+        return _errSB;
     }
 
     @Override
@@ -216,9 +238,9 @@ public class WebErrorProcessor implements IWebErrorProcessor, IWebInitializable 
                 __doShowErrorMsg(owner, _result.getCode(), __doGetI18nMsg(_result.getMessage(), _result.getMessage())).render();
             } else {
                 if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
-                    __doParseExceptionDetail(owner, _unwrapThrow);
+                    _LOG.error(__doParseExceptionDetail(owner, _unwrapThrow));
                 } else {
-                    Logs.get().getLogger().error(_unwrapThrow);
+                    _LOG.error("", _unwrapThrow);
                 }
                 __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, __doGetI18nMsg(null, null)).render();
             }
