@@ -28,7 +28,7 @@ public final class ExceptionProcessHelper {
 
     private final Map<String, IExceptionProcessor> __processors = new ConcurrentHashMap<String, IExceptionProcessor>();
 
-    public void registerProcessor(Class<? extends Throwable> target, IExceptionProcessor processor) {
+    public ExceptionProcessHelper registerProcessor(Class<? extends Throwable> target, IExceptionProcessor processor) {
         if (target == null) {
             throw new NullArgumentException("target");
         }
@@ -36,6 +36,8 @@ public final class ExceptionProcessHelper {
             throw new NullArgumentException("processor");
         }
         __processors.put(target.getName(), processor);
+        //
+        return this;
     }
 
     public IExceptionProcessor bind(Class<? extends Throwable> target) {
