@@ -28,7 +28,13 @@ import java.lang.annotation.*;
 @Documented
 public @interface VMobile {
 
-    String name() default "";
+    /**
+     * @return 自定义正则表达式(将覆盖原判断逻辑)
+     */
+    String regex() default "";
 
+    /**
+     * @return 自定义验证消息
+     */
     String msg() default "";
 }
