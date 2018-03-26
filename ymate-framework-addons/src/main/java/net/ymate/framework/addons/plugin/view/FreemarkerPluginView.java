@@ -15,12 +15,9 @@
  */
 package net.ymate.framework.addons.plugin.view;
 
-import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
-import freemarker.template.TemplateExceptionHandler;
 import net.ymate.framework.core.util.ViewPathUtils;
+import net.ymate.platform.core.support.FreemarkerConfigBuilder;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.plugin.IPlugin;
 import net.ymate.platform.webmvc.IWebMvc;
@@ -30,8 +27,6 @@ import net.ymate.platform.webmvc.view.AbstractView;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,7 +37,7 @@ import java.util.Map;
  */
 public class FreemarkerPluginView extends AbstractView {
 
-    protected static Configuration __freemarkerConfig;
+    static Configuration __freemarkerConfig;
 
     private String __path;
 
@@ -111,24 +106,14 @@ public class FreemarkerPluginView extends AbstractView {
     @Override
     protected void __doViewInit(IWebMvc owner) {
         super.__doViewInit(owner);
-        // 初始化Freemarker模板引擎配置
         if (__freemarkerConfig == null) {
-            __freemarkerConfig = new Configuration(Configuration.VERSION_2_3_22);
-            __freemarkerConfig.setDefaultEncoding(owner.getModuleCfg().getDefaultCharsetEncoding());
-            __freemarkerConfig.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-            //
-            //
-            List<TemplateLoader> _tmpLoaders = new ArrayList<TemplateLoader>();
             try {
-                _tmpLoaders.add(new FileTemplateLoader(new File(ViewPathUtils.pluginViewPath())));
-                //
+                FreemarkerConfigBuilder _builder = FreemarkerConfigBuilder.create();
                 if (__baseViewPath.startsWith("/WEB-INF")) {
-                    _tmpLoaders.add(new FileTemplateLoader(new File(RuntimeUtils.getRootPath(), StringUtils.substringAfter(__baseViewPath, "/WEB-INF/"))));
+                    _builder.addTemplateFileDir(new File(RuntimeUtils.getRootPath(), StringUtils.substringAfter(__baseViewPath, "/WEB-INF/"))).build();
                 } else {
-                    _tmpLoaders.add(new FileTemplateLoader(new File(__baseViewPath)));
+                    _builder.addTemplateFileDir(new File(__baseViewPath)).build();
                 }
-                //
-                __freemarkerConfig.setTemplateLoader(new MultiTemplateLoader(_tmpLoaders.toArray(new TemplateLoader[_tmpLoaders.size()])));
             } catch (IOException e) {
                 throw new Error(RuntimeUtils.unwrapThrow(e));
             }
