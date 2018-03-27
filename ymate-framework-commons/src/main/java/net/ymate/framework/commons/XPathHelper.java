@@ -15,19 +15,33 @@
  */
 package net.ymate.framework.commons;
 
+import net.ymate.framework.commons.annotation.XPathNode;
+import net.ymate.platform.core.lang.BlurObject;
+import net.ymate.platform.core.util.ClassUtils;
+import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,9 +51,25 @@ import java.util.Map;
  */
 public class XPathHelper {
 
+    private static final Log _LOG = LogFactory.getLog(XPathHelper.class);
+
     public static final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 
     public static final XPathFactory xpathFactory = XPathFactory.newInstance();
+
+    /**
+     * 用于忽略所有DTD检测
+     */
+    public static final EntityResolver IGNORE_DTD_ENTITY_RESOLVER = new EntityResolver() {
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
+        }
+    };
+
+    public static XPathHelper create(Document document) {
+        return new XPathHelper(document);
+    }
 
     private XPath __path;
 
@@ -51,7 +81,19 @@ public class XPathHelper {
     }
 
     public XPathHelper(InputSource inputSource) throws Exception {
-        this(documentFactory.newDocumentBuilder().parse(inputSource));
+        this(inputSource, null, null);
+    }
+
+    public XPathHelper(InputSource inputSource, EntityResolver entityResolver) throws Exception {
+        this(inputSource, entityResolver, null);
+    }
+
+    public XPathHelper(InputSource inputSource, ErrorHandler errorHandler) throws Exception {
+        this(inputSource, null, errorHandler);
+    }
+
+    public XPathHelper(InputSource inputSource, EntityResolver entityResolver, ErrorHandler errorHandler) throws Exception {
+        __doInit(inputSource, entityResolver, errorHandler);
     }
 
     public XPathHelper(String content) throws Exception {
@@ -63,6 +105,37 @@ public class XPathHelper {
         } finally {
             IOUtils.closeQuietly(_reader);
         }
+    }
+
+    public XPathHelper(String content, EntityResolver entityResolver) throws Exception {
+        this(content, entityResolver, null);
+    }
+
+    public XPathHelper(String content, ErrorHandler errorHandler) throws Exception {
+        this(content, null, errorHandler);
+    }
+
+    public XPathHelper(String content, EntityResolver entityResolver, ErrorHandler errorHandler) throws Exception {
+        StringReader _reader = null;
+        try {
+            _reader = new StringReader(content);
+            __doInit(new InputSource(_reader), entityResolver, errorHandler);
+            __path = xpathFactory.newXPath();
+        } finally {
+            IOUtils.closeQuietly(_reader);
+        }
+    }
+
+    private void __doInit(InputSource inputSource, EntityResolver entityResolver, ErrorHandler errorHandler) throws Exception {
+        DocumentBuilder _builder = documentFactory.newDocumentBuilder();
+        if (entityResolver != null) {
+            _builder.setEntityResolver(entityResolver);
+        }
+        if (errorHandler != null) {
+            _builder.setErrorHandler(errorHandler);
+        }
+        __path = xpathFactory.newXPath();
+        __document = _builder.parse(inputSource);
     }
 
     public Document getDocument() {
@@ -132,5 +205,105 @@ public class XPathHelper {
 
     public NodeList getNodeList(Object item, String expression) throws XPathExpressionException {
         return (NodeList) __doEvaluate(expression, item, XPathConstants.NODESET);
+    }
+
+    public <T> T toObject(Class<T> targetClass) {
+        try {
+            return toObject(targetClass.newInstance());
+        } catch (Exception e) {
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+        }
+        return null;
+    }
+
+    public <T> T toObject(T targetObject) {
+        try {
+            Class<?> _targetClass = targetObject.getClass();
+            XPathNode _rootNodeAnno = _targetClass.getAnnotation(XPathNode.class);
+            if (_rootNodeAnno != null) {
+                Node _rootNode = getNode(_rootNodeAnno.value());
+                if (_rootNode != null) {
+                    return __toObject(_rootNode, targetObject);
+                }
+            } else {
+                return __toObject(__document, targetObject);
+            }
+        } catch (Exception e) {
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+        }
+        return null;
+    }
+
+    private <T> T __toObject(Object parentNode, Class<T> targetClass) throws XPathExpressionException, IllegalAccessException {
+        if (parentNode != null && targetClass != null) {
+            return __doWrapperValues(parentNode, ClassUtils.wrapper(targetClass));
+        }
+        return null;
+    }
+
+    private <T> T __toObject(Object parentNode, T targetObject) throws XPathExpressionException, IllegalAccessException {
+        if (parentNode != null && targetObject != null) {
+            return __doWrapperValues(parentNode, ClassUtils.wrapper(targetObject));
+        }
+        return null;
+    }
+
+    private <T> T __doWrapperValues(Object parentNode, ClassUtils.BeanWrapper<T> _beanWrapper) throws XPathExpressionException, IllegalAccessException {
+        for (Field _field : _beanWrapper.getFields()) {
+            if (_field.isAnnotationPresent(XPathNode.class)) {
+                XPathNode _fieldNodeAnno = _field.getAnnotation(XPathNode.class);
+                if (_fieldNodeAnno.child()) {
+                    Node _childNode = getNode(parentNode, _fieldNodeAnno.value());
+                    if (_childNode != null) {
+                        Object _childObject;
+                        Object _fieldValue = _beanWrapper.getValue(_field);
+                        if (_fieldValue != null) {
+                            _childObject = __toObject(_childNode, _fieldValue);
+                        } else {
+                            _childObject = __toObject(_childNode, _field.getType());
+                        }
+                        _beanWrapper.setValue(_field, _childObject);
+                    }
+                } else {
+                    String _value = StringUtils.defaultIfBlank(getStringValue(parentNode, _fieldNodeAnno.value()), _fieldNodeAnno.defaultValue());
+                    _beanWrapper.setValue(_field, BlurObject.bind(_value).toObjectValue(_field.getType()));
+                }
+            }
+        }
+        return _beanWrapper.getTargetObject();
+    }
+
+    public static class Builder {
+
+        private EntityResolver entityResolver;
+
+        private ErrorHandler errorHandler;
+
+        public static Builder create() {
+            return new Builder();
+        }
+
+        public Builder entityResolver(EntityResolver entityResolver) {
+            this.entityResolver = entityResolver;
+            return this;
+        }
+
+        public Builder ignoreDtdEntityResolver() {
+            entityResolver = IGNORE_DTD_ENTITY_RESOLVER;
+            return this;
+        }
+
+        public Builder errorHandler(ErrorHandler errorHandler) {
+            this.errorHandler = errorHandler;
+            return this;
+        }
+
+        public XPathHelper build(InputSource inputSource) throws Exception {
+            return new XPathHelper(inputSource, entityResolver, errorHandler);
+        }
+
+        public XPathHelper build(String content) throws Exception {
+            return new XPathHelper(content, entityResolver, errorHandler);
+        }
     }
 }
