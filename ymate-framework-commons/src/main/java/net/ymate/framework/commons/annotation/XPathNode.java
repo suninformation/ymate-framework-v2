@@ -15,6 +15,8 @@
  */
 package net.ymate.framework.commons.annotation;
 
+import net.ymate.framework.commons.XPathHelper;
+
 import java.lang.annotation.*;
 
 /**
@@ -29,7 +31,7 @@ public @interface XPathNode {
     /**
      * @return 节点路径表达式
      */
-    String value();
+    String value() default "";
 
     /**
      * @return 若节点不存在或为空，使用此默认值
@@ -40,4 +42,14 @@ public @interface XPathNode {
      * @return 指定成员对象为子节点类型(即非基本数据类型)
      */
     boolean child() default false;
+
+    /**
+     * @return 当child=true且对应的成员对象为接口类型时，用此参数指定接口实现类
+     */
+    Class<?> implClass() default Void.class;
+
+    /**
+     * @return 自定义节点值解析器
+     */
+    Class<? extends XPathHelper.INodeValueParser> parser() default XPathHelper.INodeValueParser.class;
 }

@@ -220,7 +220,7 @@ public class XPathHelper {
         try {
             Class<?> _targetClass = targetObject.getClass();
             XPathNode _rootNodeAnno = _targetClass.getAnnotation(XPathNode.class);
-            if (_rootNodeAnno != null) {
+            if (_rootNodeAnno != null && StringUtils.isNotBlank(_rootNodeAnno.value())) {
                 Node _rootNode = getNode(_rootNodeAnno.value());
                 if (_rootNode != null) {
                     return __toObject(_rootNode, targetObject);
@@ -253,20 +253,39 @@ public class XPathHelper {
             if (_field.isAnnotationPresent(XPathNode.class)) {
                 XPathNode _fieldNodeAnno = _field.getAnnotation(XPathNode.class);
                 if (_fieldNodeAnno.child()) {
-                    Node _childNode = getNode(parentNode, _fieldNodeAnno.value());
+                    Object _childNode = StringUtils.isNotBlank(_fieldNodeAnno.value()) ? getNode(parentNode, _fieldNodeAnno.value()) : parentNode;
                     if (_childNode != null) {
-                        Object _childObject;
+                        Object _childObject = null;
                         Object _fieldValue = _beanWrapper.getValue(_field);
-                        if (_fieldValue != null) {
-                            _childObject = __toObject(_childNode, _fieldValue);
+                        //
+                        if (!INodeValueParser.class.equals(_fieldNodeAnno.parser())) {
+                            try {
+                                INodeValueParser _parser = _fieldNodeAnno.parser().newInstance();
+                                _childObject = _parser.parse(this, parentNode, _field.getType(), _fieldValue);
+                            } catch (InstantiationException e) {
+                                _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+                            }
                         } else {
-                            _childObject = __toObject(_childNode, _field.getType());
+                            if (_fieldValue != null) {
+                                _childObject = __toObject(_childNode, _fieldValue);
+                            } else {
+                                _childObject = __toObject(_childNode, Void.class.equals(_fieldNodeAnno.implClass()) ? _field.getType() : _fieldNodeAnno.implClass());
+                            }
                         }
                         _beanWrapper.setValue(_field, _childObject);
                     }
                 } else {
-                    String _value = StringUtils.defaultIfBlank(getStringValue(parentNode, _fieldNodeAnno.value()), _fieldNodeAnno.defaultValue());
-                    _beanWrapper.setValue(_field, BlurObject.bind(_value).toObjectValue(_field.getType()));
+                    String _value = StringUtils.defaultIfBlank(StringUtils.isNotBlank(_fieldNodeAnno.value()) ? getStringValue(parentNode, _fieldNodeAnno.value()) : null, _fieldNodeAnno.defaultValue());
+                    if (!INodeValueParser.class.equals(_fieldNodeAnno.parser())) {
+                        try {
+                            INodeValueParser _parser = _fieldNodeAnno.parser().newInstance();
+                            _beanWrapper.setValue(_field, BlurObject.bind(_parser.parse(this, parentNode, _field.getType(), _value)).toObjectValue(_field.getType()));
+                        } catch (InstantiationException e) {
+                            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
+                        }
+                    } else {
+                        _beanWrapper.setValue(_field, BlurObject.bind(_value).toObjectValue(_field.getType()));
+                    }
                 }
             }
         }
@@ -305,5 +324,20 @@ public class XPathHelper {
         public XPathHelper build(String content) throws Exception {
             return new XPathHelper(content, entityResolver, errorHandler);
         }
+    }
+
+    /**
+     * 自定义节点值解析器
+     */
+    public interface INodeValueParser {
+
+        /**
+         * @param helper     当前XPathHelper实例
+         * @param node       当前节点对象
+         * @param fieldType  当前节点值类型
+         * @param fieldValue 当前节点值对象
+         * @return 解析处理后的值对象
+         */
+        Object parse(XPathHelper helper, Object node, Class<?> fieldType, Object fieldValue);
     }
 }
