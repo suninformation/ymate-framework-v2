@@ -275,7 +275,7 @@ public class XPathHelper {
                         _beanWrapper.setValue(_field, _childObject);
                     }
                 } else {
-                    String _value = StringUtils.defaultIfBlank(StringUtils.isNotBlank(_fieldNodeAnno.value()) ? getStringValue(parentNode, _fieldNodeAnno.value()) : null, _fieldNodeAnno.defaultValue());
+                    String _value = StringUtils.defaultIfBlank(StringUtils.isNotBlank(_fieldNodeAnno.value()) ? getStringValue(parentNode, _fieldNodeAnno.value()) : null, StringUtils.trimToNull(_fieldNodeAnno.defaultValue()));
                     if (!INodeValueParser.class.equals(_fieldNodeAnno.parser())) {
                         try {
                             INodeValueParser _parser = _fieldNodeAnno.parser().newInstance();
