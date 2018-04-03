@@ -256,7 +256,7 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
 
     @Override
     public IView onConvention(IWebMvc owner, IRequestContext requestContext) throws Exception {
-        String[] _fileTypes = {".html", ".jsp", ".ftl", ".vm"};
+        String[] _fileTypes = {".html", ".jsp", ".ftl", ".vm", ".btl"};
         for (String _fileType : _fileTypes) {
             // 判断插件目录下是否存在视图文件
             File _targetFile = new File(ViewPathUtils.pluginViewPath(), requestContext.getRequestMapping() + _fileType);
@@ -269,6 +269,8 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
                     return View.freemarkerView(owner, requestContext.getRequestMapping().substring(1));
                 } else if (".vm".equals(_fileType)) {
                     return View.velocityView(owner, requestContext.getRequestMapping().substring(1));
+                } else if (".btl".equals(_fileType)) {
+                    return View.beetlView(owner, requestContext.getRequestMapping().substring(1));
                 }
             }
         }

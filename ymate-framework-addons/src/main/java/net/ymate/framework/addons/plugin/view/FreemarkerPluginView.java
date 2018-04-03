@@ -59,6 +59,13 @@ public class FreemarkerPluginView extends AbstractView {
         }
     }
 
+    /**
+     * @return 返回当前模板引擎配置对象
+     */
+    public Configuration getEngineConfig() {
+        return __freemarkerConfig;
+    }
+
     protected void __doProcessPath() {
         if (StringUtils.isNotBlank(__contentType)) {
             WebContext.getResponse().setContentType(__contentType);
@@ -104,7 +111,7 @@ public class FreemarkerPluginView extends AbstractView {
      * @param owner 所属WebMVC框架管理器
      */
     @Override
-    protected void __doViewInit(IWebMvc owner) {
+    protected synchronized void __doViewInit(IWebMvc owner) {
         super.__doViewInit(owner);
         if (__freemarkerConfig == null) {
             try {
