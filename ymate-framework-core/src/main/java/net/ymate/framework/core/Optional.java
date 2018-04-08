@@ -141,6 +141,11 @@ public class Optional {
     public static final String REQUEST_SUFFIX = "webmvc.request_suffix";
 
     /**
+     * 服务名称参数, 默认值: request.getServerName();
+     */
+    public static final String SERVER_NAME = "webmvc.server_name";
+
+    /**
      * 请求令牌参数名称, 默认值: Request-Token
      */
     public static final String REQUEST_TOKEN_NAME = "webmvc.request_token_name";

@@ -74,12 +74,17 @@ public class WebUtils {
         return (withBasePath ? WebUtils.baseURL(request) + requestPath : requestPath) + StringUtils.defaultIfEmpty(YMP.get().getConfig().getParam(Optional.REQUEST_SUFFIX), "");
     }
 
+    private static String __doGetSafeServerName(HttpServletRequest request) {
+        String _serverName = YMP.get().getConfig().getParam(Optional.SERVER_NAME);
+        return StringUtils.defaultIfBlank(_serverName, request.getServerName());
+    }
+
     /**
      * @param request HttpServletRequest对象
      * @return 获取当前站点基准URL
      */
     public static String baseURL(HttpServletRequest request) {
-        StringBuilder basePath = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
+        StringBuilder basePath = new StringBuilder(request.getScheme()).append("://").append(__doGetSafeServerName(request));
         if (request.getServerPort() != 80 && request.getServerPort() != 443) {
             basePath.append(":").append(request.getServerPort());
         }
@@ -243,7 +248,7 @@ public class WebUtils {
      * @return 占位符替换
      */
     public static String replaceRegText(String source, String key, String value) {
-        String _regex = "\\@\\{" + key + "\\}";
+        String _regex = "@\\{" + key + "}";
         return source.replaceAll(_regex, value);
     }
 
