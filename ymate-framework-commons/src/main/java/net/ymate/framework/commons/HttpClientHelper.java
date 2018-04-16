@@ -25,8 +25,8 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
@@ -34,6 +34,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.ssl.SSLContexts;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -102,9 +103,7 @@ public class HttpClientHelper {
                         .setSocketTimeout(__socketTimeout)
                         .setConnectionRequestTimeout(__requestTimeout).build());
         if (__socketFactory == null) {
-            __socketFactory = new SSLConnectionSocketFactory(
-                    SSLContexts.custom().useSSL().build(),
-                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            __socketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), NoopHostnameVerifier.INSTANCE);
         }
         return _builder.setSSLSocketFactory(__socketFactory).build();
     }
