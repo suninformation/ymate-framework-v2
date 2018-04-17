@@ -15,6 +15,9 @@
  */
 package net.ymate.framework.commons;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +28,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.EntityBuilder;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.ContentType;
@@ -36,13 +40,15 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContexts;
 
+import javax.net.ssl.SSLContext;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +77,34 @@ public class HttpClientHelper {
 
     public static HttpClientHelper create() {
         return new HttpClientHelper();
+    }
+
+    public static SSLConnectionSocketFactory createConnectionSocketFactory(URL certFilePath, char[] passwordChars)
+            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+        return createConnectionSocketFactory("PKCS12", certFilePath, passwordChars);
+    }
+
+    public static SSLConnectionSocketFactory createConnectionSocketFactory(String certType, URL certFilePath, char[] passwordChars)
+            throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException, KeyManagementException {
+        if (StringUtils.isBlank(certType)) {
+            throw new NullArgumentException("certType");
+        }
+        if (certFilePath == null) {
+            throw new NullArgumentException("certFilePath");
+        }
+        if (ArrayUtils.isEmpty(passwordChars)) {
+            throw new NullArgumentException("passwordChars");
+        }
+        KeyStore _keyStore = KeyStore.getInstance(certType);
+        InputStream _certFileStream = null;
+        try {
+            _certFileStream = certFilePath.openStream();
+            _keyStore.load(_certFileStream, passwordChars);
+        } finally {
+            IOUtils.closeQuietly(_certFileStream);
+        }
+        SSLContext _sslContext = SSLContexts.custom().loadKeyMaterial(_keyStore, passwordChars).build();
+        return new SSLConnectionSocketFactory(_sslContext, new String[]{"TLSv1"}, null, new DefaultHostnameVerifier());
     }
 
     private HttpClientHelper() {
