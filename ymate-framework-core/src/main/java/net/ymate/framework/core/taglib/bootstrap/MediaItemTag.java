@@ -37,6 +37,7 @@ public class MediaItemTag extends ElementsTag {
 
     private boolean right;
     private boolean middle;
+    private boolean bottom;
 
     public MediaItemTag() {
     }
@@ -58,9 +59,10 @@ public class MediaItemTag extends ElementsTag {
 
     @Override
     protected StringBuilder __doTagContent(StringBuilder tagContent, StringBuilder bodyContent) {
-        StringBuilder _tmpSB = new StringBuilder("<div class=\"media-body\"><h4 class=\"media-heading\">")
+        StringBuilder _mediaBody = new StringBuilder("<div class=\"media-body\"><h4 class=\"media-heading\">")
                 .append(StringUtils.trimToEmpty(title)).append("</h4>").append(bodyContent).append("</div>");
-        _tmpSB.append("<a class=\"");
+        StringBuilder _tmpSB = new StringBuilder();
+        _tmpSB.append("<div class=\"");
         if (right) {
             _tmpSB.append(" media-right");
         } else {
@@ -68,8 +70,10 @@ public class MediaItemTag extends ElementsTag {
         }
         if (middle) {
             _tmpSB.append(" media-middle");
+        } else if (bottom) {
+            _tmpSB.append(" media-bottom");
         }
-        _tmpSB.append("\" href=\"").append(StringUtils.defaultIfBlank(href, "#")).append("\">");
+        _tmpSB.append("\"><a href=\"").append(StringUtils.defaultIfBlank(href, "#")).append("\">");
         if (StringUtils.isNotBlank(image)) {
             _tmpSB.append(image);
         } else {
@@ -82,7 +86,12 @@ public class MediaItemTag extends ElementsTag {
             }
             _tmpSB.append(">");
         }
-        _tmpSB.append("</a>");
+        _tmpSB.append("</a></div>");
+        if (right) {
+            _tmpSB.insert(0, _mediaBody);
+        } else {
+            _tmpSB.append(_mediaBody);
+        }
         //
         return __doTagEnd(tagContent.append(_tmpSB));
     }
@@ -157,5 +166,13 @@ public class MediaItemTag extends ElementsTag {
 
     public void setMiddle(boolean middle) {
         this.middle = middle;
+    }
+
+    public boolean isBottom() {
+        return bottom;
+    }
+
+    public void setBottom(boolean bottom) {
+        this.bottom = bottom;
     }
 }
