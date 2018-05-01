@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ymate-framework-addons</artifactId>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
     <packaging>jar</packaging>
 
     <name>ymate-framework-addons</name>
@@ -47,22 +47,22 @@
         <dependency>
             <groupId>net.ymate.platform</groupId>
             <artifactId>ymate-platform-configuration</artifactId>
-            <version>${project.version}</version>
+            <version>${ymate.platform.version}</version>
         </dependency>
         <dependency>
             <groupId>net.ymate.platform</groupId>
             <artifactId>ymate-platform-plugin</artifactId>
-            <version>${project.version}</version>
+            <version>${ymate.platform.version}</version>
         </dependency>
         <dependency>
             <groupId>net.ymate.platform</groupId>
             <artifactId>ymate-platform-webmvc</artifactId>
-            <version>${project.version}</version>
+            <version>${ymate.platform.version}</version>
         </dependency>
         <dependency>
             <groupId>net.ymate.platform</groupId>
             <artifactId>ymate-platform-persistence</artifactId>
-            <version>${project.version}</version>
+            <version>${ymate.platform.version}</version>
         </dependency>
     </dependencies>
 </project>
