@@ -171,7 +171,7 @@ public class UserSessionBean implements Serializable {
     }
 
     public UserSessionBean save() {
-        __storageAdapter.saveOrUpdate(this);
+        getSessionStorageAdapter().saveOrUpdate(this);
         return this;
     }
 
@@ -179,12 +179,12 @@ public class UserSessionBean implements Serializable {
      * @return 若当前会话尚未存储或与当前存储会话Id不一致时替换原对象
      */
     public UserSessionBean saveIfNeed() {
-        __storageAdapter.saveIfNeed(this);
+        getSessionStorageAdapter().saveIfNeed(this);
         return this;
     }
 
     public void destroy() {
-        __storageAdapter.remove(this);
+        getSessionStorageAdapter().remove(this);
     }
 
     public String getId() {
