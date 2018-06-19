@@ -117,6 +117,11 @@ public class ErrorCode {
     public static final int USER_SESSION_AUTHORIZED = -7;
 
     /**
+     * 参数签名无效
+     */
+    public static final int INVALID_PARAMS_SIGNATURE = -8;
+
+    /**
      * 数据版本不匹配
      */
     public static final int DATA_VERSION_NOT_MATCH = -20;

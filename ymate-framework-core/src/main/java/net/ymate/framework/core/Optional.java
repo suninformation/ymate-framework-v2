@@ -74,6 +74,11 @@ public class Optional {
     public static final String SYSTEM_PARAMS_VALIDATION_INVALID_KEY = "webmvc.params_validation_invalid_key";
 
     /**
+     * 请求参数签名无效消息KEY
+     */
+    public static final String SYSTEM_PARAMS_SIGNATURE_INVALID_KEY = "webmvc.params_signature_invalid_key";
+
+    /**
      * 会话已授权(登录)KEY
      */
     public static final String SYSTEM_SESSION_AUTHORIZED_KEY = "webmvc.session_authorized_key";
