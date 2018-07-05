@@ -53,9 +53,16 @@ public class XPathHelper {
 
     private static final Log _LOG = LogFactory.getLog(XPathHelper.class);
 
-    public static final DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+    public static final DocumentBuilderFactory documentFactory;
 
-    public static final XPathFactory xpathFactory = XPathFactory.newInstance();
+    public static final XPathFactory xpathFactory;
+
+    static {
+        documentFactory = DocumentBuilderFactory.newInstance();
+        documentFactory.setExpandEntityReferences(false);
+        //
+        xpathFactory = XPathFactory.newInstance();
+    }
 
     /**
      * 用于忽略所有DTD检测
