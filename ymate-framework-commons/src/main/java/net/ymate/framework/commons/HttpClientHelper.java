@@ -75,8 +75,14 @@ public class HttpClientHelper {
 
     private SSLConnectionSocketFactory __socketFactory;
 
+    private IHttpClientConfigurable __httpClientConfigurable;
+
     public static HttpClientHelper create() {
         return new HttpClientHelper();
+    }
+
+    public static HttpClientHelper create(IHttpClientConfigurable configurable) {
+        return new HttpClientHelper(configurable);
     }
 
     public static SSLConnectionSocketFactory createConnectionSocketFactory(URL certFilePath, char[] passwordChars)
@@ -110,6 +116,10 @@ public class HttpClientHelper {
     private HttpClientHelper() {
     }
 
+    private HttpClientHelper(IHttpClientConfigurable configurable) {
+        __httpClientConfigurable = configurable;
+    }
+
     public HttpClientHelper customSSL(SSLConnectionSocketFactory socketFactory) {
         __socketFactory = socketFactory;
         return this;
@@ -130,16 +140,33 @@ public class HttpClientHelper {
         return this;
     }
 
-    private CloseableHttpClient __doBuildHttpClient() throws KeyManagementException, NoSuchAlgorithmException {
-        HttpClientBuilder _builder = HttpClientBuilder.create()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setConnectTimeout(__connectionTimeout)
-                        .setSocketTimeout(__socketTimeout)
-                        .setConnectionRequestTimeout(__requestTimeout).build());
-        if (__socketFactory == null) {
-            __socketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), NoopHostnameVerifier.INSTANCE);
+    private CloseableHttpClient __doBuildHttpClient() {
+        CloseableHttpClient _httpClient = __httpClientConfigurable != null ? __httpClientConfigurable.createHttpClient(__socketFactory, __connectionTimeout, __requestTimeout, __socketTimeout) : null;
+        if (_httpClient == null) {
+            HttpClientBuilder _builder = HttpClientBuilder.create()
+                    .setDefaultRequestConfig(RequestConfig.custom()
+                            .setConnectTimeout(__connectionTimeout)
+                            .setSocketTimeout(__socketTimeout)
+                            .setConnectionRequestTimeout(__requestTimeout).build());
+            if (__socketFactory == null) {
+                __socketFactory = new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), NoopHostnameVerifier.INSTANCE);
+            }
+            _httpClient = _builder.setSSLSocketFactory(__socketFactory).build();
         }
-        return _builder.setSSLSocketFactory(__socketFactory).build();
+        return _httpClient;
+    }
+
+    public <T> T execute(IHttpRequestExecutor<T> requestExecutor) throws Exception {
+        CloseableHttpClient _httpClient = __doBuildHttpClient();
+        try {
+            return requestExecutor.execute(_httpClient);
+        } finally {
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
+        }
     }
 
     public IHttpResponse get(String url) throws Exception {
@@ -170,7 +197,11 @@ public class HttpClientHelper {
 
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
@@ -209,7 +240,11 @@ public class HttpClientHelper {
 
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
@@ -242,7 +277,11 @@ public class HttpClientHelper {
 
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
@@ -276,7 +315,11 @@ public class HttpClientHelper {
 
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
@@ -309,7 +352,11 @@ public class HttpClientHelper {
 
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
@@ -354,7 +401,11 @@ public class HttpClientHelper {
 
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
@@ -397,7 +448,11 @@ public class HttpClientHelper {
 
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
@@ -434,7 +489,11 @@ public class HttpClientHelper {
                 }
             });
         } finally {
-            _httpClient.close();
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
         }
     }
 
