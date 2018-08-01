@@ -122,9 +122,8 @@ public class UploadFileValidator extends AbstractValidator {
     }
 
     private List<String> __doGetAllowContentTypes(ValidateContext context, VUploadFile vUploadFile) {
-        List<String> _contentTyps = new ArrayList<String>();
         //
-        _contentTyps.addAll(Arrays.asList(vUploadFile.contentTypes()));
+        List<String> _contentTyps = new ArrayList<String>(Arrays.asList(vUploadFile.contentTypes()));
         //
         String[] _types = StringUtils.split(StringUtils.trimToEmpty(context.getContextParams().get(Optional.VALIDATION_ALLOW_UPLOAD_CONTENT_TYPES)), "|");
         if (_types.length > 0) {

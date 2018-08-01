@@ -31,7 +31,7 @@ import org.apache.commons.lang.StringUtils;
  */
 @Validator(VToken.class)
 @CleanProxy
-public class VTokenValidator extends AbstractValidator {
+public class TokenValidator extends AbstractValidator {
 
     public ValidateResult validate(ValidateContext context) {
         boolean _matched = false;

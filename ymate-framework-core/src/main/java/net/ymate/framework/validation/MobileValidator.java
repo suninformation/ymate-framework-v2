@@ -29,7 +29,7 @@ import org.apache.commons.lang.StringUtils;
  */
 @Validator(VMobile.class)
 @CleanProxy
-public class VMobileValidator extends AbstractValidator {
+public class MobileValidator extends AbstractValidator {
 
     public ValidateResult validate(ValidateContext context) {
         Object _paramValue = context.getParamValue();
