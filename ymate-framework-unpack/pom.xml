@@ -14,10 +14,6 @@
     <name>ymate-framework-unpack</name>
     <url>http://www.ymate.net/</url>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <build>
         <resources>
             <resource>

@@ -14,10 +14,6 @@
     <name>ymate-framework-addons</name>
     <url>http://www.ymate.net/</url>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
