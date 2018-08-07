@@ -45,7 +45,7 @@ public class ParamUtils {
      * @return 对参数进行ASCII正序排列并生成请求参数串
      */
     public static String buildQueryParamStr(Map<String, ?> params, boolean encode, String charset) {
-        String[] _keys = params.keySet().toArray(new String[params.size()]);
+        String[] _keys = params.keySet().toArray(new String[0]);
         Arrays.sort(_keys);
         StringBuilder _paramSB = new StringBuilder();
         for (String _key : _keys) {

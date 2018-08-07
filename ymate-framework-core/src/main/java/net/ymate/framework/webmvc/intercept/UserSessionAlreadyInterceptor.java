@@ -34,6 +34,7 @@ import net.ymate.platform.webmvc.view.View;
  */
 public class UserSessionAlreadyInterceptor implements IInterceptor {
 
+    @Override
     public Object intercept(InterceptContext context) throws Exception {
         switch (context.getDirection()) {
             case BEFORE:

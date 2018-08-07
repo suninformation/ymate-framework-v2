@@ -98,8 +98,9 @@ public abstract class ValueObject<T extends ValueObject> implements Serializable
 
     public JSONObject toJSON() {
         JSONObject _json = new JSONObject(ClassUtils.wrapper(this).toMap(new ClassUtils.IFieldValueFilter() {
+            @Override
             public boolean filter(String fieldName, Object fieldValue) {
-                return !fieldName.equals("attributes");
+                return !"attributes".equals(fieldName);
             }
         }));
         //

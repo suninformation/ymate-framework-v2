@@ -94,6 +94,7 @@ public class FreemarkerPluginView extends AbstractView {
         }
     }
 
+    @Override
     protected void __doRenderView() throws Exception {
         __doProcessPath();
         __freemarkerConfig.getTemplate(__path, WebContext.getContext().getLocale()).process(__attributes, WebContext.getResponse().getWriter());

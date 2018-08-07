@@ -188,6 +188,7 @@ public class HttpClientHelper {
             }
             return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
+                @Override
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     if (StringUtils.isNotBlank(defaultResponseCharset)) {
                         return new IHttpResponse.NEW(response, defaultResponseCharset);
@@ -231,6 +232,7 @@ public class HttpClientHelper {
         try {
             return _httpClient.execute(_request.build(), new ResponseHandler<IHttpResponse>() {
 
+                @Override
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     if (StringUtils.isNotBlank(defaultResponseCharset)) {
                         return new IHttpResponse.NEW(response, defaultResponseCharset);
@@ -268,6 +270,7 @@ public class HttpClientHelper {
             }
             return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
+                @Override
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     if (StringUtils.isNotBlank(defaultResponseCharset)) {
                         return new IHttpResponse.NEW(response, defaultResponseCharset);
@@ -309,6 +312,7 @@ public class HttpClientHelper {
             }
             return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
+                @Override
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     return new IHttpResponse.NEW(response);
                 }
@@ -343,6 +347,7 @@ public class HttpClientHelper {
             }
             return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
+                @Override
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     if (StringUtils.isNotBlank(defaultResponseCharset)) {
                         return new IHttpResponse.NEW(response, defaultResponseCharset);
@@ -392,6 +397,7 @@ public class HttpClientHelper {
             }
             return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
+                @Override
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     if (StringUtils.isNotBlank(defaultResponseCharset)) {
                         return new IHttpResponse.NEW(response, defaultResponseCharset);
@@ -439,6 +445,7 @@ public class HttpClientHelper {
             }
             return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
 
+                @Override
                 public IHttpResponse handleResponse(HttpResponse response) throws IOException {
                     if (StringUtils.isNotBlank(defaultResponseCharset)) {
                         return new IHttpResponse.NEW(response, defaultResponseCharset);
@@ -477,6 +484,7 @@ public class HttpClientHelper {
         try {
             _httpClient.execute(requestBuilder.build(), new ResponseHandler<Void>() {
 
+                @Override
                 public Void handleResponse(HttpResponse response) throws IOException {
                     String _fileName = null;
                     if (response.getStatusLine().getStatusCode() == 200) {

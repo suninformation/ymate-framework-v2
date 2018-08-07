@@ -36,6 +36,7 @@ import java.util.List;
 @CleanProxy
 public class UploadFileValidator extends AbstractValidator {
 
+    @Override
     public ValidateResult validate(ValidateContext context) {
         // 待验证的参数必须是IUploadFileWrapper类型
         Object _paramValue = context.getParamValue();

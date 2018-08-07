@@ -28,6 +28,7 @@ import net.ymate.platform.webmvc.view.impl.HttpStatusView;
  * @version 1.0
  */
 public class AjaxRequestCheckInterceptor implements IInterceptor {
+    @Override
     public Object intercept(InterceptContext context) throws Exception {
         if (!WebUtils.isAjax(WebContext.getRequest())) {
             return HttpStatusView.METHOD_NOT_ALLOWED;

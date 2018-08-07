@@ -70,26 +70,32 @@ public interface IHttpResponse {
             }
         }
 
+        @Override
         public int getStatusCode() {
             return __statusCode;
         }
 
+        @Override
         public String getContent() {
             return __content;
         }
 
+        @Override
         public String getContentType() {
             return __contentType;
         }
 
+        @Override
         public long getContentLength() {
             return __contentLength;
         }
 
+        @Override
         public String getContentEncoding() {
             return __contentEncoding;
         }
 
+        @Override
         public Map<String, String> getHeaders() {
             return Collections.unmodifiableMap(__headers);
         }

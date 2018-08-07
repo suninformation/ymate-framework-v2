@@ -34,12 +34,14 @@ public interface IUserSessionConfirmHandler {
 
     IUserSessionConfirmHandler DEFAULT = new IUserSessionConfirmHandler() {
 
+        @Override
         public boolean handle(InterceptContext context) throws Exception {
             UserSessionConfirmStatus _confirmStatus = getSessionConfirmStatus();
             int _timeout = BlurObject.bind(StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_TIMEOUT), "30")).toIntValue();
             return _confirmStatus != null && BlurObject.bind(_confirmStatus.getStatus()).toBooleanValue() && System.currentTimeMillis() - _confirmStatus.getLastModifyTime() < DateTimeUtils.MINUTE * _timeout;
         }
 
+        @Override
         public UserSessionConfirmStatus getSessionConfirmStatus() {
             UserSessionBean _sessionBean = UserSessionBean.current();
             String _attrKey = UserSessionConfirmStatus.class.getName();
@@ -56,6 +58,7 @@ public interface IUserSessionConfirmHandler {
             return null;
         }
 
+        @Override
         public void updateConfirmStatus(String status) {
             UserSessionConfirmStatus _confirmStatus = getSessionConfirmStatus();
             if (_confirmStatus != null) {

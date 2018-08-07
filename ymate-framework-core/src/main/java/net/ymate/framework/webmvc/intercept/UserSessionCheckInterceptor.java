@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class UserSessionCheckInterceptor implements IInterceptor {
 
+    @Override
     public Object intercept(InterceptContext context) throws Exception {
         // 判断当前拦截器执行方向
         switch (context.getDirection()) {

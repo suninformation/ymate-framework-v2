@@ -215,6 +215,7 @@ public abstract class AbstractTagSupport extends BodyTagSupport implements Dynam
         return __dynamicAttributes.get(attrName);
     }
 
+    @Override
     public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
         __dynamicAttributes.put(localName, value);
     }

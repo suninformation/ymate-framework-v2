@@ -27,6 +27,7 @@ import net.ymate.platform.core.beans.intercept.InterceptContext;
  */
 public class UserSessionStatusInterceptor implements IInterceptor {
 
+    @Override
     public Object intercept(InterceptContext context) throws Exception {
         switch (context.getDirection()) {
             case BEFORE:

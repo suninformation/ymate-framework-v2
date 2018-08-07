@@ -136,10 +136,12 @@ public abstract class AbstractDataTagSupport extends AbstractTagSupport {
         return __doInitIterator(resultSet.getResultData().iterator(), resultSet.getPageCount(), resultSet.getRecordCount());
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
     public void setId(String id) {
         this.id = id;
     }

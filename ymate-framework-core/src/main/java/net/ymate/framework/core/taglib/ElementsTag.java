@@ -126,6 +126,7 @@ public class ElementsTag extends BodyTagSupport implements DynamicAttributes {
         return __dynamicAttributes.get(attrName);
     }
 
+    @Override
     public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
         __dynamicAttributes.put(localName, value);
     }

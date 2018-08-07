@@ -42,6 +42,7 @@ public class UserSessionConfirmInterceptor implements IInterceptor {
 
     private static volatile boolean __initedFlag = false;
 
+    @Override
     public Object intercept(InterceptContext context) throws Exception {
         switch (context.getDirection()) {
             case BEFORE:

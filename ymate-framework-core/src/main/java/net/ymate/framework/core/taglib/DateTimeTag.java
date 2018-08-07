@@ -31,6 +31,7 @@ public class DateTimeTag extends AbstractTagSupport {
 
     private String pattern;
 
+    @Override
     protected Object doProcessTagData() throws JspException {
         if (date == null) {
             return DateTimeUtils.formatTime(System.currentTimeMillis(), pattern);

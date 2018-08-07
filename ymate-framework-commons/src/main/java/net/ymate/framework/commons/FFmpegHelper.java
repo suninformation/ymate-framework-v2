@@ -75,7 +75,7 @@ public class FFmpegHelper {
 
     private int __doGetTimeLength(String timelen) {
         int min = 0;
-        String _strArr[] = timelen.split(":");
+        String[] _strArr = timelen.split(":");
         if (_strArr[0].compareTo("0") > 0) {
             min += Integer.valueOf(_strArr[0]) * 60 * 60;
         }
@@ -195,6 +195,7 @@ public class FFmpegHelper {
     }
 
     class WriteConsoleLog implements ICmdOutputHandler<Void> {
+        @Override
         public Void handle(BufferedReader reader) throws Exception {
             String _line = null;
             while ((_line = reader.readLine()) != null) {

@@ -29,6 +29,7 @@ import net.ymate.platform.core.module.ModuleEvent;
 @EventRegister
 public class UnpackEventProcessor implements IEventRegister {
 
+    @Override
     public void register(Events events) throws Exception {
         events.registerListener(ModuleEvent.class, new IEventListener<ModuleEvent>() {
             @Override

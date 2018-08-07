@@ -46,10 +46,12 @@ public class I18NResourceHelper {
         }
         __resourceAdapter = new IResourceAdapter() {
 
+            @Override
             public String getResourceName() {
                 return resourceName;
             }
 
+            @Override
             public String getDefaultValue(String resourceKey) {
                 return null;
             }
@@ -106,10 +108,12 @@ public class I18NResourceHelper {
             __resourceName = resourceName;
         }
 
+        @Override
         public String getResourceName() {
             return __resourceName;
         }
 
+        @Override
         public String getDefaultValue(String resourceKey) {
             return __defaultValues.get(resourceKey);
         }

@@ -53,6 +53,7 @@ public class XStreamHelper {
             __nodeFilter = nodeFilter;
         }
 
+        @Override
         public HierarchicalStreamWriter createWriter(Writer out) {
             return new PrettyPrintWriter(out, this.getNameCoder()) {
                 String name;

@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class AjaxAllowCrossDomainInterceptor implements IInterceptor {
 
+    @Override
     public Object intercept(InterceptContext context) throws Exception {
         if (Direction.BEFORE.equals(context.getDirection())) {
             boolean _allowCrossDomain = BlurObject.bind(context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_DOMAIN)).toBooleanValue();

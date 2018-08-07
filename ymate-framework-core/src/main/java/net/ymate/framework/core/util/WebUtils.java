@@ -68,7 +68,7 @@ public class WebUtils {
      */
     public static String buildURL(HttpServletRequest request, String requestPath, boolean withBasePath) {
         requestPath = StringUtils.trimToEmpty(requestPath);
-        if (withBasePath && !requestPath.equals("") && requestPath.charAt(0) == '/') {
+        if (withBasePath && !"".equals(requestPath) && requestPath.charAt(0) == '/') {
             requestPath = StringUtils.substringAfter(requestPath, "/");
         }
         return (withBasePath ? WebUtils.baseURL(request) + requestPath : requestPath) + StringUtils.defaultIfEmpty(YMP.get().getConfig().getParam(Optional.REQUEST_SUFFIX), "");

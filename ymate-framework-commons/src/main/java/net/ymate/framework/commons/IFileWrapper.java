@@ -72,42 +72,52 @@ public interface IFileWrapper {
             __errMsg = errMsg;
         }
 
+        @Override
         public boolean hasError() {
             return __hasError;
         }
 
+        @Override
         public String getErrorMsg() {
             return __errMsg;
         }
 
+        @Override
         public String getFileName() {
             return __fileName;
         }
 
+        @Override
         public String getName() {
             return __name;
         }
 
+        @Override
         public String getSuffix() {
             return __suffix;
         }
 
+        @Override
         public long getContentLength() {
             return __contentLength;
         }
 
+        @Override
         public String getContentType() {
             return __contentType;
         }
 
+        @Override
         public InputStream getInputStream() throws IOException {
             return __sourceInputStream;
         }
 
+        @Override
         public void writeTo(File distFile) throws IOException {
             org.apache.commons.io.FileUtils.copyInputStreamToFile(__sourceInputStream, distFile);
         }
 
+        @Override
         public ContentBody toContentBody() {
             return new InputStreamBody(this.__sourceInputStream, ContentType.create(__contentType), __fileName) {
                 @Override
