@@ -176,6 +176,11 @@ public class Optional {
     public static final String REDIRECT_TIME_INTERVAL = "webmvc.redirect_time_interval";
 
     /**
+     * 允许访问和重定向的主机名称, 多个主机名称用'|'分隔, 默认值: 空(表示不限制)
+     */
+    public static final String ALLOW_ACCESS_HOSTS = "webmvc.allow_access_hosts";
+
+    /**
      * 允许上传的文件类型验证参数名称
      */
     public static final String VALIDATION_ALLOW_UPLOAD_CONTENT_TYPES = "webmvc.validation_allow_upload_content_types";
