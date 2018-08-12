@@ -16,6 +16,7 @@
 package net.ymate.framework.validation;
 
 import net.ymate.framework.core.support.IHostNameChecker;
+import net.ymate.framework.exception.ValidationResultException;
 import net.ymate.platform.core.beans.annotation.CleanProxy;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.ClassUtils;
@@ -70,6 +71,9 @@ public class HostNameValidator extends AbstractValidator {
                     _msg = __doGetI18nFormatMessage(context, _msg, _msg, _pName);
                 } else {
                     _msg = __doGetI18nFormatMessage(context, "ymp.validation.hostname_invalid", "{0} is invalid.", _pName);
+                }
+                if (_anno.httpStatus() > 0) {
+                    throw new ValidationResultException(_msg, _anno.httpStatus());
                 }
                 return new ValidateResult(context.getParamName(), _msg);
             }

@@ -34,5 +34,10 @@ public @interface VHostName {
      */
     String msg() default "";
 
+    /**
+     * @return 自定义HTTP响应状态码, 默认为: 0(表示不启用)
+     */
+    int httpStatus() default 0;
+
     Class<? extends IHostNameChecker> checker() default IHostNameChecker.class;
 }

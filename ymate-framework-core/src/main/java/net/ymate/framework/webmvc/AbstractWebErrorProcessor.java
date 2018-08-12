@@ -149,17 +149,26 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
     public void onError(IWebMvc owner, Throwable e) {
         try {
             Throwable _unwrapThrow = RuntimeUtils.unwrapThrow(e);
-            IExceptionProcessor _processor = __exceptionProcessHelper.bind(_unwrapThrow.getClass());
-            if (_processor != null) {
-                IExceptionProcessor.Result _result = _processor.process(_unwrapThrow);
-                __doShowErrorMsg(owner, _result.getCode(), i18nMsg(_result.getMessage(), _result.getMessage()), null).render();
-            } else {
-                if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
-                    _LOG.error(__doParseExceptionDetail(_unwrapThrow));
+            if (_unwrapThrow instanceof ValidationResultException) {
+                ValidationResultException _exception = (ValidationResultException) _unwrapThrow;
+                if (_exception.getResultView() != null) {
+                    _exception.getResultView().render();
                 } else {
-                    _LOG.error("", _unwrapThrow);
+                    View.httpStatusView(_exception.getHttpStatus(), _exception.getMessage()).render();
                 }
-                __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, i18nMsg(null, null), null).render();
+            } else {
+                IExceptionProcessor _processor = __exceptionProcessHelper.bind(_unwrapThrow.getClass());
+                if (_processor != null) {
+                    IExceptionProcessor.Result _result = _processor.process(_unwrapThrow);
+                    __doShowErrorMsg(owner, _result.getCode(), i18nMsg(_result.getMessage(), _result.getMessage()), null).render();
+                } else {
+                    if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
+                        _LOG.error(__doParseExceptionDetail(_unwrapThrow));
+                    } else {
+                        _LOG.error("", _unwrapThrow);
+                    }
+                    __doShowErrorMsg(owner, ErrorCode.INTERNAL_SYSTEM_ERROR, i18nMsg(null, null), null).render();
+                }
             }
         } catch (Throwable e1) {
             _LOG.warn("", RuntimeUtils.unwrapThrow(e1));
