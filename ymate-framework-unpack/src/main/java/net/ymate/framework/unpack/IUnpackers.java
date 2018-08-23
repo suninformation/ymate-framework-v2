@@ -23,7 +23,7 @@ import net.ymate.platform.core.YMP;
  */
 public interface IUnpackers {
 
-    String MODULE_NAME = "Unpackers";
+    String MODULE_NAME = "framework.unpackers";
 
     /**
      * @return 返回所属YMP框架管理器实例

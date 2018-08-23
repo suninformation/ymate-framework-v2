@@ -20,4 +20,14 @@ package net.ymate.framework.unpack;
  * @version 1.0
  */
 public interface IUnpackersModuleCfg {
+
+    /**
+     * @return 是否禁用解包器模块, 默认值: false
+     */
+    boolean isDisabled();
+
+    /**
+     * @return 禁止解包列表, 多个包名称之间使用'|'分隔, 默认值：空
+     */
+    String[] getDisabledUnpackers();
 }

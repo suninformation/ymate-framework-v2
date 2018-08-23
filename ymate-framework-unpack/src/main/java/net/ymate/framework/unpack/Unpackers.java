@@ -24,6 +24,7 @@ import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.annotation.Module;
 import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,7 +86,9 @@ public class Unpackers implements IModule, IUnpackers {
             __owner = owner;
             __moduleCfg = new DefaultModuleCfg(owner);
             //
-            __owner.registerHandler(Unpacker.class, new UnpackerHandler(this));
+            if (!__moduleCfg.isDisabled()) {
+                __owner.registerHandler(Unpacker.class, new UnpackerHandler(this));
+            }
             //
             __inited = true;
         }
@@ -98,14 +101,14 @@ public class Unpackers implements IModule, IUnpackers {
 
     @Override
     public void registerUnpacker(String name, Class<? extends IUnpacker> targetClass) {
-        if (StringUtils.isNotBlank(name) && targetClass != null) {
+        if (!__moduleCfg.isDisabled() && StringUtils.isNotBlank(name) && targetClass != null) {
             __unpackers.put(name, targetClass);
         }
     }
 
     @Override
     public void registerUnpacker(Class<? extends IUnpacker> targetClass) {
-        if (targetClass != null) {
+        if (!__moduleCfg.isDisabled() && targetClass != null) {
             Unpacker _anno = targetClass.getAnnotation(Unpacker.class);
             if (_anno != null) {
                 for (String _name : _anno.value()) {
@@ -118,22 +121,24 @@ public class Unpackers implements IModule, IUnpackers {
     @Override
     public synchronized void unpack() {
         for (Map.Entry<String, Class<? extends IUnpacker>> _entry : __unpackers.entrySet()) {
-            String _prefixPath = "META-INF/" + _entry.getKey();
-            File _locker = new File(RuntimeUtils.getRootPath(), ".unpack/" + _entry.getKey());
-            if (!_locker.exists()) {
-                try {
-                    URL _uri = _entry.getValue().getResource("/" + _prefixPath);
-                    if (_uri != null) {
-                        URLConnection _conn = _uri.openConnection();
-                        if (JarURLConnection.class.isInstance(_conn)) {
-                            if (__unpack(((JarURLConnection) _conn).getJarFile(), _prefixPath)) {
-                                _locker.getParentFile().mkdirs();
-                                _locker.createNewFile();
+            if (!ArrayUtils.contains(__moduleCfg.getDisabledUnpackers(), _entry.getKey())) {
+                String _prefixPath = "META-INF/" + _entry.getKey();
+                File _locker = new File(RuntimeUtils.getRootPath(), ".unpack/" + _entry.getKey());
+                if (!_locker.exists()) {
+                    try {
+                        URL _uri = _entry.getValue().getResource("/" + _prefixPath);
+                        if (_uri != null) {
+                            URLConnection _conn = _uri.openConnection();
+                            if (JarURLConnection.class.isInstance(_conn)) {
+                                if (__unpack(((JarURLConnection) _conn).getJarFile(), _prefixPath)) {
+                                    _locker.getParentFile().mkdirs();
+                                    _locker.createNewFile();
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        _LOG.warn("Synchronizing resource [" + _entry.getKey() + "] exception", RuntimeUtils.unwrapThrow(e));
                     }
-                } catch (Exception e) {
-                    _LOG.warn("Synchronizing resource [" + _entry.getKey() + "] exception", RuntimeUtils.unwrapThrow(e));
                 }
             }
         }
