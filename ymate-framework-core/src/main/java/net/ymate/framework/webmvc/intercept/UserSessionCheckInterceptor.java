@@ -43,15 +43,7 @@ public class UserSessionCheckInterceptor implements IInterceptor {
         // 判断当前拦截器执行方向
         switch (context.getDirection()) {
             case BEFORE:
-                UserSessionBean _sessionBean = UserSessionBean.current();
-                if (_sessionBean == null) {
-                    if (UserSessionBean.getSessionHandler() != null) {
-                        _sessionBean = UserSessionBean.getSessionHandler().handle(context);
-                    }
-                } else if (!_sessionBean.isVerified()) {
-                    _sessionBean.destroy();
-                    _sessionBean = null;
-                }
+                UserSessionBean _sessionBean = UserSessionBean.current(context);
                 if (_sessionBean == null) {
                     // 拼装跳转登录URL地址
                     HttpServletRequest _request = WebContext.getRequest();
@@ -74,7 +66,7 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                                 .CODE(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT)
                                 .msg(_message)
                                 .attr(Optional.REDIRECT_URL, _redirectUrl);
-                        return WebResult.formatView(_result);
+                        return WebResult.formatView(_result, "json");
                     }
                     if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
                         return View.redirectView(_redirectUrl);

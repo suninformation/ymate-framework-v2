@@ -31,19 +31,7 @@ public class UserSessionStatusInterceptor implements IInterceptor {
     public Object intercept(InterceptContext context) throws Exception {
         switch (context.getDirection()) {
             case BEFORE:
-                UserSessionBean _sessionBean = UserSessionBean.current();
-                if (_sessionBean == null) {
-                    if (UserSessionBean.getSessionHandler() != null) {
-                        _sessionBean = UserSessionBean.getSessionHandler().handle(context);
-                    }
-                }
-                if (_sessionBean != null) {
-                    if (!_sessionBean.isVerified()) {
-                        _sessionBean.destroy();
-                    } else {
-                        _sessionBean.touch();
-                    }
-                }
+                UserSessionBean.current(context);
         }
         return null;
     }

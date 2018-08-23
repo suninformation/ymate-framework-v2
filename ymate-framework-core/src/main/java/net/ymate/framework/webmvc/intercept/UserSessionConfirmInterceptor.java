@@ -47,9 +47,8 @@ public class UserSessionConfirmInterceptor implements IInterceptor {
         switch (context.getDirection()) {
             case BEFORE:
                 UserSessionBean _sessionBean = UserSessionBean.current();
-                if (_sessionBean != null && _sessionBean.isVerified()) {
-                    IUserSessionConfirmHandler _handler = getSessionConfirmHandler();
-                    if (!_handler.handle(context)) {
+                if (_sessionBean != null) {
+                    if (!getSessionConfirmHandler().handle(context)) {
                         HttpServletRequest _request = WebContext.getRequest();
                         StringBuffer _returnUrlBuffer = _request.getRequestURL();
                         String _queryStr = _request.getQueryString();
@@ -63,7 +62,7 @@ public class UserSessionConfirmInterceptor implements IInterceptor {
                         if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
                             WebResult _result = WebResult.SUCCESS()
                                     .attr(Optional.REDIRECT_URL, _redirectUrl);
-                            return WebResult.formatView(_result);
+                            return WebResult.formatView(_result, "json");
                         }
                         return View.redirectView(_redirectUrl);
                     }

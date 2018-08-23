@@ -38,11 +38,7 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
     public Object intercept(InterceptContext context) throws Exception {
         switch (context.getDirection()) {
             case BEFORE:
-                UserSessionBean _sessionBean = UserSessionBean.current();
-                if (_sessionBean != null && !_sessionBean.isVerified()) {
-                    _sessionBean.destroy();
-                    _sessionBean = null;
-                }
+                UserSessionBean _sessionBean = UserSessionBean.current(context);
                 if (_sessionBean != null) {
                     //
                     String _redirectUrl = WebUtils.buildRedirectURL(context, WebUtils.buildRedirectCustomURL(context, null), true);
@@ -53,7 +49,7 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                                 .CODE(ErrorCode.USER_SESSION_AUTHORIZED)
                                 .msg(_message)
                                 .attr(Optional.REDIRECT_URL, _redirectUrl);
-                        return WebResult.formatView(_result);
+                        return WebResult.formatView(_result, "json");
                     }
                     //
                     if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {

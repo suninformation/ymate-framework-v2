@@ -19,6 +19,7 @@ import net.ymate.framework.core.Optional;
 import net.ymate.framework.webmvc.IUserSessionHandler;
 import net.ymate.framework.webmvc.IUserSessionStorageAdapter;
 import net.ymate.platform.core.YMP;
+import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.util.ClassUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
@@ -142,6 +143,19 @@ public class UserSessionBean implements Serializable {
             return _sessionBean.getAttribute(name);
         }
         return null;
+    }
+
+    public static UserSessionBean current(InterceptContext context) throws Exception {
+        UserSessionBean _sessionBean = current();
+        if (_sessionBean == null) {
+            if (UserSessionBean.getSessionHandler() != null) {
+                _sessionBean = UserSessionBean.getSessionHandler().handle(context);
+            }
+        } else if (!_sessionBean.isVerified()) {
+            _sessionBean.destroy();
+            _sessionBean = null;
+        }
+        return _sessionBean != null ? _sessionBean.touch() : null;
     }
 
     /**
