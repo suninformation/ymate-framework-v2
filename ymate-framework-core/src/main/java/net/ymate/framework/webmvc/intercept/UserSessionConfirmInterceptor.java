@@ -16,19 +16,12 @@
 package net.ymate.framework.webmvc.intercept;
 
 import net.ymate.framework.core.Optional;
-import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.IUserSessionConfirmHandler;
-import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.util.ClassUtils;
-import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
-import net.ymate.platform.webmvc.view.View;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 在当前用户会话有效的前提下要求再次确认用户密码以保证操作的安全性, 该拦截器用于验证安全确认视图返回的数据的合法性
@@ -48,23 +41,9 @@ public class UserSessionConfirmInterceptor implements IInterceptor {
             case BEFORE:
                 UserSessionBean _sessionBean = UserSessionBean.current();
                 if (_sessionBean != null) {
-                    if (!getSessionConfirmHandler().handle(context)) {
-                        HttpServletRequest _request = WebContext.getRequest();
-                        StringBuffer _returnUrlBuffer = _request.getRequestURL();
-                        String _queryStr = _request.getQueryString();
-                        if (StringUtils.isNotBlank(_queryStr)) {
-                            _returnUrlBuffer.append("?").append(_queryStr);
-                        }
-                        //
-                        String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_REDIRECT_URL), "confirm?redirect_url=${redirect_url}"), true);
-                        _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
-                        //
-                        if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
-                            WebResult _result = WebResult.SUCCESS()
-                                    .attr(Optional.REDIRECT_URL, _redirectUrl);
-                            return WebResult.formatView(_result, "json");
-                        }
-                        return View.redirectView(_redirectUrl);
+                    IUserSessionConfirmHandler _handler = getSessionConfirmHandler();
+                    if (!_handler.handle(context)) {
+                        return _handler.onNeedConfirm(context);
                     }
                 }
         }

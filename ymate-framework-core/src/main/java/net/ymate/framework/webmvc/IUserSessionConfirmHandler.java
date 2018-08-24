@@ -16,12 +16,18 @@
 package net.ymate.framework.webmvc;
 
 import net.ymate.framework.core.Optional;
+import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.DateTimeUtils;
+import net.ymate.platform.core.util.ExpressionUtils;
+import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.view.IView;
+import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 
 /**
@@ -39,6 +45,25 @@ public interface IUserSessionConfirmHandler {
             UserSessionConfirmStatus _confirmStatus = getSessionConfirmStatus();
             int _timeout = BlurObject.bind(StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_TIMEOUT), "30")).toIntValue();
             return _confirmStatus != null && BlurObject.bind(_confirmStatus.getStatus()).toBooleanValue() && System.currentTimeMillis() - _confirmStatus.getLastModifyTime() < DateTimeUtils.MINUTE * _timeout;
+        }
+
+        @Override
+        public IView onNeedConfirm(InterceptContext context) throws Exception {
+            HttpServletRequest _request = WebContext.getRequest();
+            StringBuffer _returnUrlBuffer = _request.getRequestURL();
+            String _queryStr = _request.getQueryString();
+            if (StringUtils.isNotBlank(_queryStr)) {
+                _returnUrlBuffer.append("?").append(_queryStr);
+            }
+            //
+            String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_REDIRECT_URL), "confirm?redirect_url=${redirect_url}"), true);
+            _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
+            //
+            if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
+                WebResult _result = WebResult.SUCCESS().attr(Optional.REDIRECT_URL, _redirectUrl);
+                return WebResult.formatView(_result, "json");
+            }
+            return View.redirectView(_redirectUrl);
         }
 
         @Override
@@ -74,6 +99,13 @@ public interface IUserSessionConfirmHandler {
      * @throws Exception 抛出任何可能异常
      */
     boolean handle(InterceptContext context) throws Exception;
+
+    /**
+     * @param context 当前拦截器环境上下文对象
+     * @return 返回视图对象
+     * @throws Exception 抛出任何可能异常
+     */
+    IView onNeedConfirm(InterceptContext context) throws Exception;
 
     /**
      * @return 获取当前会话安全确认状态对象, 若不存在则创建新的
