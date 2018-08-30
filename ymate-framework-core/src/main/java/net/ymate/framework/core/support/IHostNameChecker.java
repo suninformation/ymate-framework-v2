@@ -16,7 +16,7 @@
 package net.ymate.framework.core.support;
 
 import net.ymate.framework.core.Optional;
-import net.ymate.platform.validation.ValidateContext;
+import net.ymate.platform.core.support.IContext;
 import org.apache.commons.lang.StringUtils;
 
 import java.net.URL;
@@ -30,7 +30,7 @@ public interface IHostNameChecker {
 
     IHostNameChecker DEFAULT = new IHostNameChecker() {
         @Override
-        public boolean check(ValidateContext context, String redirectUrl) throws Exception {
+        public boolean check(IContext context, String redirectUrl) throws Exception {
             String _hosts = context.getOwner().getConfig().getParam(Optional.ALLOW_ACCESS_HOSTS);
             if (StringUtils.isNotBlank(_hosts)) {
                 return StringUtils.containsIgnoreCase(_hosts, new URL(redirectUrl).getHost());
@@ -42,10 +42,10 @@ public interface IHostNameChecker {
     /**
      * 检查重定向URL主机是否被允许
      *
-     * @param context     验证器上下文对象
+     * @param context     上下文对象接口实例
      * @param redirectUrl 重定向URL地址
      * @return 若主机列表为空或包含则返回true
      * @throws Exception 可能产生的任何异常
      */
-    boolean check(ValidateContext context, String redirectUrl) throws Exception;
+    boolean check(IContext context, String redirectUrl) throws Exception;
 }

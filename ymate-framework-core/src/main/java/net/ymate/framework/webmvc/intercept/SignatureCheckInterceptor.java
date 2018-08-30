@@ -81,7 +81,8 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
     }
 
     /**
-     * @param params 请求参数映射
+     * @param params       请求参数映射
+     * @param signatureKey 签名密钥
      * @return 返回参数检查结果true为通过
      */
     protected boolean checkParameters(Map<String, Object> params, String signatureKey) {
@@ -98,6 +99,7 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
     }
 
     /**
+     * @param context 拦截器环境上下文对象
      * @return 获取当前请求参数中的签名参数值
      */
     protected String getSignatureValue(InterceptContext context) {
