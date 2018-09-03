@@ -36,7 +36,9 @@ public class GeoUtils {
     /**
      * 地球半径
      */
-    private static final double EARTH_RADIUS = 6378.137;
+    private static final double EARTH_RADIUS = 6378137.0;
+
+    private static final double EE = 0.00669342162296594323;
 
     /**
      * @param d 值
@@ -113,6 +115,7 @@ public class GeoUtils {
 
     /**
      * 地理坐标点
+     * <p>坐标系转换代码参考自: https://blog.csdn.net/a13570320979/article/details/51366355</p>
      */
     public static class Point implements Serializable {
 
@@ -127,14 +130,27 @@ public class GeoUtils {
         private double latitude;
 
         /**
+         * 坐标点类型, 默认为: WGS84
+         */
+        private PointType type;
+
+        /**
          * 构造器
          *
          * @param longitude 经度
          * @param latitude  纬度
+         * @param type      坐标点类型, 默认为WGS84
          */
+        public Point(double longitude, double latitude, PointType type) {
+            this.longitude = longitude;
+            this.latitude = latitude;
+            this.type = type == null ? PointType.WGS84 : type;
+        }
+
         public Point(double longitude, double latitude) {
             this.longitude = longitude;
             this.latitude = latitude;
+            this.type = PointType.WGS84;
         }
 
         public double getLongitude() {
@@ -153,8 +169,173 @@ public class GeoUtils {
             this.latitude = latitude;
         }
 
+        public PointType getType() {
+            return type;
+        }
+
+        public void setType(PointType type) {
+            this.type = type;
+        }
+
         public Point2D.Double toPoint2D() {
             return new Point2D.Double(longitude, latitude);
+        }
+
+        /**
+         * @return 将当前坐标点转换为火星坐标
+         */
+        public Point toGcj02() {
+            Point _point;
+            switch (type) {
+                case BD09:
+                    _point = __bd09ToGcj02();
+                    break;
+                case GCJ02:
+                    _point = new Point(longitude, latitude, PointType.GCJ02);
+                    break;
+                default:
+                    _point = __transform();
+            }
+            return _point;
+        }
+
+        /**
+         * @return 将当前坐标点转换为GPS原始坐标
+         */
+        public Point toWgs84() {
+            Point _point;
+            switch (type) {
+                case BD09:
+                    _point = __bd09ToWgs84();
+                    break;
+                case GCJ02:
+                    _point = __gcj02ToWgs84();
+                    break;
+                default:
+                    _point = new Point(longitude, latitude);
+            }
+            return _point;
+        }
+
+        /**
+         * @return 将当前坐标点转换为百度坐标
+         */
+        public Point toBd09() {
+            Point _point;
+            switch (type) {
+                case BD09:
+                    _point = new Point(longitude, latitude, PointType.BD09);
+                    break;
+                case GCJ02:
+                    _point = __gcj02ToBd09();
+                    break;
+                default:
+                    _point = __wgs84ToBd09();
+            }
+            return _point;
+        }
+
+        /**
+         * @return 保留小数点后六位
+         */
+        public Point retain6() {
+            return new Point(Double.valueOf(String.format("%.6f", longitude)), Double.valueOf(String.format("%.6f", latitude)), type);
+        }
+
+        /**
+         * @return 是否超出中国范围
+         */
+        public boolean notInChina() {
+            if (longitude < 72.004 || longitude > 137.8347) {
+                return true;
+            }
+            return latitude < 0.8293 || latitude > 55.8271;
+        }
+
+        private double __transformLat() {
+            double x = longitude - 105.0;
+            double y = latitude - 35.0;
+            //
+            double ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+            ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin(y / 3.0 * Math.PI)) * 2.0 / 3.0;
+            ret += (160.0 * Math.sin(y / 12.0 * Math.PI) + 320 * Math.sin(y * Math.PI / 30.0)) * 2.0 / 3.0;
+            return ret;
+        }
+
+        private double __transformLon() {
+            double x = longitude - 105.0;
+            double y = latitude - 35.0;
+            //
+            double ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+            ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+            ret += (20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin(x / 3.0 * Math.PI)) * 2.0 / 3.0;
+            ret += (150.0 * Math.sin(x / 12.0 * Math.PI) + 300.0 * Math.sin(x / 30.0 * Math.PI)) * 2.0 / 3.0;
+            return ret;
+        }
+
+        /**
+         * @return WGS84 --> GCJ-02
+         */
+        private Point __transform() {
+            if (notInChina()) {
+                return new Point(longitude, latitude);
+            }
+            double dLat = __transformLat();
+            double dLon = __transformLon();
+            double radLat = __rad(latitude);
+            double magic = Math.sin(radLat);
+            magic = 1 - EE * magic * magic;
+            double sqrtMagic = Math.sqrt(magic);
+            dLat = (dLat * 180.0) / ((EARTH_RADIUS * (1 - EE)) / (magic * sqrtMagic) * Math.PI);
+            dLon = (dLon * 180.0) / (EARTH_RADIUS / sqrtMagic * Math.cos(radLat) * Math.PI);
+            double mgLat = latitude + dLat;
+            double mgLon = longitude + dLon;
+            //
+            return new Point(mgLon, mgLat, PointType.GCJ02);
+        }
+
+        /**
+         * @return GCJ-02 --> WGS84
+         */
+        private Point __gcj02ToWgs84() {
+            Point _point = __transform();
+            return new Point(longitude * 2 - _point.getLongitude(), latitude * 2 - _point.getLatitude());
+        }
+
+        /**
+         * @return GCJ-02 --> BD09
+         */
+        private Point __gcj02ToBd09() {
+            double z = Math.sqrt(longitude * longitude + latitude * latitude) + 0.00002 * Math.sin(latitude * Math.PI);
+            double theta = Math.atan2(latitude, longitude) + 0.000003 * Math.cos(longitude * Math.PI);
+            return new Point(z * Math.cos(theta) + 0.0065, z * Math.sin(theta) + 0.006, PointType.BD09);
+        }
+
+        /**
+         * @return BD09 --> GCJ-02
+         */
+        private Point __bd09ToGcj02() {
+            double x = longitude - 0.0065, y = latitude - 0.006;
+            double z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * Math.PI);
+            double theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * Math.PI);
+            return new Point(z * Math.cos(theta), z * Math.sin(theta), PointType.GCJ02);
+        }
+
+        /**
+         * @return WGS84 --> BD09
+         */
+        public Point __wgs84ToBd09() {
+            Point _point = __transform();
+            return _point.toBd09();
+        }
+
+        /**
+         * @return BD09 --> WGS84
+         */
+        public Point __bd09ToWgs84() {
+            Point _point = __bd09ToGcj02();
+            return _point.toWgs84();
         }
 
         /**
@@ -164,7 +345,7 @@ public class GeoUtils {
         public double distance(Point point) {
             double _lat1 = __rad(latitude);
             double _lat2 = __rad(latitude);
-            return Math.round(2 * Math.asin(Math.sqrt(Math.pow(Math.sin((_lat1 - _lat2) / 2), 2) + Math.cos(_lat1) * Math.cos(_lat2) * Math.pow(Math.sin((__rad(point.getLongitude()) - __rad(point.getLongitude())) / 2), 2))) * EARTH_RADIUS * 10000) / 10;
+            return Math.round(2 * Math.asin(Math.sqrt(Math.pow(Math.sin((_lat1 - _lat2) / 2), 2) + Math.cos(_lat1) * Math.cos(_lat2) * Math.pow(Math.sin((__rad(point.getLongitude()) - __rad(point.getLongitude())) / 2), 2))) * EARTH_RADIUS * 10000) / 10000;
         }
 
         /**
@@ -176,7 +357,7 @@ public class GeoUtils {
                 return false;
             }
             // 纬度: 90° >= y >= 0°
-            return !(0.0 > latitude) && !(90.0 < latitude);
+            return !(0.0 > latitude || 90.0 < latitude);
         }
 
         @Override
@@ -204,8 +385,15 @@ public class GeoUtils {
 
         @Override
         public String toString() {
-            return "Point{longitude=" + longitude + ", latitude=" + latitude + '}';
+            return "Point{" + "longitude=" + longitude + ", latitude=" + latitude + ", type=" + type + '}';
         }
+    }
+
+    /**
+     * 坐标点类型
+     */
+    public enum PointType {
+        WGS84, GCJ02, BD09
     }
 
     /**
