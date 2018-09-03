@@ -68,16 +68,16 @@ public class GeoUtils {
         }
         float _delta = 111000;
         if (point.getLatitude() != 0 && point.getLongitude() != 0) {
-            double lng1 = point.getLongitude() - distance / Math.abs(Math.cos(Math.toRadians(point.getLatitude())) * _delta);
-            double lng2 = point.getLongitude() + distance / Math.abs(Math.cos(Math.toRadians(point.getLatitude())) * _delta);
-            double lat1 = point.getLatitude() - (distance / _delta);
-            double lat2 = point.getLatitude() + (distance / _delta);
+            double lng1 = point.longitude - distance / Math.abs(Math.cos(Math.toRadians(point.latitude)) * _delta);
+            double lng2 = point.longitude + distance / Math.abs(Math.cos(Math.toRadians(point.latitude)) * _delta);
+            double lat1 = point.latitude - (distance / _delta);
+            double lat2 = point.latitude + (distance / _delta);
             return new Bounds(new Point(lng1, lat1), new Point(lng2, lat2));
         } else {
-            double lng1 = point.getLongitude() - distance / _delta;
-            double lng2 = point.getLongitude() + distance / _delta;
-            double lat1 = point.getLatitude() - (distance / _delta);
-            double lat2 = point.getLatitude() + (distance / _delta);
+            double lng1 = point.longitude - distance / _delta;
+            double lng2 = point.longitude + distance / _delta;
+            double lat1 = point.latitude - (distance / _delta);
+            double lat2 = point.latitude + (distance / _delta);
             return new Bounds(new Point(lng1, lat1), new Point(lng2, lat2));
         }
     }
@@ -131,6 +131,8 @@ public class GeoUtils {
 
         /**
          * 坐标点类型, 默认为: WGS84
+         *
+         * @since 2.0.6
          */
         private PointType type;
 
@@ -140,6 +142,7 @@ public class GeoUtils {
          * @param longitude 经度
          * @param latitude  纬度
          * @param type      坐标点类型, 默认为WGS84
+         * @since 2.0.6
          */
         public Point(double longitude, double latitude, PointType type) {
             this.longitude = longitude;
@@ -183,6 +186,7 @@ public class GeoUtils {
 
         /**
          * @return 将当前坐标点转换为火星坐标
+         * @since 2.0.6
          */
         public Point toGcj02() {
             Point _point;
@@ -201,6 +205,7 @@ public class GeoUtils {
 
         /**
          * @return 将当前坐标点转换为GPS原始坐标
+         * @since 2.0.6
          */
         public Point toWgs84() {
             Point _point;
@@ -219,6 +224,7 @@ public class GeoUtils {
 
         /**
          * @return 将当前坐标点转换为百度坐标
+         * @since 2.0.6
          */
         public Point toBd09() {
             Point _point;
@@ -237,6 +243,7 @@ public class GeoUtils {
 
         /**
          * @return 保留小数点后六位
+         * @since 2.0.6
          */
         public Point retain6() {
             return new Point(Double.valueOf(String.format("%.6f", longitude)), Double.valueOf(String.format("%.6f", latitude)), type);
@@ -244,6 +251,7 @@ public class GeoUtils {
 
         /**
          * @return 是否超出中国范围
+         * @since 2.0.6
          */
         public boolean notInChina() {
             if (longitude < 72.004 || longitude > 137.8347) {
@@ -300,7 +308,7 @@ public class GeoUtils {
          */
         private Point __gcj02ToWgs84() {
             Point _point = __transform();
-            return new Point(longitude * 2 - _point.getLongitude(), latitude * 2 - _point.getLatitude());
+            return new Point(longitude * 2 - _point.longitude, latitude * 2 - _point.latitude);
         }
 
         /**
@@ -325,7 +333,7 @@ public class GeoUtils {
         /**
          * @return WGS84 --> BD09
          */
-        public Point __wgs84ToBd09() {
+        private Point __wgs84ToBd09() {
             Point _point = __transform();
             return _point.toBd09();
         }
@@ -333,7 +341,7 @@ public class GeoUtils {
         /**
          * @return BD09 --> WGS84
          */
-        public Point __bd09ToWgs84() {
+        private Point __bd09ToWgs84() {
             Point _point = __bd09ToGcj02();
             return _point.toWgs84();
         }
@@ -344,8 +352,9 @@ public class GeoUtils {
          */
         public double distance(Point point) {
             double _lat1 = __rad(latitude);
-            double _lat2 = __rad(latitude);
-            return Math.round(2 * Math.asin(Math.sqrt(Math.pow(Math.sin((_lat1 - _lat2) / 2), 2) + Math.cos(_lat1) * Math.cos(_lat2) * Math.pow(Math.sin((__rad(point.getLongitude()) - __rad(point.getLongitude())) / 2), 2))) * EARTH_RADIUS * 10000) / 10000;
+            double _lat2 = __rad(point.latitude);
+            double _diff = __rad(longitude) - __rad(point.longitude);
+            return Math.round(2 * Math.asin(Math.sqrt(Math.pow(Math.sin((_lat1 - _lat2) / 2), 2) + Math.cos(_lat1) * Math.cos(_lat2) * Math.pow(Math.sin(_diff / 2), 2))) * EARTH_RADIUS * 10000) / 10000;
         }
 
         /**
@@ -391,6 +400,8 @@ public class GeoUtils {
 
     /**
      * 坐标点类型
+     *
+     * @since 2.0.6
      */
     public enum PointType {
         WGS84, GCJ02, BD09
@@ -457,7 +468,7 @@ public class GeoUtils {
          * @return 返回矩形的中心点
          */
         public Point getCenter() {
-            return new Point((southWest.getLongitude() + northEast.getLongitude()) / 2, (southWest.getLatitude() + northEast.getLatitude()) / 2);
+            return new Point((southWest.longitude + northEast.longitude) / 2, (southWest.latitude + northEast.latitude) / 2);
         }
 
         /**
@@ -472,7 +483,7 @@ public class GeoUtils {
          * @return 地理坐标点是否位于此矩形内
          */
         public boolean contains(Point point) {
-            return !isEmpty() && (point.getLongitude() >= southWest.getLongitude() && point.getLongitude() <= northEast.getLongitude()) && (point.getLatitude() >= southWest.getLatitude() && point.getLatitude() <= northEast.getLatitude());
+            return !isEmpty() && (point.longitude >= southWest.longitude && point.longitude <= northEast.longitude) && (point.latitude >= southWest.latitude && point.latitude <= northEast.latitude);
         }
 
         /**
@@ -480,7 +491,7 @@ public class GeoUtils {
          * @return 矩形区域是否完全包含于此矩形区域中
          */
         public boolean contains(Bounds bounds) {
-            return contains(bounds.getSouthWest()) && contains(bounds.getNorthEast());
+            return contains(bounds.southWest) && contains(bounds.northEast);
         }
 
         /**
@@ -491,11 +502,11 @@ public class GeoUtils {
             if (bounds != null && !bounds.isEmpty() && !isEmpty()) {
                 Bounds _merged = new Bounds(this, bounds);
                 //
-                double _x1 = this.southWest.getLongitude() == _merged.southWest.getLongitude() ? bounds.southWest.getLongitude() : this.southWest.getLongitude();
-                double _y1 = this.southWest.getLatitude() == _merged.southWest.getLatitude() ? bounds.southWest.getLatitude() : this.southWest.getLatitude();
+                double _x1 = this.southWest.longitude == _merged.southWest.longitude ? bounds.southWest.longitude : this.southWest.longitude;
+                double _y1 = this.southWest.latitude == _merged.southWest.latitude ? bounds.southWest.latitude : this.southWest.latitude;
                 //
-                double _x2 = this.northEast.getLongitude() == _merged.northEast.getLongitude() ? bounds.northEast.getLongitude() : this.northEast.getLongitude();
-                double _y2 = this.northEast.getLatitude() == _merged.northEast.getLatitude() ? bounds.northEast.getLatitude() : this.northEast.getLatitude();
+                double _x2 = this.northEast.longitude == _merged.northEast.longitude ? bounds.northEast.longitude : this.northEast.longitude;
+                double _y2 = this.northEast.latitude == _merged.northEast.latitude ? bounds.northEast.latitude : this.northEast.latitude;
                 //
                 if (_x1 < _x2 && _y1 < _y2) {
                     return new Bounds(new Point(_x1, _y1), new Point(_x2, _y2));
