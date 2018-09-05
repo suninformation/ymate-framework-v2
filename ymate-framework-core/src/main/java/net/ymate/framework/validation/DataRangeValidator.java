@@ -15,54 +15,46 @@
  */
 package net.ymate.framework.validation;
 
-import net.ymate.framework.core.support.IHostNameChecker;
-import net.ymate.framework.exception.ValidationResultException;
 import net.ymate.platform.core.beans.annotation.CleanProxy;
 import net.ymate.platform.core.lang.BlurObject;
-import net.ymate.platform.core.util.ClassUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.validation.AbstractValidator;
 import net.ymate.platform.validation.ValidateContext;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.validation.annotation.Validator;
-import net.ymate.platform.webmvc.IRequestContext;
-import net.ymate.platform.webmvc.base.Type;
-import net.ymate.platform.webmvc.context.WebContext;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * @author 刘镇 (suninformation@163.com) on 2018/8/12 上午 02:01
+ * @author 刘镇 (suninformation@163.com) on 2018/09/05 下午 17:11
  * @version 1.0
  * @since 2.0.6
  */
-@Validator(VHostName.class)
+@Validator(VDataRange.class)
 @CleanProxy
-public class HostNameValidator extends AbstractValidator {
+public class DataRangeValidator extends AbstractValidator {
 
     @Override
     public ValidateResult validate(ValidateContext context) {
         Object _paramValue = context.getParamValue();
         if (_paramValue != null) {
-            boolean _matched;
-            VHostName _anno = (VHostName) context.getAnnotation();
+            boolean _matched = false;
+            VDataRange _anno = (VDataRange) context.getAnnotation();
             try {
-                String _url = null;
+                String _rangeValues = StringUtils.join(_anno.value(), "|");
                 if (_paramValue.getClass().isArray()) {
-                    Object[] _objArr = (Object[]) context.getParamValue();
-                    if (_objArr.length > 0) {
-                        _url = BlurObject.bind(_objArr[0]).toStringValue();
+                    Object[] _pArray = (Object[]) _paramValue;
+                    for (Object _pValue : _pArray) {
+                        if (_anno.ignoreCase()) {
+                            _matched = !StringUtils.containsIgnoreCase(_rangeValues, BlurObject.bind(_pValue).toStringValue());
+                        } else {
+                            _matched = !StringUtils.contains(_rangeValues, BlurObject.bind(_pValue).toStringValue());
+                        }
+                        if (_matched) {
+                            break;
+                        }
                     }
-                } else {
-                    _url = BlurObject.bind(_paramValue).toStringValue();
-                }
-                //
-                IRequestContext _requestContext = WebContext.getContext().getAttribute(Type.Context.WEB_REQUEST_CONTEXT);
-                if (_requestContext != null && StringUtils.containsIgnoreCase(StringUtils.substringBefore(_url, "?"), _requestContext.getOriginalUrl())) {
+                } else if (!StringUtils.contains(_rangeValues, BlurObject.bind(_paramValue).toStringValue())) {
                     _matched = true;
-                } else if (_anno.checker().equals(IHostNameChecker.class)) {
-                    _matched = !IHostNameChecker.DEFAULT.check(context, _url);
-                } else {
-                    _matched = !ClassUtils.impl(_anno.checker(), IHostNameChecker.class).check(context, _url);
                 }
             } catch (Exception e) {
                 throw new Error(RuntimeUtils.unwrapThrow(e));
@@ -74,10 +66,7 @@ public class HostNameValidator extends AbstractValidator {
                 if (_msg != null) {
                     _msg = __doGetI18nFormatMessage(context, _msg, _msg, _pName);
                 } else {
-                    _msg = __doGetI18nFormatMessage(context, "ymp.validation.hostname_invalid", "{0} is invalid.", _pName);
-                }
-                if (_anno.httpStatus() > 0) {
-                    throw new ValidationResultException(_msg, _anno.httpStatus());
+                    _msg = __doGetI18nFormatMessage(context, "ymp.validation.data_range_invalid", "{0} invalid.", _pName);
                 }
                 return new ValidateResult(context.getParamName(), _msg);
             }
