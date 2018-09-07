@@ -41,22 +41,42 @@ import org.apache.commons.lang.StringUtils;
 @CleanProxy
 public class MobileValidator extends AbstractValidator {
 
+    /**
+     * @param mobile 手机号码
+     * @return 返回mobile字符串是否为合法手机号码
+     * @since 2.0.6
+     */
+    public static boolean isMobile(String mobile) {
+        return isMobile(mobile, null);
+    }
+
+    /**
+     * @param mobile 手机号码
+     * @param regex  自定义正则表达式, 若为空则使用默认值
+     * @return 返回mobile字符串是否为合法手机号码
+     * @since 2.0.6
+     */
+    public static boolean isMobile(String mobile, String regex) {
+        String _regex = StringUtils.defaultIfBlank(regex, "^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$");
+        return StringUtils.trimToEmpty(mobile).matches(_regex);
+    }
+
     @Override
     public ValidateResult validate(ValidateContext context) {
         Object _paramValue = context.getParamValue();
         if (_paramValue != null) {
             boolean _matched = false;
-            String _regex = StringUtils.defaultIfBlank(((VMobile) context.getAnnotation()).regex(), "^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$");
+            String _regex = StringUtils.trimToNull(((VMobile) context.getAnnotation()).regex());
             if (context.getParamValue().getClass().isArray()) {
                 Object[] _pArray = (Object[]) _paramValue;
                 for (Object _pValue : _pArray) {
-                    _matched = !BlurObject.bind(_pValue).toStringValue().matches(_regex);
+                    _matched = !isMobile(BlurObject.bind(_pValue).toStringValue(), _regex);
                     if (_matched) {
                         break;
                     }
                 }
             } else {
-                _matched = !BlurObject.bind(_paramValue).toStringValue().matches(_regex);
+                _matched = !isMobile(BlurObject.bind(_paramValue).toStringValue(), _regex);
             }
             if (_matched) {
                 String _pName = StringUtils.defaultIfBlank(context.getParamLabel(), context.getParamName());
