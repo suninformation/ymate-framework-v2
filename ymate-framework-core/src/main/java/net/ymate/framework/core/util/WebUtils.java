@@ -18,8 +18,8 @@ package net.ymate.framework.core.util;
 import net.ymate.framework.core.Optional;
 import net.ymate.framework.webmvc.ErrorCode;
 import net.ymate.platform.core.YMP;
-import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.i18n.I18N;
+import net.ymate.platform.core.support.IContext;
 import net.ymate.platform.core.util.CodecUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.core.util.NetworkUtils;
@@ -417,7 +417,7 @@ public class WebUtils {
         return messageWithTemplate(owner, null, messages);
     }
 
-    public static String buildRedirectURL(InterceptContext context, String redirectUrl, boolean needPrefix) {
+    public static String buildRedirectURL(IContext context, String redirectUrl, boolean needPrefix) {
         String _redirectUrl = StringUtils.trimToNull(redirectUrl);
         if (_redirectUrl == null) {
             _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(Optional.REDIRECT_URL), context != null ? context.getContextParams().get(Optional.REDIRECT_URL) : "");
@@ -434,7 +434,7 @@ public class WebUtils {
         return _redirectUrl;
     }
 
-    public static String buildRedirectCustomURL(InterceptContext context, String defaultValue) {
+    public static String buildRedirectCustomURL(IContext context, String defaultValue) {
         String _returnValue = null;
         if (context.getContextParams().containsKey(Optional.CUSTOM_REDIRECT)) {
             String _value = context.getContextParams().get(Optional.CUSTOM_REDIRECT);
