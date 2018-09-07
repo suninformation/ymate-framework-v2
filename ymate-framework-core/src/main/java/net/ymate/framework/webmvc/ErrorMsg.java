@@ -94,6 +94,11 @@ public class ErrorMsg {
         return BlurObject.bind(attributes.get(attrKey));
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T getAttr(String attrKey) {
+        return (T) attributes.get(attrKey);
+    }
+
     public ErrorMsg addAttribute(String attrKey, Object attrValue) {
         this.attributes.put(attrKey, attrValue);
         return this;
