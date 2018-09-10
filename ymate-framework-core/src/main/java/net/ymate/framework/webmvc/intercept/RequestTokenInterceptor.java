@@ -75,6 +75,7 @@ public class RequestTokenInterceptor implements IInterceptor {
                     return HttpStatusView.BAD_REQUEST;
                 }
                 break;
+            default:
         }
         return null;
     }

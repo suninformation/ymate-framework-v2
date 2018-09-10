@@ -46,6 +46,8 @@ public class UserSessionConfirmInterceptor implements IInterceptor {
                         return _handler.onNeedConfirm(context);
                     }
                 }
+                break;
+            default:
         }
         return null;
     }

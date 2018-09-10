@@ -39,6 +39,8 @@ public class UnpackEventProcessor implements IEventRegister {
                         if (context.getSource() instanceof IUnpacker) {
                             Unpackers.get().registerUnpacker(context.getSource().getName(), ((IUnpacker) context.getSource()).getClass());
                         }
+                        break;
+                    default:
                 }
                 return false;
             }
@@ -48,6 +50,8 @@ public class UnpackEventProcessor implements IEventRegister {
                 switch (context.getEventName()) {
                     case APPLICATION_INITED:
                         Unpackers.get().unpack();
+                        break;
+                    default:
                 }
                 return false;
             }

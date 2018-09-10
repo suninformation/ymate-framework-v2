@@ -32,6 +32,8 @@ public class UserSessionStatusInterceptor implements IInterceptor {
         switch (context.getDirection()) {
             case BEFORE:
                 UserSessionBean.current(context);
+                break;
+            default:
         }
         return null;
     }

@@ -77,6 +77,7 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                     _sessionBean.touch();
                 }
                 break;
+            default:
         }
         return null;
     }

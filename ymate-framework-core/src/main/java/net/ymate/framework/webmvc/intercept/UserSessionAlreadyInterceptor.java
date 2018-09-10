@@ -58,6 +58,7 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
                     return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_AUTHORIZED, _message, _redirectUrl, BlurObject.bind(context.getOwner().getConfig().getParam(Optional.REDIRECT_TIME_INTERVAL)).toIntValue());
                 }
                 break;
+            default:
         }
         return null;
     }
