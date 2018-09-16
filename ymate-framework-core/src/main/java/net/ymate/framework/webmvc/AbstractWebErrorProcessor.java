@@ -163,7 +163,7 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
                     __doShowErrorMsg(owner, _result.getCode(), i18nMsg(_result.getMessage(), _result.getMessage()), null).render();
                 } else {
                     if (!__disabledAnalysis && owner.getOwner().getConfig().isDevelopMode()) {
-                        _LOG.error(__doParseExceptionDetail(_unwrapThrow));
+                        _LOG.error(exceptionDetail(_unwrapThrow));
                     } else {
                         _LOG.error("", _unwrapThrow);
                     }
@@ -175,7 +175,7 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
         }
     }
 
-    private String __doParseExceptionDetail(Throwable e) {
+    public final String exceptionDetail(Throwable e) {
         IRequestContext _requestCtx = WebContext.getRequestContext();
         HttpServletRequest _request = WebContext.getRequest();
         WebContext _context = WebContext.getContext();
@@ -227,13 +227,13 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
         for (Map.Entry<String, Object> _entry : _context.getSession().entrySet()) {
             _errSB.append("\t  ").append(_entry.getKey()).append(": ").append(JSON.toJSONString(_entry.getValue())).append("\n");
         }
-        _errSB.append(__doExceptionToString(e));
+        _errSB.append(exceptionToString(e));
         _errSB.append("-------------------------------------------------\n");
         //
         return _errSB.toString();
     }
 
-    private StringBuilder __doExceptionToString(Throwable e) {
+    public final StringBuilder exceptionToString(Throwable e) {
         StringBuilder _errSB = new StringBuilder();
         if (e != null) {
             _errSB.append("-- Exception: ").append(e.getClass().getName()).append("\n");
