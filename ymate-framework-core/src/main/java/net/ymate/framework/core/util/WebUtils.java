@@ -26,7 +26,6 @@ import net.ymate.platform.core.util.NetworkUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.webmvc.IWebMvc;
-import net.ymate.platform.webmvc.WebMVC;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
@@ -267,7 +266,7 @@ public class WebUtils {
      */
     public static String includeJSP(HttpServletRequest request, HttpServletResponse response, String jspFile, String charsetEncoding) throws ServletException, IOException {
         final OutputStream _output = new ByteArrayOutputStream();
-        final PrintWriter _writer = new PrintWriter(new OutputStreamWriter(_output));
+        final PrintWriter _writer = new PrintWriter(new OutputStreamWriter(_output, StringUtils.defaultIfEmpty(charsetEncoding, response.getCharacterEncoding())));
         final ServletOutputStream _servletOutput = new ServletOutputStream() {
             @Override
             public void write(int b) throws IOException {
@@ -290,8 +289,6 @@ public class WebUtils {
                 return _writer;
             }
         };
-        charsetEncoding = StringUtils.defaultIfEmpty(charsetEncoding, response.getCharacterEncoding());
-        _response.setCharacterEncoding(StringUtils.defaultIfEmpty(charsetEncoding, WebMVC.get().getModuleCfg().getDefaultCharsetEncoding()));
         request.getRequestDispatcher(jspFile).include(request, _response);
         _writer.flush();
         return _output.toString();
