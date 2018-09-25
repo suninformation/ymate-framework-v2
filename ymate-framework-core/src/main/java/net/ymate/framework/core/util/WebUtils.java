@@ -70,7 +70,7 @@ public class WebUtils {
         if (withBasePath && !"".equals(requestPath) && requestPath.charAt(0) == '/') {
             requestPath = StringUtils.substringAfter(requestPath, "/");
         }
-        return (withBasePath ? WebUtils.baseURL(request) + requestPath : requestPath) + StringUtils.defaultIfEmpty(YMP.get().getConfig().getParam(Optional.REQUEST_SUFFIX), "");
+        return (withBasePath ? baseURL(request) + requestPath : requestPath) + StringUtils.defaultIfEmpty(YMP.get().getConfig().getParam(Optional.REQUEST_SUFFIX), "");
     }
 
     private static String __doGetSafeServerName(HttpServletRequest request) {
@@ -83,14 +83,20 @@ public class WebUtils {
      * @return 获取当前站点基准URL
      */
     public static String baseURL(HttpServletRequest request) {
-        StringBuilder basePath = new StringBuilder(request.getScheme()).append("://").append(__doGetSafeServerName(request));
-        if (request.getServerPort() != 80 && request.getServerPort() != 443) {
-            basePath.append(":").append(request.getServerPort());
+        StringBuilder basePath = new StringBuilder();
+        String _serverName = __doGetSafeServerName(request);
+        if (!StringUtils.startsWithAny(StringUtils.lowerCase(_serverName), new String[]{"http://", "https://"})) {
+            basePath.append(request.getScheme()).append("://").append(_serverName);
+            if (request.getServerPort() != 80 && request.getServerPort() != 443) {
+                basePath.append(":").append(request.getServerPort());
+            }
+            if (StringUtils.isNotBlank(request.getContextPath())) {
+                basePath.append(request.getContextPath());
+            }
+        } else {
+            basePath.append(_serverName);
         }
-        if (StringUtils.isNotBlank(request.getContextPath())) {
-            basePath.append(request.getContextPath());
-        }
-        if (!basePath.toString().endsWith("/")) {
+        if (basePath.charAt(basePath.length() - 1) != '/') {
             basePath.append("/");
         }
         return basePath.toString();
@@ -421,7 +427,7 @@ public class WebUtils {
             if (StringUtils.isBlank(_redirectUrl)) {
                 _redirectUrl = WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.REDIRECT_HOME_URL);
                 if (StringUtils.isBlank(_redirectUrl)) {
-                    _redirectUrl = StringUtils.defaultIfBlank(_redirectUrl, WebUtils.baseURL(WebContext.getRequest()));
+                    _redirectUrl = StringUtils.defaultIfBlank(_redirectUrl, baseURL(WebContext.getRequest()));
                 }
             }
         }
