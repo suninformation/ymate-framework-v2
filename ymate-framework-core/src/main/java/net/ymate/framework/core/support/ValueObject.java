@@ -16,6 +16,7 @@
 package net.ymate.framework.core.support;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import net.ymate.platform.core.util.ClassUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -32,8 +33,10 @@ public abstract class ValueObject<T extends ValueObject> implements Serializable
 
     private String id;
 
+    @JSONField(name = "create_time")
     private Long createTime;
 
+    @JSONField(name = "last_modify_time")
     private Long lastModifyTime;
 
     private Map<String, Attribute> attributes;

@@ -67,7 +67,7 @@ public class RequestTokenInterceptor implements IInterceptor {
                         WebContext.getResponse().addHeader(_tokenName, _tokenStr);
                         CookieHelper.bind().removeCookie(_tokenName);
                     } else {
-                        _cookieHelper.setCookie(_tokenName, _tokenStr);
+                        _cookieHelper.allowUseHttpOnly().setCookie(_tokenName, _tokenStr);
                     }
                 }
                 // 根据令牌验证结果返回
