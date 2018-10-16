@@ -32,6 +32,7 @@ import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.support.GenericResponseWrapper;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,8 +51,6 @@ import java.util.Map;
 public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, IWebInitializable {
 
     private static final Log _LOG = LogFactory.getLog(AbstractWebErrorProcessor.class);
-
-    private static final ExceptionProcessHelper __exceptionProcessHelper = new ExceptionProcessHelper();
 
     private boolean __inited;
 
@@ -108,6 +107,21 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
             public IExceptionProcessor.Result process(Throwable target) throws Exception {
                 return new IExceptionProcessor.Result(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, i18nMsg(Optional.SYSTEM_SESSION_TIMEOUT_KEY, "用户未授权登录或会话已过期"));
             }
+        }).registerProcessor(FileUploadBase.FileSizeLimitExceededException.class, new IExceptionProcessor() {
+            @Override
+            public Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.UPLOAD_FILE_SIZE_LIMIT_EXCEEDED, i18nMsg(Optional.UPLOAD_FILE_SIZE_LIMIT_EXCEEDED_KEY, "上传文件大小超出限制"));
+            }
+        }).registerProcessor(FileUploadBase.SizeLimitExceededException.class, new IExceptionProcessor() {
+            @Override
+            public Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.UPLOAD_SIZE_LIMIT_EXCEEDED, i18nMsg(Optional.UPLOAD_SIZE_LIMIT_EXCEEDED_KEY, "上传文件总大小超出限制"));
+            }
+        }).registerProcessor(FileUploadBase.InvalidContentTypeException.class, new IExceptionProcessor() {
+            @Override
+            public Result process(Throwable target) throws Exception {
+                return new IExceptionProcessor.Result(ErrorCode.UPLOAD_CONTENT_TYPE_INVALID, i18nMsg(Optional.UPLOAD_CONTENT_TYPE_INVALID_KEY, "上传文件类型无效"));
+            }
         });
     }
 
@@ -118,7 +132,7 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
     }
 
     public final ExceptionProcessHelper getExceptionProcessHelper() {
-        return __exceptionProcessHelper;
+        return ExceptionProcessHelper.DEFAULT;
     }
 
     public final String getResourceName() {
@@ -157,7 +171,7 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
                     View.httpStatusView(_exception.getHttpStatus(), _exception.getMessage()).render();
                 }
             } else {
-                IExceptionProcessor _processor = __exceptionProcessHelper.bind(_unwrapThrow.getClass());
+                IExceptionProcessor _processor = getExceptionProcessHelper().bind(_unwrapThrow.getClass());
                 if (_processor != null) {
                     IExceptionProcessor.Result _result = _processor.process(_unwrapThrow);
                     __doShowErrorMsg(owner, _result.getCode(), i18nMsg(_result.getMessage(), _result.getMessage()), null).render();

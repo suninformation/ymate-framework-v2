@@ -26,6 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ExceptionProcessHelper {
 
+    public final static ExceptionProcessHelper DEFAULT = new ExceptionProcessHelper();
+
     private final Map<String, IExceptionProcessor> __processors = new ConcurrentHashMap<String, IExceptionProcessor>();
 
     public ExceptionProcessHelper registerProcessor(Class<? extends Throwable> target, IExceptionProcessor processor) {

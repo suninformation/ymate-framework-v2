@@ -122,6 +122,21 @@ public class ErrorCode {
     public static final int INVALID_PARAMS_SIGNATURE = -8;
 
     /**
+     * 上传文件大小超出限制
+     */
+    public static final int UPLOAD_FILE_SIZE_LIMIT_EXCEEDED = -9;
+
+    /**
+     * 上传文件总大小超出限制
+     */
+    public static final int UPLOAD_SIZE_LIMIT_EXCEEDED = -10;
+
+    /**
+     * 上传文件类型无效
+     */
+    public static final int UPLOAD_CONTENT_TYPE_INVALID = -11;
+
+    /**
      * 数据版本不匹配
      */
     public static final int DATA_VERSION_NOT_MATCH = -20;

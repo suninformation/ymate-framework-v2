@@ -108,6 +108,21 @@ public class Optional {
      */
     public static final String SYSTEM_DATA_VERSION_NOT_MATCH_KEY = "webmvc.data_version_not_match_key";
 
+    /**
+     * 上传文件大小超出限制KEY
+     */
+    public static final String UPLOAD_FILE_SIZE_LIMIT_EXCEEDED_KEY = "webmvc.upload_file_size_limit_exceeded_key";
+
+    /**
+     * 上传文件总大小超出限制KEY
+     */
+    public static final String UPLOAD_SIZE_LIMIT_EXCEEDED_KEY = "webmvc.upload_size_limit_exceeded_key";
+
+    /**
+     * 上传文件类型无效KEY
+     */
+    public static final String UPLOAD_CONTENT_TYPE_INVALID_KEY = "webmvc.upload_content_type_invalid_key";
+
     // ----------
 
     /**
