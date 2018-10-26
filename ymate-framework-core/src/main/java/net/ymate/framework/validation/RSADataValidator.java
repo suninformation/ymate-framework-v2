@@ -98,6 +98,7 @@ public class RSADataValidator extends AbstractValidator {
     @Override
     public ValidateResult validate(ValidateContext context) {
         boolean _matched = false;
+        boolean _exceptionFlag = false;
         VRSAData _vData = (VRSAData) context.getAnnotation();
         Object _paramValue = context.getParamValue();
         if (_paramValue != null) {
@@ -120,6 +121,7 @@ public class RSADataValidator extends AbstractValidator {
                         }
                     } catch (Exception e) {
                         _matched = true;
+                        _exceptionFlag = true;
                     }
                 } else {
                     _matched = true;
@@ -133,14 +135,18 @@ public class RSADataValidator extends AbstractValidator {
             String _msg = StringUtils.trimToNull(_vData.msg());
             if (_msg != null) {
                 _msg = __doGetI18nFormatMessage(context, _msg, _msg, _pName);
-            } else if (_vData.maxLength() > 0 && _vData.minLength() > 0) {
-                if (_vData.maxLength() == _vData.minLength()) {
-                    _msg = __doGetI18nFormatMessage(context, "ymp.validation.length_eq", "{0} length must be eq {1}.", _pName, _vData.maxLength());
+            } else if (!_exceptionFlag) {
+                if (_vData.maxLength() > 0 && _vData.minLength() > 0) {
+                    if (_vData.maxLength() == _vData.minLength()) {
+                        _msg = __doGetI18nFormatMessage(context, "ymp.validation.length_eq", "{0} length must be eq {1}.", _pName, _vData.maxLength());
+                    } else {
+                        _msg = __doGetI18nFormatMessage(context, "ymp.validation.length_between", "{0} length must be between {1} and {2}.", _pName, _vData.minLength(), _vData.maxLength());
+                    }
+                } else if (_vData.maxLength() > 0) {
+                    _msg = __doGetI18nFormatMessage(context, "ymp.validation.length_max", "{0} length must be lt {1}.", _pName, _vData.maxLength());
                 } else {
-                    _msg = __doGetI18nFormatMessage(context, "ymp.validation.length_between", "{0} length must be between {1} and {2}.", _pName, _vData.minLength(), _vData.maxLength());
+                    _msg = __doGetI18nFormatMessage(context, "ymp.validation.rsa_data_invalid", "{0} is invalid.", _pName);
                 }
-            } else if (_vData.maxLength() > 0) {
-                _msg = __doGetI18nFormatMessage(context, "ymp.validation.length_max", "{0} length must be lt {1}.", _pName, _vData.maxLength());
             } else {
                 _msg = __doGetI18nFormatMessage(context, "ymp.validation.rsa_data_invalid", "{0} is invalid.", _pName);
             }
