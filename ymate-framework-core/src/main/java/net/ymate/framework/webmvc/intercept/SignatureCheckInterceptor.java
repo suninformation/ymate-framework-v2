@@ -23,6 +23,7 @@ import net.ymate.framework.webmvc.ErrorMsg;
 import net.ymate.framework.webmvc.WebResult;
 import net.ymate.platform.core.beans.intercept.AbstractInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
+import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.webmvc.context.WebContext;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
@@ -46,7 +47,11 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
 
     public static final String CLIENT_SECRET_KEY = "client_secret_key";
 
+    public static final String TIMESTAMP_KEY = "timestamp_key";
+
     private ErrorMsg __errorMsg;
+
+    private int __timestampInterval;
 
     private boolean __inited;
 
@@ -58,6 +63,7 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
     private synchronized void __init(InterceptContext context) {
         if (!__inited) {
             __errorMsg = new ErrorMsg(ErrorCode.INVALID_PARAMS_SIGNATURE, WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_PARAMS_SIGNATURE_INVALID_KEY, "请求参数签名无效"));
+            __timestampInterval = BlurObject.bind(context.getOwner().getConfig().getParam(Optional.SIGNATURE_TIMESTAMP_INTERVAL)).toIntValue();
             __inited = true;
         }
     }
@@ -118,6 +124,10 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
             //
             String _sign = ParamUtils.createSignature(_params, false, buildExtraParamStr(context));
             _flag = !StringUtils.equals(_sign, getSignatureValue(context));
+            if (!_flag && __timestampInterval > 0) {
+                long _timestamp = BlurObject.bind(_params.get(getTimestampKey(context))).toLongValue();
+                _flag = _timestamp <= 0 || System.currentTimeMillis() - _timestamp > __timestampInterval;
+            }
         }
         if (_flag) {
             return WebResult.formatView(__errorMsg.toResult(), "json");
@@ -144,5 +154,9 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
      */
     public String getClientSecretKey(InterceptContext context) {
         return StringUtils.defaultIfBlank(context.getContextParams().get(CLIENT_SECRET_KEY), "client_secret");
+    }
+
+    public String getTimestampKey(InterceptContext context) {
+        return StringUtils.defaultIfBlank(context.getContextParams().get(TIMESTAMP_KEY), "timestamp");
     }
 }

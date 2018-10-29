@@ -191,6 +191,11 @@ public class Optional {
     public static final String REDIRECT_TIME_INTERVAL = "webmvc.redirect_time_interval";
 
     /**
+     * 签名验证时间间隔(毫秒), 即当前时间与签名时间戳差值在此值范围内视为有效, 默认值: 0 表示不开始时间间隔验证
+     */
+    public static final String SIGNATURE_TIMESTAMP_INTERVAL = "webmvc.signature_timestamp_interval";
+
+    /**
      * 允许访问和重定向的主机名称, 多个主机名称用'|'分隔, 默认值: 空(表示不限制)
      */
     public static final String ALLOW_ACCESS_HOSTS = "webmvc.allow_access_hosts";
