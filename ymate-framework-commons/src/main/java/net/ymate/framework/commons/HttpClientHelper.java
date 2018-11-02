@@ -479,21 +479,20 @@ public class HttpClientHelper {
         return upload(url, uploadFile, null);
     }
 
-    private void __doExecHttpDownload(RequestBuilder requestBuilder, final IFileHandler handler) throws Exception {
+    private <T> T __doExecHttpDownload(RequestBuilder requestBuilder, final IFileHandler<T> handler) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
-            _httpClient.execute(requestBuilder.build(), new ResponseHandler<Void>() {
+            return _httpClient.execute(requestBuilder.build(), new ResponseHandler<T>() {
 
                 @Override
-                public Void handleResponse(HttpResponse response) throws IOException {
+                public T handleResponse(HttpResponse response) throws IOException {
                     String _fileName = null;
                     if (response.getStatusLine().getStatusCode() == 200) {
                         if (response.containsHeader("Content-disposition")) {
                             _fileName = StringUtils.substringAfter(response.getFirstHeader("Content-disposition").getValue(), "filename=");
                         }
                     }
-                    handler.handle(response, new IFileWrapper.NEW(_fileName, response.getEntity().getContentType().getValue(), response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent())));
-                    return null;
+                    return handler.handle(response, new IFileWrapper.NEW(_fileName, response.getEntity().getContentType().getValue(), response.getEntity().getContentLength(), new BufferedInputStream(response.getEntity().getContent())));
                 }
             });
         } finally {
@@ -505,7 +504,7 @@ public class HttpClientHelper {
         }
     }
 
-    public void download(String url, ContentType contentType, String content, Header[] headers, final IFileHandler handler) throws Exception {
+    public <T> T download(String url, ContentType contentType, String content, Header[] headers, final IFileHandler<T> handler) throws Exception {
         RequestBuilder _reqBuilder = RequestBuilder.post()
                 .setUri(url)
                 .setEntity(EntityBuilder.create()
@@ -517,24 +516,24 @@ public class HttpClientHelper {
                 _reqBuilder.addHeader(_header);
             }
         }
-        __doExecHttpDownload(_reqBuilder, handler);
+        return __doExecHttpDownload(_reqBuilder, handler);
     }
 
-    public void download(String url, String content, IFileHandler handler) throws Exception {
-        download(url, ContentType.create("application/x-www-form-urlencoded", DEFAULT_CHARSET), content, null, handler);
+    public <T> T download(String url, String content, IFileHandler<T> handler) throws Exception {
+        return download(url, ContentType.create("application/x-www-form-urlencoded", DEFAULT_CHARSET), content, null, handler);
     }
 
-    public void download(String url, Header[] headers, final IFileHandler handler) throws Exception {
+    public <T> T download(String url, Header[] headers, final IFileHandler<T> handler) throws Exception {
         RequestBuilder _reqBuilder = RequestBuilder.get().setUri(url);
         if (headers != null && headers.length > 0) {
             for (Header _header : headers) {
                 _reqBuilder.addHeader(_header);
             }
         }
-        __doExecHttpDownload(_reqBuilder, handler);
+        return __doExecHttpDownload(_reqBuilder, handler);
     }
 
-    public void download(String url, IFileHandler handler) throws Exception {
-        download(url, new Header[0], handler);
+    public <T> T download(String url, IFileHandler<T> handler) throws Exception {
+        return download(url, new Header[0], handler);
     }
 }

@@ -23,7 +23,7 @@ import java.io.IOException;
  * @author 刘镇 (suninformation@163.com) on 16/7/13 下午1:35
  * @version 1.0
  */
-public interface IFileHandler {
+public interface IFileHandler<T> {
 
-    void handle(HttpResponse response, IFileWrapper fileWrapper) throws IOException;
+    T handle(HttpResponse response, IFileWrapper fileWrapper) throws IOException;
 }
