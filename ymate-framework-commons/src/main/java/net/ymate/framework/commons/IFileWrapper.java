@@ -114,15 +114,16 @@ public interface IFileWrapper {
 
         @Override
         public void writeTo(File distFile) throws IOException {
-            org.apache.commons.io.FileUtils.copyInputStreamToFile(__sourceInputStream, distFile);
+            org.apache.commons.io.FileUtils.copyInputStreamToFile(getInputStream(), distFile);
         }
 
         @Override
-        public ContentBody toContentBody() {
-            return new InputStreamBody(this.__sourceInputStream, ContentType.create(__contentType), __fileName) {
+        public ContentBody toContentBody() throws IOException {
+            final long _contentLength = getContentLength();
+            return new InputStreamBody(getInputStream(), ContentType.create(getContentType()), getFileName()) {
                 @Override
                 public long getContentLength() {
-                    return __contentLength;
+                    return _contentLength;
                 }
             };
         }
@@ -146,5 +147,5 @@ public interface IFileWrapper {
 
     void writeTo(File distFile) throws IOException;
 
-    ContentBody toContentBody();
+    ContentBody toContentBody() throws IOException;
 }
