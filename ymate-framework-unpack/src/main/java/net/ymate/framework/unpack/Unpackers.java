@@ -22,23 +22,16 @@ import net.ymate.platform.core.Version;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.annotation.Module;
+import net.ymate.platform.core.util.FileUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/08/02 下午 22:27
@@ -78,7 +71,7 @@ public class Unpackers implements IModule, IUnpackers {
     }
 
     @Override
-    public void init(YMP owner) throws Exception {
+    public void init(YMP owner) {
         if (!__inited) {
             //
             _LOG.info("Initializing ymate-framework-unpack-" + VERSION);
@@ -120,21 +113,16 @@ public class Unpackers implements IModule, IUnpackers {
 
     @Override
     public synchronized void unpack() {
+        File _targetFile = new File(RuntimeUtils.getRootPath(false));
+        String _rootPath = RuntimeUtils.getRootPath();
         for (Map.Entry<String, Class<? extends IUnpacker>> _entry : __unpackers.entrySet()) {
             if (!ArrayUtils.contains(__moduleCfg.getDisabledUnpackers(), _entry.getKey())) {
-                String _prefixPath = "META-INF/" + _entry.getKey();
-                File _locker = new File(RuntimeUtils.getRootPath(), ".unpack/" + _entry.getKey());
+                File _locker = new File(_rootPath, ".unpack/" + _entry.getKey());
                 if (!_locker.exists()) {
                     try {
-                        URL _uri = _entry.getValue().getResource("/" + _prefixPath);
-                        if (_uri != null) {
-                            URLConnection _conn = _uri.openConnection();
-                            if (JarURLConnection.class.isInstance(_conn)) {
-                                if (__unpack(((JarURLConnection) _conn).getJarFile(), _prefixPath)) {
-                                    _locker.getParentFile().mkdirs();
-                                    _locker.createNewFile();
-                                }
-                            }
+                        if (FileUtils.unpackJarFile(_entry.getKey(), _targetFile, _entry.getValue())) {
+                            _locker.getParentFile().mkdirs();
+                            _locker.createNewFile();
                         }
                     } catch (Exception e) {
                         _LOG.warn("Synchronizing resource [" + _entry.getKey() + "] exception", RuntimeUtils.unwrapThrow(e));
@@ -144,28 +132,8 @@ public class Unpackers implements IModule, IUnpackers {
         }
     }
 
-    private boolean __unpack(JarFile jarFile, String prefixPath) throws Exception {
-        boolean _results = false;
-        Enumeration<JarEntry> _entriesEnum = jarFile.entries();
-        for (; _entriesEnum.hasMoreElements(); ) {
-            JarEntry _entry = _entriesEnum.nextElement();
-            if (StringUtils.startsWith(_entry.getName(), prefixPath)) {
-                if (!_entry.isDirectory()) {
-                    _LOG.info("Synchronizing resource file: " + _entry.getName());
-                    //
-                    String _entryName = StringUtils.substringAfter(_entry.getName(), prefixPath);
-                    File _targetFile = new File(RuntimeUtils.getRootPath(false), _entryName);
-                    _targetFile.getParentFile().mkdirs();
-                    IOUtils.copyLarge(jarFile.getInputStream(_entry), new FileOutputStream(_targetFile));
-                    _results = true;
-                }
-            }
-        }
-        return _results;
-    }
-
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         if (__inited) {
             __inited = false;
             //
