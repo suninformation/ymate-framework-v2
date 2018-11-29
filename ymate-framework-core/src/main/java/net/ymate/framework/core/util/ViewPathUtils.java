@@ -64,7 +64,7 @@ public class ViewPathUtils {
             // 为了适应Web环境JSP文件的特殊性(即不能引用工程路径外的JSP文件), 建议采用默认"/WEB-INF/plugins/
             String _viewPluginPath = "/WEB-INF/plugins/";
             try {
-                File _pFile = Plugins.get().getPluginFactory().getPluginConfig().getPluginHome();
+                File _pFile = Plugins.get().getConfig().getPluginHome();
                 String _pHome = _pFile == null ? null : _pFile.getPath();
                 if (_pHome != null && (_pHome = _pHome.replaceAll("\\\\", "/")).contains("/WEB-INF/")) {
                     _viewPluginPath = StringUtils.substring(_pHome, _pHome.indexOf("/WEB-INF/"));
