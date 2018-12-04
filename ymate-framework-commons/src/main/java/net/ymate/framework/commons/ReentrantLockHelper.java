@@ -22,7 +22,9 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author 刘镇 (suninformation@163.com) on 16/5/26 下午3:18
  * @version 1.0
+ * @see net.ymate.platform.core.support.ReentrantLockHelper
  */
+@Deprecated
 public class ReentrantLockHelper {
 
     public static final ReentrantLockHelper DEFAULT;
