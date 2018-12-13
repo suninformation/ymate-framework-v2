@@ -20,7 +20,9 @@ package net.ymate.framework.exception;
  *
  * @author 刘镇 (suninformation@163.com) on 2017/10/18 下午3:19
  * @version 1.0
+ * @see net.ymate.platform.webmvc.exception.RequestMethodNotAllowedException
  */
+@Deprecated
 public class RequestMethodNotAllowedException extends RuntimeException {
 
     public RequestMethodNotAllowedException() {

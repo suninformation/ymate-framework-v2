@@ -37,17 +37,14 @@ public class UserSessionConfirmInterceptor implements IInterceptor {
 
     @Override
     public Object intercept(InterceptContext context) throws Exception {
-        switch (context.getDirection()) {
-            case BEFORE:
-                UserSessionBean _sessionBean = UserSessionBean.current();
-                if (_sessionBean != null) {
-                    IUserSessionConfirmHandler _handler = getSessionConfirmHandler();
-                    if (!_handler.handle(context)) {
-                        return _handler.onNeedConfirm(context);
-                    }
+        if (Direction.BEFORE.equals(context.getDirection())) {
+            UserSessionBean _sessionBean = UserSessionBean.current();
+            if (_sessionBean != null) {
+                IUserSessionConfirmHandler _handler = getSessionConfirmHandler();
+                if (!_handler.handle(context)) {
+                    return _handler.onNeedConfirm(context);
                 }
-                break;
-            default:
+            }
         }
         return null;
     }

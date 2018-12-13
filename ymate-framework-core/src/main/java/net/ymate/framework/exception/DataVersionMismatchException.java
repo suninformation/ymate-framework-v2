@@ -20,7 +20,9 @@ package net.ymate.framework.exception;
  *
  * @author 刘镇 (suninformation@163.com) on 2017/10/18 下午1:59
  * @version 1.0
+ * @see net.ymate.platform.webmvc.exception.DataVersionMismatchException
  */
+@Deprecated
 public class DataVersionMismatchException extends RuntimeException {
 
     public DataVersionMismatchException() {

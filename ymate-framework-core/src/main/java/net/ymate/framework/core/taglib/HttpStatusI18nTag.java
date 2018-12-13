@@ -15,7 +15,7 @@
  */
 package net.ymate.framework.core.taglib;
 
-import net.ymate.framework.core.util.WebUtils;
+import net.ymate.platform.webmvc.util.WebUtils;
 
 import javax.servlet.jsp.JspException;
 
@@ -29,7 +29,7 @@ public class HttpStatusI18nTag extends AbstractTagSupport {
 
     @Override
     protected Object doProcessTagData() throws JspException {
-        return WebUtils.httpStatusI18nMsg(code);
+        return WebUtils.httpStatusI18n(WebUtils.getOwner(), code);
     }
 
     public int getCode() {

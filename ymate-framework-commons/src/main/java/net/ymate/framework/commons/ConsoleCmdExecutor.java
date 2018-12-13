@@ -37,7 +37,7 @@ public class ConsoleCmdExecutor {
             @Override
             public String handle(BufferedReader reader) throws Exception {
                 StringBuilder _sb = new StringBuilder();
-                String _line = null;
+                String _line;
                 while ((_line = reader.readLine()) != null) {
                     _sb.append(_line).append("\r\n");
                 }

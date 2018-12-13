@@ -16,7 +16,7 @@
 package net.ymate.framework.core.taglib.ui;
 
 import net.ymate.framework.core.util.ViewPathUtils;
-import net.ymate.framework.core.util.WebUtils;
+import net.ymate.platform.webmvc.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.jsp.JspException;

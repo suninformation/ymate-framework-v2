@@ -59,13 +59,10 @@ public class GeneralBasicFilter implements Filter {
         HttpServletResponse _response = (HttpServletResponse) response;
         if (__responseHeaders != null && !__responseHeaders.isEmpty()) {
             for (Map.Entry<String, PairObject<Type.HeaderType, Object>> _entry : __responseHeaders.entrySet()) {
-                switch (_entry.getValue().getKey()) {
-                    case INT:
-                        _response.addIntHeader(_entry.getKey(), BlurObject.bind(_entry.getValue().getValue()).toIntValue());
-                        break;
-                    default:
-                        _response.addHeader(_entry.getKey(), BlurObject.bind(_entry.getValue().getValue()).toStringValue());
-                        break;
+                if (_entry.getValue().getKey() == Type.HeaderType.INT) {
+                    _response.addIntHeader(_entry.getKey(), BlurObject.bind(_entry.getValue().getValue()).toIntValue());
+                } else {
+                    _response.addHeader(_entry.getKey(), BlurObject.bind(_entry.getValue().getValue()).toStringValue());
                 }
             }
         }

@@ -16,14 +16,15 @@
 package net.ymate.framework.webmvc.intercept;
 
 import net.ymate.framework.core.Optional;
-import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.ErrorCode;
-import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
+import net.ymate.platform.webmvc.WebMVC;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.WebResult;
+import net.ymate.platform.webmvc.util.WebUtils;
 import net.ymate.platform.webmvc.view.View;
 
 /**
@@ -36,29 +37,26 @@ public class UserSessionAlreadyInterceptor implements IInterceptor {
 
     @Override
     public Object intercept(InterceptContext context) throws Exception {
-        switch (context.getDirection()) {
-            case BEFORE:
-                UserSessionBean _sessionBean = UserSessionBean.current(context);
-                if (_sessionBean != null) {
-                    //
-                    String _redirectUrl = WebUtils.buildRedirectURL(context, WebUtils.buildRedirectCustomURL(context, null), true);
-                    String _message = WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_SESSION_AUTHORIZED_KEY, "用户已经授权登录");
-                    //
-                    if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
-                        WebResult _result = WebResult
-                                .CODE(ErrorCode.USER_SESSION_AUTHORIZED)
-                                .msg(_message)
-                                .attr(Optional.REDIRECT_URL, _redirectUrl);
-                        return WebResult.formatView(_result, "json");
-                    }
-                    //
-                    if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
-                        return View.redirectView(_redirectUrl);
-                    }
-                    return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_AUTHORIZED, _message, _redirectUrl, BlurObject.bind(context.getOwner().getConfig().getParam(Optional.REDIRECT_TIME_INTERVAL)).toIntValue());
+        if (Direction.BEFORE.equals(context.getDirection())) {
+            UserSessionBean _sessionBean = UserSessionBean.current(context);
+            if (_sessionBean != null) {
+                //
+                String _redirectUrl = WebUtils.buildRedirectURL(context, WebContext.getRequest(), WebUtils.buildRedirectURL(context, null), true);
+                String _message = WebUtils.errorCodeI18n(WebMVC.get(context.getOwner()), ErrorCode.USER_SESSION_AUTHORIZED, "用户已经授权登录");
+                //
+                if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
+                    WebResult _result = WebResult
+                            .create(ErrorCode.USER_SESSION_AUTHORIZED)
+                            .msg(_message)
+                            .attr(Optional.REDIRECT_URL, _redirectUrl);
+                    return WebResult.formatView(_result, "json");
                 }
-                break;
-            default:
+                //
+                if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
+                    return View.redirectView(_redirectUrl);
+                }
+                return WebUtils.buildErrorView(WebContext.getContext().getOwner(), ErrorCode.USER_SESSION_AUTHORIZED, _message, _redirectUrl, BlurObject.bind(context.getOwner().getConfig().getParam(Optional.REDIRECT_TIME_INTERVAL)).toIntValue());
+            }
         }
         return null;
     }

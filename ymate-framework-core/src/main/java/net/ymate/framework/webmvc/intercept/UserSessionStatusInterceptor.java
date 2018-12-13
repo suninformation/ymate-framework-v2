@@ -29,11 +29,8 @@ public class UserSessionStatusInterceptor implements IInterceptor {
 
     @Override
     public Object intercept(InterceptContext context) throws Exception {
-        switch (context.getDirection()) {
-            case BEFORE:
-                UserSessionBean.current(context);
-                break;
-            default:
+        if (Direction.BEFORE.equals(context.getDirection())) {
+            UserSessionBean.current(context);
         }
         return null;
     }

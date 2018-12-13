@@ -20,8 +20,10 @@ import net.ymate.platform.webmvc.view.IView;
 /**
  * @author 刘镇 (suninformation@163.com) on 2018/8/12 下午3:56
  * @version 1.0
+ * @see net.ymate.platform.webmvc.exception.ValidationResultException
  * @since 2.0.6
  */
+@Deprecated
 public class ValidationResultException extends RuntimeException {
 
     private int httpStatus;

@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class FreemarkerPluginView extends AbstractView {
 
-    static Configuration __freemarkerConfig;
+    private static Configuration __freemarkerConfig;
 
     private String __path;
 
@@ -66,7 +66,7 @@ public class FreemarkerPluginView extends AbstractView {
         return __freemarkerConfig;
     }
 
-    protected void __doProcessPath() {
+    private void __doProcessPath() {
         if (StringUtils.isNotBlank(__contentType)) {
             WebContext.getResponse().setContentType(__contentType);
         }

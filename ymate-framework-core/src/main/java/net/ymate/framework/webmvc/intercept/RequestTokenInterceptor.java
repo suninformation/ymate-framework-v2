@@ -36,46 +36,43 @@ public class RequestTokenInterceptor implements IInterceptor {
 
     @Override
     public Object intercept(InterceptContext context) throws Exception {
-        switch (context.getDirection()) {
-            case BEFORE:
-                HttpServletRequest _request = WebContext.getRequest();
-                String _tokenName = context.getContextParams().get(Optional.REQUEST_TOKEN_NAME);
-                if (StringUtils.isBlank(_tokenName)) {
-                    _tokenName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.REQUEST_TOKEN_NAME), "Request-Token");
-                }
-                // 分别尝试从请求参数、请求头和Cookies中获取令牌
-                boolean _headerFlag = false;
-                boolean _cookieFlag = false;
-                CookieHelper _cookieHelper = null;
-                String _tokenStr = _request.getParameter(_tokenName);
+        if (Direction.BEFORE.equals(context.getDirection())) {
+            HttpServletRequest _request = WebContext.getRequest();
+            String _tokenName = context.getContextParams().get(Optional.REQUEST_TOKEN_NAME);
+            if (StringUtils.isBlank(_tokenName)) {
+                _tokenName = StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.REQUEST_TOKEN_NAME), "Request-Token");
+            }
+            // 分别尝试从请求参数、请求头和Cookies中获取令牌
+            boolean _headerFlag = false;
+            boolean _cookieFlag = false;
+            CookieHelper _cookieHelper = null;
+            String _tokenStr = _request.getParameter(_tokenName);
+            if (StringUtils.isBlank(_tokenStr)) {
+                _tokenStr = _request.getHeader(_tokenName);
                 if (StringUtils.isBlank(_tokenStr)) {
-                    _tokenStr = _request.getHeader(_tokenName);
-                    if (StringUtils.isBlank(_tokenStr)) {
-                        _cookieHelper = CookieHelper.bind();
-                        _tokenStr = _cookieHelper.getCookie(_tokenName).toStringValue();
-                        _cookieFlag = StringUtils.isNotBlank(_tokenStr);
-                    } else {
-                        _headerFlag = true;
-                    }
+                    _cookieHelper = CookieHelper.bind();
+                    _tokenStr = _cookieHelper.getCookie(_tokenName).toStringValue();
+                    _cookieFlag = StringUtils.isNotBlank(_tokenStr);
+                } else {
+                    _headerFlag = true;
                 }
-                // 验证请求令牌
-                boolean _flag = TokenProcessHelper.getInstance().isTokenValid(_request, _tokenName, _tokenStr, true);
-                // 当令牌非请求参数传入时, 重新生成令牌
-                if (_headerFlag || _cookieFlag) {
-                    _tokenStr = TokenProcessHelper.getInstance().saveToken(_request, _tokenName);
-                    if (_headerFlag) {
-                        WebContext.getResponse().addHeader(_tokenName, _tokenStr);
-                        CookieHelper.bind().removeCookie(_tokenName);
-                    } else {
-                        _cookieHelper.allowUseHttpOnly().setCookie(_tokenName, _tokenStr);
-                    }
+            }
+            // 验证请求令牌
+            boolean _flag = TokenProcessHelper.getInstance().isTokenValid(_request, _tokenName, _tokenStr, true);
+            // 当令牌非请求参数传入时, 重新生成令牌
+            if (_headerFlag || _cookieFlag) {
+                _tokenStr = TokenProcessHelper.getInstance().saveToken(_request, _tokenName);
+                if (_headerFlag) {
+                    WebContext.getResponse().addHeader(_tokenName, _tokenStr);
+                    CookieHelper.bind().removeCookie(_tokenName);
+                } else {
+                    _cookieHelper.allowUseHttpOnly().setCookie(_tokenName, _tokenStr);
                 }
-                // 根据令牌验证结果返回
-                if (!_flag) {
-                    return HttpStatusView.BAD_REQUEST;
-                }
-                break;
-            default:
+            }
+            // 根据令牌验证结果返回
+            if (!_flag) {
+                return HttpStatusView.BAD_REQUEST;
+            }
         }
         return null;
     }

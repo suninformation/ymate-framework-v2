@@ -30,6 +30,7 @@ import java.util.Map;
  */
 public class ErrorCode {
 
+    @Deprecated
     public static Map<Integer, String> HTTP_STATUS;
 
     static {
@@ -70,7 +71,7 @@ public class ErrorCode {
         _httpStatus.put(505, "HTTP Version Not Supported");
         _httpStatus.put(506, "Variant Also Negotiates");
         _httpStatus.put(507, "Insufficient Storage");
-        _httpStatus.put(509, "Bandwith Limit Exceeded");
+        _httpStatus.put(509, "Bandwidth Limit Exceeded");
         _httpStatus.put(510, "Not Extended");
         //
         HTTP_STATUS = Collections.unmodifiableMap(_httpStatus);
@@ -79,36 +80,43 @@ public class ErrorCode {
     /**
      * 请求成功
      */
+    @Deprecated
     public static final int SUCCESSED = 0;
 
     /**
      * 参数验证无效
      */
+    @Deprecated
     public static final int INVALID_PARAMS_VALIDATION = -1;
 
     /**
      * 访问的资源未找到或不存在
      */
+    @Deprecated
     public static final int RESOURCE_NOT_FOUND_OR_NOT_EXIST = -2;
 
     /**
      * 请求方法不支持或不正确
      */
+    @Deprecated
     public static final int REQUEST_METHOD_NOT_ALLOWED = -3;
 
     /**
      * 请求的资源未授权或无权限
      */
+    @Deprecated
     public static final int REQUEST_RESOURCE_UNAUTHORIZED = -4;
 
     /**
      * 用户会话无效或超时
      */
+    @Deprecated
     public static final int USER_SESSION_INVALID_OR_TIMEOUT = -5;
 
     /**
      * 请求的操作被禁止
      */
+    @Deprecated
     public static final int REQUEST_OPERATION_FORBIDDEN = -6;
 
     /**
@@ -124,25 +132,30 @@ public class ErrorCode {
     /**
      * 上传文件大小超出限制
      */
+    @Deprecated
     public static final int UPLOAD_FILE_SIZE_LIMIT_EXCEEDED = -9;
 
     /**
      * 上传文件总大小超出限制
      */
+    @Deprecated
     public static final int UPLOAD_SIZE_LIMIT_EXCEEDED = -10;
 
     /**
      * 上传文件类型无效
      */
+    @Deprecated
     public static final int UPLOAD_CONTENT_TYPE_INVALID = -11;
 
     /**
      * 数据版本不匹配
      */
+    @Deprecated
     public static final int DATA_VERSION_NOT_MATCH = -20;
 
     /**
      * 系统内部错误
      */
+    @Deprecated
     public static final int INTERNAL_SYSTEM_ERROR = -50;
 }

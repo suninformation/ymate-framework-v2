@@ -15,6 +15,7 @@
  */
 package net.ymate.framework.commons;
 
+import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -121,7 +122,7 @@ public class FFmpegHelper {
             }
             return _info;
         } catch (Exception e) {
-            _LOG.warn("", e);
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
         }
         return null;
     }
@@ -131,7 +132,7 @@ public class FFmpegHelper {
             ConsoleCmdExecutor.exec(new String[]{__ffmpegPath, "-i", __mediaFile, outputMP3.getPath()}, new WriteConsoleLog());
             return outputMP3.getPath();
         } catch (Exception e) {
-            _LOG.warn("", e);
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
         }
         return null;
     }
@@ -151,20 +152,8 @@ public class FFmpegHelper {
         }
         _cmd.add("-t");
         _cmd.add("0.001");
-        if (StringUtils.isNotBlank(imageSize)) {
-            // 设置截图大小
-            _cmd.add("-s");
-            _cmd.add(imageSize);
-        }
-        _cmd.add(outputJPG.getPath());
         //
-        try {
-            ConsoleCmdExecutor.exec(_cmd, new WriteConsoleLog());
-            return outputJPG.getPath();
-        } catch (Exception e) {
-            _LOG.warn("", e);
-        }
-        return null;
+        return __execCmd(_cmd, imageSize, outputJPG);
     }
 
     public String videoToFLV(String imageSize, File outputFLV) {
@@ -179,17 +168,23 @@ public class FFmpegHelper {
         _cmd.add("22050");
         _cmd.add("-b");
         _cmd.add("500");
+        //
+        return __execCmd(_cmd, imageSize, outputFLV);
+    }
+
+    private String __execCmd(List<String> cmd, String imageSize, File outputFile) {
         if (StringUtils.isNotBlank(imageSize)) {
-            _cmd.add("-s");
-            _cmd.add(imageSize);
+            // 设置截图大小
+            cmd.add("-s");
+            cmd.add(imageSize);
         }
-        _cmd.add(outputFLV.getPath());
+        cmd.add(outputFile.getPath());
         //
         try {
-            ConsoleCmdExecutor.exec(_cmd, new WriteConsoleLog());
-            return outputFLV.getPath();
+            ConsoleCmdExecutor.exec(cmd, new WriteConsoleLog());
+            return outputFile.getPath();
         } catch (Exception e) {
-            _LOG.warn("", e);
+            _LOG.warn("", RuntimeUtils.unwrapThrow(e));
         }
         return null;
     }
@@ -206,15 +201,21 @@ public class FFmpegHelper {
     }
 
     public static class MediaInfo implements Serializable {
+
         private String start;
+
         private String bitrates;
+
         private int time;
 
         private String videoEncodingFormat;
+
         private String videoFormat;
+
         private String resolution;
 
         private String audioEncodingFormat;
+
         private String audioSamplingRate;
 
         public String getStart() {

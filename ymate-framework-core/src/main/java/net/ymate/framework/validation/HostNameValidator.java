@@ -16,7 +16,6 @@
 package net.ymate.framework.validation;
 
 import net.ymate.framework.core.support.IHostNameChecker;
-import net.ymate.framework.exception.ValidationResultException;
 import net.ymate.platform.core.beans.annotation.CleanProxy;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.ClassUtils;
@@ -28,6 +27,7 @@ import net.ymate.platform.validation.annotation.Validator;
 import net.ymate.platform.webmvc.IRequestContext;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.exception.ValidationResultException;
 import org.apache.commons.lang.StringUtils;
 
 /**

@@ -15,12 +15,11 @@
  */
 package net.ymate.framework.webmvc;
 
-import net.ymate.framework.core.util.WebUtils;
+import net.ymate.framework.core.util.ViewPathUtils;
+import net.ymate.platform.webmvc.IRequestContext;
 import net.ymate.platform.webmvc.IWebMvc;
-import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.impl.DefaultWebErrorProcessor;
 import net.ymate.platform.webmvc.view.IView;
-
-import java.util.Map;
 
 /**
  * 默认WebMVC框架异常错误处理器接口
@@ -28,13 +27,9 @@ import java.util.Map;
  * @author 刘镇 (suninformation@163.com) on 14/7/6 下午1:47
  * @version 1.0
  */
-public class WebErrorProcessor extends AbstractWebErrorProcessor {
-
+public class WebErrorProcessor extends DefaultWebErrorProcessor {
     @Override
-    protected IView __doShowErrorMsg(IWebMvc owner, int code, String msg, Map<String, Object> dataMap) {
-        if (WebUtils.isAjax(WebContext.getRequest(), true, true) || "json".equals(getErrorDefaultViewFormat())) {
-            return WebResult.formatView(WebResult.CODE(code).msg(msg).data(dataMap), "json");
-        }
-        return WebUtils.buildErrorView(owner, code, msg).addAttribute("data", dataMap);
+    public IView onConvention(IWebMvc owner, IRequestContext requestContext) throws Exception {
+        return ViewPathUtils.convention(owner, requestContext);
     }
 }

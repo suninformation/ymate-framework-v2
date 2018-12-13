@@ -36,7 +36,10 @@ import java.util.Map;
 /**
  * @author 刘镇 (suninformation@163.com) on 15/8/18 下午2:18
  * @version 1.0
+ * @see net.ymate.platform.webmvc.util.WebResult
+ * @deprecated
  */
+@Deprecated
 public class WebResult {
 
     private Integer __code;

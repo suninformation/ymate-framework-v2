@@ -20,7 +20,9 @@ package net.ymate.framework.core.support;
  *
  * @author 刘镇 (suninformation@163.com) on 2017/10/18 下午10:40
  * @version 1.0
+ * @see net.ymate.platform.webmvc.util.IExceptionProcessor
  */
+@Deprecated
 public interface IExceptionProcessor {
 
     /**

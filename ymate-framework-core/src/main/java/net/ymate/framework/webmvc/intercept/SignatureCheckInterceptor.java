@@ -17,14 +17,13 @@ package net.ymate.framework.webmvc.intercept;
 
 import net.ymate.framework.commons.ParamUtils;
 import net.ymate.framework.core.Optional;
-import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.ErrorCode;
-import net.ymate.framework.webmvc.ErrorMsg;
-import net.ymate.framework.webmvc.WebResult;
 import net.ymate.platform.core.beans.intercept.AbstractInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
+import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.WebResult;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -43,13 +42,11 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
 
     private static final Log _LOG = LogFactory.getLog(SignatureCheckInterceptor.class);
 
-    public static final String SIGNATURE_KEY = "signature_key";
+    private static final String SIGNATURE_KEY = "signature_key";
 
-    public static final String CLIENT_SECRET_KEY = "client_secret_key";
+    private static final String CLIENT_SECRET_KEY = "client_secret_key";
 
-    public static final String TIMESTAMP_KEY = "timestamp_key";
-
-    private ErrorMsg __errorMsg;
+    private static final String TIMESTAMP_KEY = "timestamp_key";
 
     private int __timestampInterval;
 
@@ -62,7 +59,6 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
      */
     private synchronized void __init(InterceptContext context) {
         if (!__inited) {
-            __errorMsg = new ErrorMsg(ErrorCode.INVALID_PARAMS_SIGNATURE, WebUtils.i18nStr(context.getOwner(), Optional.SYSTEM_PARAMS_SIGNATURE_INVALID_KEY, "请求参数签名无效"));
             __timestampInterval = BlurObject.bind(context.getOwner().getConfig().getParam(Optional.SIGNATURE_TIMESTAMP_INTERVAL)).toIntValue();
             __inited = true;
         }
@@ -74,8 +70,8 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
      * @param context 拦截器上下文对象
      * @return 返回拼装后的附加参数字符串
      */
-    protected String buildExtraParamStr(InterceptContext context) {
-        String _secretKey = getClientSecretKey(context);
+    private String buildExtraParamStr(InterceptContext context) {
+        String _secretKey = StringUtils.defaultIfBlank(context.getContextParams().get(CLIENT_SECRET_KEY), "client_secret");
         String clientSecretValue = StringUtils.trimToNull(context.getContextParams().get(_secretKey));
         if (clientSecretValue == null) {
             clientSecretValue = StringUtils.trimToNull(context.getOwner().getConfig().getParam(_secretKey));
@@ -91,32 +87,35 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
      * @param signatureKey 签名密钥
      * @return 返回参数检查结果true为通过
      */
-    protected boolean checkParameters(Map<String, Object> params, String signatureKey) {
+    private boolean checkParameters(Map<String, Object> params, String signatureKey) {
         return params != null && !params.isEmpty() && params.containsKey(signatureKey);
     }
 
     /**
-     * 获取请求参数映射
-     *
-     * @return 返回待参与签名的参数映射
+     * @param context 拦截器上下文对象
+     * @return 获取签名参数名称
      */
-    protected Map<String, Object> getRequestParameters() {
-        return new HashMap<String, Object>(WebContext.getContext().getParameters());
+    private String getSignatureKey(InterceptContext context) {
+        return StringUtils.defaultIfBlank(context.getContextParams().get(SIGNATURE_KEY), "signature");
+    }
+
+    private String getTimestampKey(InterceptContext context) {
+        return StringUtils.defaultIfBlank(context.getContextParams().get(TIMESTAMP_KEY), "timestamp");
     }
 
     /**
      * @param context 拦截器环境上下文对象
      * @return 获取当前请求参数中的签名参数值
      */
-    protected String getSignatureValue(InterceptContext context) {
+    private String getSignatureValue(InterceptContext context) {
         return WebContext.getRequest().getParameter(getSignatureKey(context));
     }
 
     @Override
     protected Object __before(InterceptContext context) throws Exception {
         __init(context);
-        //
-        Map<String, Object> _params = getRequestParameters();
+        // 获取请求参数映射
+        Map<String, Object> _params = new HashMap<String, Object>(WebContext.getContext().getParameters());
         String _signKey = getSignatureKey(context);
         boolean _flag = !checkParameters(_params, _signKey);
         if (!_flag) {
@@ -130,7 +129,7 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
             }
         }
         if (_flag) {
-            return WebResult.formatView(__errorMsg.toResult(), "json");
+            return WebResult.formatView(WebResult.create(ErrorCode.INVALID_PARAMS_SIGNATURE).msg("请求参数签名无效"), Type.Const.FORMAT_JSON);
         }
         return null;
     }
@@ -138,25 +137,5 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
     @Override
     protected Object __after(InterceptContext context) throws Exception {
         return null;
-    }
-
-    /**
-     * @param context 拦截器上下文对象
-     * @return 获取签名参数名称
-     */
-    public String getSignatureKey(InterceptContext context) {
-        return StringUtils.defaultIfBlank(context.getContextParams().get(SIGNATURE_KEY), "signature");
-    }
-
-    /**
-     * @param context 拦截器上下文对象
-     * @return 获取用于签名的密钥参数值
-     */
-    public String getClientSecretKey(InterceptContext context) {
-        return StringUtils.defaultIfBlank(context.getContextParams().get(CLIENT_SECRET_KEY), "client_secret");
-    }
-
-    public String getTimestampKey(InterceptContext context) {
-        return StringUtils.defaultIfBlank(context.getContextParams().get(TIMESTAMP_KEY), "timestamp");
     }
 }

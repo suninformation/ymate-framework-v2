@@ -63,10 +63,14 @@ public class HttpClientHelper {
 
     private static final Log _LOG = LogFactory.getLog(HttpClientHelper.class);
 
-    // 编码方式
+    /**
+     * 编码方式
+     */
     public static final String DEFAULT_CHARSET = "UTF-8";
 
-    // 连接超时时间
+    /**
+     * 连接超时时间
+     */
     private int __connectionTimeout = -1;
 
     private int __requestTimeout = -1;
@@ -156,6 +160,49 @@ public class HttpClientHelper {
         return _httpClient;
     }
 
+    private RequestBuilder __processRequestHeaders(String url, Header[] headers) {
+        return __processRequestHeaders(RequestBuilder.get().setUri(url), headers, null);
+    }
+
+    private RequestBuilder __processRequestHeaders(String url, Header[] headers, Map<String, String> params) {
+        return __processRequestHeaders(RequestBuilder.get().setUri(url), headers, params);
+    }
+
+    private RequestBuilder __processRequestHeaders(RequestBuilder requestBuilder, Header[] headers, Map<String, String> params) {
+        if (headers != null && headers.length > 0) {
+            for (Header _header : headers) {
+                requestBuilder.addHeader(_header);
+            }
+        }
+        if (params != null && !params.isEmpty()) {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                requestBuilder.addParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        return requestBuilder;
+    }
+
+    private IHttpResponse __execute(RequestBuilder requestBuilder, final String defaultResponseCharset) throws Exception {
+        CloseableHttpClient _httpClient = __doBuildHttpClient();
+        try {
+            return _httpClient.execute(requestBuilder.build(), new ResponseHandler<IHttpResponse>() {
+                @Override
+                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
+                    if (StringUtils.isNotBlank(defaultResponseCharset)) {
+                        return new IHttpResponse.NEW(response, defaultResponseCharset);
+                    }
+                    return new IHttpResponse.NEW(response);
+                }
+            });
+        } finally {
+            if (__httpClientConfigurable != null) {
+                __httpClientConfigurable.closeHttpClient(_httpClient);
+            } else {
+                _httpClient.close();
+            }
+        }
+    }
+
     public <T> T execute(IHttpRequestExecutor<T> requestExecutor) throws Exception {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
@@ -177,33 +224,9 @@ public class HttpClientHelper {
         return get(url, headers, null);
     }
 
-    public IHttpResponse get(String url, Header[] headers, final String defaultResponseCharset) throws Exception {
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            RequestBuilder _reqBuilder = RequestBuilder.get().setUri(url);
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
-            }
-            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
-
-                @Override
-                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
-                    if (StringUtils.isNotBlank(defaultResponseCharset)) {
-                        return new IHttpResponse.NEW(response, defaultResponseCharset);
-                    }
-                    return new IHttpResponse.NEW(response);
-                }
-
-            });
-        } finally {
-            if (__httpClientConfigurable != null) {
-                __httpClientConfigurable.closeHttpClient(_httpClient);
-            } else {
-                _httpClient.close();
-            }
-        }
+    public IHttpResponse get(String url, Header[] headers, String defaultResponseCharset) throws Exception {
+        RequestBuilder _reqBuilder = __processRequestHeaders(url, headers);
+        return __execute(_reqBuilder, defaultResponseCharset);
     }
 
     public IHttpResponse get(String url, Map<String, String> params) throws Exception {
@@ -214,78 +237,31 @@ public class HttpClientHelper {
         return get(url, params, headers, null);
     }
 
-    public IHttpResponse get(String url, Map<String, String> params, Header[] headers, final String defaultResponseCharset) throws Exception {
+    public IHttpResponse get(String url, Map<String, String> params, Header[] headers, String defaultResponseCharset) throws Exception {
         return get(url, params, Charset.forName(DEFAULT_CHARSET), headers, defaultResponseCharset);
     }
 
-    public IHttpResponse get(String url, Map<String, String> params, Charset charset, Header[] headers, final String defaultResponseCharset) throws Exception {
-        RequestBuilder _request = RequestBuilder.get().setUri(url).setCharset(charset);
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            _request.addParameter(entry.getKey(), entry.getValue());
+    public IHttpResponse get(String url, Map<String, String> params, Charset charset, Header[] headers, String defaultResponseCharset) throws Exception {
+        RequestBuilder _request = __processRequestHeaders(url, headers);
+        if (charset != null) {
+            _request.setCharset(charset);
         }
-        if (headers != null && headers.length > 0) {
-            for (Header _header : headers) {
-                _request.addHeader(_header);
-            }
-        }
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            return _httpClient.execute(_request.build(), new ResponseHandler<IHttpResponse>() {
-
-                @Override
-                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
-                    if (StringUtils.isNotBlank(defaultResponseCharset)) {
-                        return new IHttpResponse.NEW(response, defaultResponseCharset);
-                    }
-                    return new IHttpResponse.NEW(response);
-                }
-
-            });
-        } finally {
-            if (__httpClientConfigurable != null) {
-                __httpClientConfigurable.closeHttpClient(_httpClient);
-            } else {
-                _httpClient.close();
-            }
-        }
+        return __execute(_request, defaultResponseCharset);
     }
 
     public IHttpResponse post(String url, ContentType contentType, String content, Header[] headers) throws Exception {
         return post(url, contentType, content, headers, null);
     }
 
-    public IHttpResponse post(String url, ContentType contentType, String content, Header[] headers, final String defaultResponseCharset) throws Exception {
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            RequestBuilder _reqBuilder = RequestBuilder.post()
-                    .setUri(url)
-                    .setEntity(EntityBuilder.create()
-                            .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
-                            .setContentType(contentType)
-                            .setText(content).build());
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
-            }
-            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
-
-                @Override
-                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
-                    if (StringUtils.isNotBlank(defaultResponseCharset)) {
-                        return new IHttpResponse.NEW(response, defaultResponseCharset);
-                    }
-                    return new IHttpResponse.NEW(response);
-                }
-
-            });
-        } finally {
-            if (__httpClientConfigurable != null) {
-                __httpClientConfigurable.closeHttpClient(_httpClient);
-            } else {
-                _httpClient.close();
-            }
-        }
+    public IHttpResponse post(String url, ContentType contentType, String content, Header[] headers, String defaultResponseCharset) throws Exception {
+        RequestBuilder _reqBuilder = RequestBuilder.post()
+                .setUri(url)
+                .setEntity(EntityBuilder.create()
+                        .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
+                        .setContentType(contentType)
+                        .setText(content).build());
+        _reqBuilder = __processRequestHeaders(_reqBuilder, headers, null);
+        return __execute(_reqBuilder, defaultResponseCharset);
     }
 
     public IHttpResponse post(String url, ContentType contentType, String content) throws Exception {
@@ -297,72 +273,29 @@ public class HttpClientHelper {
     }
 
     public IHttpResponse post(String url, ContentType contentType, byte[] content, Header[] headers) throws Exception {
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            RequestBuilder _reqBuilder = RequestBuilder.post()
-                    .setUri(url)
-                    .setEntity(EntityBuilder.create()
-                            .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
-                            .setContentType(contentType)
-                            .setBinary(content).build());
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
-            }
-            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
-
-                @Override
-                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
-                    return new IHttpResponse.NEW(response);
-                }
-
-            });
-        } finally {
-            if (__httpClientConfigurable != null) {
-                __httpClientConfigurable.closeHttpClient(_httpClient);
-            } else {
-                _httpClient.close();
-            }
-        }
+        RequestBuilder _reqBuilder = RequestBuilder.post()
+                .setUri(url)
+                .setEntity(EntityBuilder.create()
+                        .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
+                        .setContentType(contentType)
+                        .setBinary(content).build());
+        _reqBuilder = __processRequestHeaders(_reqBuilder, headers, null);
+        return __execute(_reqBuilder, null);
     }
 
     public IHttpResponse post(String url, ContentType contentType, InputStream content, Header[] headers) throws Exception {
         return post(url, contentType, content, headers, null);
     }
 
-    public IHttpResponse post(String url, ContentType contentType, InputStream content, Header[] headers, final String defaultResponseCharset) throws Exception {
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            RequestBuilder _reqBuilder = RequestBuilder.post()
-                    .setUri(url)
-                    .setEntity(EntityBuilder.create()
-                            .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
-                            .setContentType(contentType)
-                            .setStream(content).build());
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
-            }
-            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
-
-                @Override
-                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
-                    if (StringUtils.isNotBlank(defaultResponseCharset)) {
-                        return new IHttpResponse.NEW(response, defaultResponseCharset);
-                    }
-                    return new IHttpResponse.NEW(response);
-                }
-
-            });
-        } finally {
-            if (__httpClientConfigurable != null) {
-                __httpClientConfigurable.closeHttpClient(_httpClient);
-            } else {
-                _httpClient.close();
-            }
-        }
+    public IHttpResponse post(String url, ContentType contentType, InputStream content, Header[] headers, String defaultResponseCharset) throws Exception {
+        RequestBuilder _reqBuilder = RequestBuilder.post()
+                .setUri(url)
+                .setEntity(EntityBuilder.create()
+                        .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
+                        .setContentType(contentType)
+                        .setStream(content).build());
+        _reqBuilder = __processRequestHeaders(_reqBuilder, headers, null);
+        return __execute(_reqBuilder, defaultResponseCharset);
     }
 
     public IHttpResponse post(String url, ContentType contentType, byte[] content) throws Exception {
@@ -381,38 +314,15 @@ public class HttpClientHelper {
         return post(url, contentType, params, headers, null);
     }
 
-    public IHttpResponse post(String url, ContentType contentType, Map<String, String> params, Header[] headers, final String defaultResponseCharset) throws Exception {
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            RequestBuilder _reqBuilder = RequestBuilder.post()
-                    .setUri(url)
-                    .setEntity(EntityBuilder.create()
-                            .setContentType(contentType)
-                            .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
-                            .setParameters(__doBuildNameValuePairs(params)).build());
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
-            }
-            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
-
-                @Override
-                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
-                    if (StringUtils.isNotBlank(defaultResponseCharset)) {
-                        return new IHttpResponse.NEW(response, defaultResponseCharset);
-                    }
-                    return new IHttpResponse.NEW(response);
-                }
-
-            });
-        } finally {
-            if (__httpClientConfigurable != null) {
-                __httpClientConfigurable.closeHttpClient(_httpClient);
-            } else {
-                _httpClient.close();
-            }
-        }
+    public IHttpResponse post(String url, ContentType contentType, Map<String, String> params, Header[] headers, String defaultResponseCharset) throws Exception {
+        RequestBuilder _reqBuilder = RequestBuilder.post()
+                .setUri(url)
+                .setEntity(EntityBuilder.create()
+                        .setContentType(contentType)
+                        .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
+                        .setParameters(__doBuildNameValuePairs(params)).build());
+        _reqBuilder = __processRequestHeaders(_reqBuilder, headers, null);
+        return __execute(_reqBuilder, defaultResponseCharset);
     }
 
     public IHttpResponse post(String url, Map<String, String> params) throws Exception {
@@ -434,33 +344,10 @@ public class HttpClientHelper {
     }
 
     public IHttpResponse upload(String url, String fieldName, ContentBody uploadFile, Header[] headers, final String defaultResponseCharset) throws Exception {
-        CloseableHttpClient _httpClient = __doBuildHttpClient();
-        try {
-            RequestBuilder _reqBuilder = RequestBuilder.post().setUri(url).setEntity(
-                    MultipartEntityBuilder.create().addPart(fieldName, uploadFile).build());
-            if (headers != null && headers.length > 0) {
-                for (Header _header : headers) {
-                    _reqBuilder.addHeader(_header);
-                }
-            }
-            return _httpClient.execute(_reqBuilder.build(), new ResponseHandler<IHttpResponse>() {
-
-                @Override
-                public IHttpResponse handleResponse(HttpResponse response) throws IOException {
-                    if (StringUtils.isNotBlank(defaultResponseCharset)) {
-                        return new IHttpResponse.NEW(response, defaultResponseCharset);
-                    }
-                    return new IHttpResponse.NEW(response);
-                }
-
-            });
-        } finally {
-            if (__httpClientConfigurable != null) {
-                __httpClientConfigurable.closeHttpClient(_httpClient);
-            } else {
-                _httpClient.close();
-            }
-        }
+        RequestBuilder _reqBuilder = RequestBuilder.post().setUri(url).setEntity(
+                MultipartEntityBuilder.create().addPart(fieldName, uploadFile).build());
+        _reqBuilder = __processRequestHeaders(_reqBuilder, headers, null);
+        return __execute(_reqBuilder, defaultResponseCharset);
     }
 
     public IHttpResponse upload(String url, String fieldName, File uploadFile, Header[] headers) throws Exception {
@@ -483,7 +370,6 @@ public class HttpClientHelper {
         CloseableHttpClient _httpClient = __doBuildHttpClient();
         try {
             return _httpClient.execute(requestBuilder.build(), new ResponseHandler<T>() {
-
                 @Override
                 public T handleResponse(HttpResponse response) throws IOException {
                     String _fileName = null;
@@ -511,12 +397,7 @@ public class HttpClientHelper {
                         .setContentEncoding(contentType == null || contentType.getCharset() == null ? DEFAULT_CHARSET : contentType.getCharset().name())
                         .setContentType(contentType)
                         .setText(content).build());
-        if (headers != null && headers.length > 0) {
-            for (Header _header : headers) {
-                _reqBuilder.addHeader(_header);
-            }
-        }
-        return __doExecHttpDownload(_reqBuilder, handler);
+        return __doExecHttpDownload(__processRequestHeaders(_reqBuilder, headers, null), handler);
     }
 
     public <T> T download(String url, String content, IFileHandler<T> handler) throws Exception {
@@ -524,12 +405,7 @@ public class HttpClientHelper {
     }
 
     public <T> T download(String url, Header[] headers, final IFileHandler<T> handler) throws Exception {
-        RequestBuilder _reqBuilder = RequestBuilder.get().setUri(url);
-        if (headers != null && headers.length > 0) {
-            for (Header _header : headers) {
-                _reqBuilder.addHeader(_header);
-            }
-        }
+        RequestBuilder _reqBuilder = __processRequestHeaders(url, headers);
         return __doExecHttpDownload(_reqBuilder, handler);
     }
 

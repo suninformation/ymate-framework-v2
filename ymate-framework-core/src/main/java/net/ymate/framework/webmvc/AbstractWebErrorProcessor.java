@@ -39,7 +39,6 @@ import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +46,10 @@ import java.util.Map;
 /**
  * @author 刘镇 (suninformation@163.com) on 2018/2/22 下午10:47
  * @version 1.0
+ * @see net.ymate.platform.webmvc.impl.DefaultWebErrorProcessor
+ * @deprecated
  */
+@Deprecated
 public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, IWebInitializable {
 
     private static final Log _LOG = LogFactory.getLog(AbstractWebErrorProcessor.class);
@@ -279,24 +281,6 @@ public abstract class AbstractWebErrorProcessor implements IWebErrorProcessor, I
 
     @Override
     public IView onConvention(IWebMvc owner, IRequestContext requestContext) throws Exception {
-        String[] _fileTypes = {".html", ".jsp", ".ftl", ".vm", ".btl"};
-        for (String _fileType : _fileTypes) {
-            // 判断插件目录下是否存在视图文件
-            File _targetFile = new File(ViewPathUtils.pluginViewPath(), requestContext.getRequestMapping() + _fileType);
-            if (_targetFile.exists()) {
-                if (".html".equals(_fileType)) {
-                    return View.htmlView(owner, requestContext.getRequestMapping().substring(1));
-                } else if (".jsp".equals(_fileType)) {
-                    return View.jspView(owner, requestContext.getRequestMapping().substring(1));
-                } else if (".ftl".equals(_fileType)) {
-                    return View.freemarkerView(owner, requestContext.getRequestMapping().substring(1));
-                } else if (".vm".equals(_fileType)) {
-                    return View.velocityView(owner, requestContext.getRequestMapping().substring(1));
-                } else if (".btl".equals(_fileType)) {
-                    return View.beetlView(owner, requestContext.getRequestMapping().substring(1));
-                }
-            }
-        }
-        return null;
+        return ViewPathUtils.convention(owner, requestContext);
     }
 }

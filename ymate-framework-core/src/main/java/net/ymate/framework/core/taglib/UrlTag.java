@@ -15,7 +15,7 @@
  */
 package net.ymate.framework.core.taglib;
 
-import net.ymate.framework.core.util.WebUtils;
+import net.ymate.platform.webmvc.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;

@@ -15,10 +15,10 @@
  */
 package net.ymate.framework.webmvc.intercept;
 
-import net.ymate.framework.core.util.WebUtils;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.WebUtils;
 import net.ymate.platform.webmvc.view.impl.HttpStatusView;
 
 /**
@@ -30,7 +30,7 @@ import net.ymate.platform.webmvc.view.impl.HttpStatusView;
 public class AjaxRequestCheckInterceptor implements IInterceptor {
     @Override
     public Object intercept(InterceptContext context) throws Exception {
-        if (!WebUtils.isAjax(WebContext.getRequest())) {
+        if (Direction.BEFORE.equals(context.getDirection()) && !WebUtils.isAjax(WebContext.getRequest())) {
             return HttpStatusView.METHOD_NOT_ALLOWED;
         }
         return null;

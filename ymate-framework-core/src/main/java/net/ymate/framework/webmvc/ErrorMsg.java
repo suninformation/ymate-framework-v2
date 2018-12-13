@@ -28,18 +28,25 @@ import java.util.Map;
  * @author 刘镇 (suninformation@163.com) on 2018/6/14 上午12:10
  * @version 1.0
  */
+@Deprecated
 public class ErrorMsg {
 
+    @Deprecated
     public static final ErrorMsg SUCCESSED = new ErrorMsg(ErrorCode.SUCCESSED);
 
+    @Deprecated
     public static final ErrorMsg DATA_VERSION_NOT_MATCH = new ErrorMsg(ErrorCode.DATA_VERSION_NOT_MATCH, Optional.SYSTEM_DATA_VERSION_NOT_MATCH_KEY, "数据版本不匹配");
 
+    @Deprecated
     public static final ErrorMsg REQUEST_OPERATION_FORBIDDEN = new ErrorMsg(ErrorCode.REQUEST_OPERATION_FORBIDDEN, Optional.SYSTEM_REQUEST_OPERATION_FORBIDDEN_KEY, "请求的操作被禁止");
 
+    @Deprecated
     public static final ErrorMsg REQUEST_METHOD_NOT_ALLOWED = new ErrorMsg(ErrorCode.REQUEST_METHOD_NOT_ALLOWED, Optional.SYSTEM_REQUEST_METHOD_NOT_ALLOWED_KEY, "请求方法不支持或不正确");
 
+    @Deprecated
     public static final ErrorMsg REQUEST_RESOURCE_UNAUTHORIZED = new ErrorMsg(ErrorCode.REQUEST_RESOURCE_UNAUTHORIZED, Optional.SYSTEM_REQUEST_RESOURCE_UNAUTHORIZED_KEY, "请求的资源未授权或无权限");
 
+    @Deprecated
     public static final ErrorMsg RESOURCE_NOT_FOUND_OR_NOT_EXIST = new ErrorMsg(ErrorCode.RESOURCE_NOT_FOUND_OR_NOT_EXIST, Optional.SYSTEM_RESOURCE_NOT_FOUND_OR_NOT_EXIST_KEY, "访问的资源未找到或不存在");
 
     private int code;

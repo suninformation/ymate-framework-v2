@@ -16,13 +16,13 @@
 package net.ymate.framework.webmvc;
 
 import net.ymate.framework.core.Optional;
-import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.support.UserSessionBean;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.WebUtils;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import org.apache.commons.lang.StringUtils;
@@ -50,18 +50,13 @@ public interface IUserSessionConfirmHandler {
         @Override
         public IView onNeedConfirm(InterceptContext context) throws Exception {
             HttpServletRequest _request = WebContext.getRequest();
-            StringBuffer _returnUrlBuffer = _request.getRequestURL();
-            String _queryStr = _request.getQueryString();
-            if (StringUtils.isNotBlank(_queryStr)) {
-                _returnUrlBuffer.append("?").append(_queryStr);
-            }
             //
-            String _redirectUrl = WebUtils.buildRedirectURL(context, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_REDIRECT_URL), "confirm?redirect_url=${redirect_url}"), true);
-            _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.encodeURL(_returnUrlBuffer.toString())).getResult();
+            String _redirectUrl = WebUtils.buildRedirectURL(context, _request, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_REDIRECT_URL), "confirm?redirect_url=${redirect_url}"), true);
+            _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.appendQueryStr(_request, true)).getResult();
             //
             if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
-                WebResult _result = WebResult.SUCCESS().attr(Optional.REDIRECT_URL, _redirectUrl);
-                return WebResult.formatView(_result, "json");
+                net.ymate.platform.webmvc.util.WebResult _result = net.ymate.platform.webmvc.util.WebResult.succeed().attr(Optional.REDIRECT_URL, _redirectUrl);
+                return net.ymate.platform.webmvc.util.WebResult.formatView(_result, "json");
             }
             return View.redirectView(_redirectUrl);
         }

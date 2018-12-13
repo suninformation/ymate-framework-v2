@@ -52,7 +52,10 @@ import java.util.Map;
  *
  * @author 刘镇 (suninformation@163.com) on 14-7-6
  * @version 1.0
+ * @deprecated
+ * @see net.ymate.platform.webmvc.util.WebUtils
  */
+@Deprecated
 public class WebUtils {
 
     private static final Log _LOG = LogFactory.getLog(WebUtils.class);
