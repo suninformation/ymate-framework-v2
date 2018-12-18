@@ -21,6 +21,10 @@ package net.ymate.framework.unpack;
  */
 public interface IUnpackersModuleCfg {
 
+    String DISABLED = "disabled";
+
+    String DISABLED_UNPACKER_LIST = "disabled_unpacker_list";
+
     /**
      * @return 是否禁用解包器模块, 默认值: false
      */

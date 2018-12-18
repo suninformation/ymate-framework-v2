@@ -21,9 +21,9 @@ import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.ExpressionUtils;
-import net.ymate.platform.webmvc.WebMVC;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.ErrorCode;
 import net.ymate.platform.webmvc.util.WebResult;
 import net.ymate.platform.webmvc.util.WebUtils;
 import net.ymate.platform.webmvc.view.View;
@@ -51,21 +51,18 @@ public class UserSessionCheckInterceptor implements IInterceptor {
                 if (StringUtils.isBlank(_redirectUrl) || !StringUtils.startsWithIgnoreCase(_redirectUrl, "http://") && !StringUtils.startsWithIgnoreCase(_redirectUrl, "https://")) {
                     _redirectUrl = WebUtils.buildRedirectURL(context, _request, StringUtils.defaultIfBlank(WebUtils.buildRedirectURL(context, null), "login?redirect_url=${redirect_url}"), true);
                 }
-                _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.appendQueryStr(_request, true)).getResult();
+                _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Type.Const.REDIRECT_URL, WebUtils.appendQueryStr(_request, true)).getResult();
                 //
-                String _message = WebUtils.errorCodeI18n(WebMVC.get(context.getOwner()), WebResult.ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, "用户未授权登录或会话已过期，请重新登录");
+                ErrorCode _message = ErrorCode.create(ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, "用户未授权登录或会话已过期，请重新登录");
                 //
                 if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
-                    WebResult _result = WebResult
-                            .create(WebResult.ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT)
-                            .msg(_message)
-                            .attr(Optional.REDIRECT_URL, _redirectUrl);
-                    return WebResult.formatView(_result, Type.Const.FORMAT_JSON);
+                    return WebResult.formatView(WebResult.create(WebContext.getContext().getOwner(), _message)
+                            .attr(Type.Const.REDIRECT_URL, _redirectUrl), Type.Const.FORMAT_JSON);
                 }
                 if (context.getContextParams().containsKey(Optional.OBSERVE_SILENCE)) {
                     return View.redirectView(_redirectUrl);
                 }
-                return WebUtils.buildErrorView(WebContext.getContext().getOwner(), WebResult.ErrorCode.USER_SESSION_INVALID_OR_TIMEOUT, _message, _redirectUrl, BlurObject.bind(context.getOwner().getConfig().getParam(Optional.REDIRECT_TIME_INTERVAL)).toIntValue());
+                return WebUtils.buildErrorView(WebContext.getContext().getOwner(), _message, _redirectUrl, BlurObject.bind(context.getOwner().getConfig().getParam(Optional.REDIRECT_TIME_INTERVAL)).toIntValue());
             } else {
                 // 更新会话最后活动时间
                 _sessionBean.touch();

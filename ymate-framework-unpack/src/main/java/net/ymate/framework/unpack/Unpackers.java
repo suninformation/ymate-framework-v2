@@ -17,7 +17,7 @@ package net.ymate.framework.unpack;
 
 import net.ymate.framework.unpack.annotation.Unpacker;
 import net.ymate.framework.unpack.handle.UnpackerHandler;
-import net.ymate.framework.unpack.impl.DefaultModuleCfg;
+import net.ymate.framework.unpack.impl.DefaultUnpackerModuleCfg;
 import net.ymate.platform.core.Version;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.module.IModule;
@@ -77,7 +77,7 @@ public class Unpackers implements IModule, IUnpackers {
             _LOG.info("Initializing ymate-framework-unpack-" + VERSION);
             //
             __owner = owner;
-            __moduleCfg = new DefaultModuleCfg(owner);
+            __moduleCfg = new DefaultUnpackerModuleCfg(owner);
             //
             if (!__moduleCfg.isDisabled()) {
                 __owner.registerHandler(Unpacker.class, new UnpackerHandler(this));

@@ -21,6 +21,7 @@ import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.core.util.ExpressionUtils;
+import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.util.WebUtils;
 import net.ymate.platform.webmvc.view.IView;
@@ -52,11 +53,11 @@ public interface IUserSessionConfirmHandler {
             HttpServletRequest _request = WebContext.getRequest();
             //
             String _redirectUrl = WebUtils.buildRedirectURL(context, _request, StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.CONFIRM_REDIRECT_URL), "confirm?redirect_url=${redirect_url}"), true);
-            _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Optional.REDIRECT_URL, WebUtils.appendQueryStr(_request, true)).getResult();
+            _redirectUrl = ExpressionUtils.bind(_redirectUrl).set(Type.Const.REDIRECT_URL, WebUtils.appendQueryStr(_request, true)).getResult();
             //
             if (WebUtils.isAjax(WebContext.getRequest(), true, true)) {
-                net.ymate.platform.webmvc.util.WebResult _result = net.ymate.platform.webmvc.util.WebResult.succeed().attr(Optional.REDIRECT_URL, _redirectUrl);
-                return net.ymate.platform.webmvc.util.WebResult.formatView(_result, "json");
+                net.ymate.platform.webmvc.util.WebResult _result = net.ymate.platform.webmvc.util.WebResult.succeed().attr(Type.Const.REDIRECT_URL, _redirectUrl);
+                return net.ymate.platform.webmvc.util.WebResult.formatView(_result, Type.Const.FORMAT_JSON);
             }
             return View.redirectView(_redirectUrl);
         }

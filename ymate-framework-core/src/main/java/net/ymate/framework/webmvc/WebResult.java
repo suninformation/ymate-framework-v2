@@ -16,10 +16,11 @@
 package net.ymate.framework.webmvc;
 
 import com.alibaba.fastjson.JSONObject;
-import net.ymate.framework.core.Optional;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.ClassUtils;
+import net.ymate.platform.webmvc.IWebMvcModuleCfg;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.ErrorCode;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import net.ymate.platform.webmvc.view.impl.HttpStatusView;
@@ -65,7 +66,7 @@ public class WebResult {
     }
 
     public static WebResult SUCCESS() {
-        return new WebResult(ErrorCode.SUCCESSED);
+        return new WebResult(ErrorCode.SUCCEED);
     }
 
     public static WebResult CODE(int code) {
@@ -315,7 +316,7 @@ public class WebResult {
         IView _view = null;
         String _format = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(paramFormat), StringUtils.trimToNull(defaultFormat));
         if (_format != null && result != null) {
-            if (BlurObject.bind(WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.SYSTEM_ERROR_WITH_CONTENT_TYPE)).toBooleanValue()) {
+            if (BlurObject.bind(WebContext.getContext().getOwner().getOwner().getConfig().getParam(IWebMvcModuleCfg.PARAMS_ERROR_WITH_CONTENT_TYPE)).toBooleanValue()) {
                 result.withContentType();
             }
             if ("json".equalsIgnoreCase(_format)) {

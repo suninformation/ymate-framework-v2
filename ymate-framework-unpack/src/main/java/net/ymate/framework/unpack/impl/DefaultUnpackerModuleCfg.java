@@ -18,26 +18,24 @@ package net.ymate.framework.unpack.impl;
 import net.ymate.framework.unpack.IUnpackers;
 import net.ymate.framework.unpack.IUnpackersModuleCfg;
 import net.ymate.platform.core.YMP;
-import net.ymate.platform.core.lang.BlurObject;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.Map;
+import net.ymate.platform.core.support.IConfigReader;
+import net.ymate.platform.core.support.impl.MapSafeConfigReader;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/08/02 下午 22:27
  * @version 1.0
  */
-public class DefaultModuleCfg implements IUnpackersModuleCfg {
+public class DefaultUnpackerModuleCfg implements IUnpackersModuleCfg {
 
     private boolean __isDisabled;
 
     private String[] __disabledUnpackers;
 
-    public DefaultModuleCfg(YMP owner) {
-        Map<String, String> _moduleCfgs = owner.getConfig().getModuleConfigs(IUnpackers.MODULE_NAME);
+    public DefaultUnpackerModuleCfg(YMP owner) {
+        IConfigReader _moduleCfg = MapSafeConfigReader.bind(owner.getConfig().getModuleConfigs(IUnpackers.MODULE_NAME));
         //
-        __isDisabled = BlurObject.bind(_moduleCfgs.get("disabled")).toBooleanValue();
-        __disabledUnpackers = StringUtils.split(_moduleCfgs.get("disabled_unpacker_list"));
+        __isDisabled = _moduleCfg.getBoolean(DISABLED);
+        __disabledUnpackers = _moduleCfg.getArray(DISABLED_UNPACKER_LIST);
     }
 
     @Override

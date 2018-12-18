@@ -23,7 +23,7 @@ package net.ymate.framework.exception;
  * @see net.ymate.platform.webmvc.exception.DataVersionMismatchException
  */
 @Deprecated
-public class DataVersionMismatchException extends RuntimeException {
+public class DataVersionMismatchException extends net.ymate.platform.webmvc.exception.DataVersionMismatchException {
 
     public DataVersionMismatchException() {
         super();

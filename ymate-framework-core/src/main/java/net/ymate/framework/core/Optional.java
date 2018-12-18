@@ -27,108 +27,7 @@ public class Optional {
 
     public static final Integer BOOL_FALSE = 0;
 
-    public static final String REDIRECT_URL = "redirect_url";
-
     public static final String OBSERVE_SILENCE = "observe_silence";
-
-    public static final String CUSTOM_REDIRECT = "custom_redirect";
-
-    /**
-     * 国际化资源文件参数名称
-     */
-    public static final String I18N_RESOURCE_NAME = "webmvc.i18n_resource_name";
-
-    /**
-     * 国际化语言切换参数名称
-     */
-    public static final String I18N_LANGUAGE_KEY = "webmvc.i18n_language_key";
-
-    /**
-     * 异常信息视图文件参数名称
-     */
-    public static final String ERROR_VIEW = "webmvc.error_view";
-
-    /**
-     * 系统异常分析是否关闭参数名称
-     */
-    public static final String SYSTEM_EXCEPTION_ANALYSIS_DISABLED = "webmvc.exception_analysis_disabled";
-
-    /**
-     * 系统错误消息是否指定ContentType响应头
-     */
-    public static final String SYSTEM_ERROR_WITH_CONTENT_TYPE = "webmvc.error_with_content_type";
-
-    /**
-     * 系统默认国际化错误消息KEY
-     */
-    public static final String SYSTEM_ERROR_DEFAULT_I18N_KEY = "webmvc.error_default_i18n_key";
-
-    /**
-     * 会话过期消息KEY
-     */
-    public static final String SYSTEM_SESSION_TIMEOUT_KEY = "webmvc.session_timeout_key";
-
-    /**
-     * 请求参数验证无效消息KEY
-     */
-    public static final String SYSTEM_PARAMS_VALIDATION_INVALID_KEY = "webmvc.params_validation_invalid_key";
-
-    /**
-     * 请求参数签名无效消息KEY
-     */
-    public static final String SYSTEM_PARAMS_SIGNATURE_INVALID_KEY = "webmvc.params_signature_invalid_key";
-
-    /**
-     * 会话已授权(登录)KEY
-     */
-    public static final String SYSTEM_SESSION_AUTHORIZED_KEY = "webmvc.session_authorized_key";
-
-    /**
-     * 请求的资源未授权或无权限KEY
-     */
-    public static final String SYSTEM_REQUEST_RESOURCE_UNAUTHORIZED_KEY = "webmvc.request_resource_unauthorized_key";
-
-    /**
-     * 请求的操作被禁止KEY
-     */
-    public static final String SYSTEM_REQUEST_OPERATION_FORBIDDEN_KEY = "webmvc.request_operation_forbidden_key";
-
-    /**
-     * 访问的资源未找到或不存在KEY
-     */
-    public static final String SYSTEM_RESOURCE_NOT_FOUND_OR_NOT_EXIST_KEY = "webmvc.resource_not_found_or_not_exist_key";
-
-    /**
-     * 请求方法不支持或不正确KEY
-     */
-    public static final String SYSTEM_REQUEST_METHOD_NOT_ALLOWED_KEY = "webmvc.request_method_not_allowed_key";
-
-    /**
-     * 数据版本不匹配KEY
-     */
-    public static final String SYSTEM_DATA_VERSION_NOT_MATCH_KEY = "webmvc.data_version_not_match_key";
-
-    /**
-     * 上传文件大小超出限制KEY
-     */
-    public static final String UPLOAD_FILE_SIZE_LIMIT_EXCEEDED_KEY = "webmvc.upload_file_size_limit_exceeded_key";
-
-    /**
-     * 上传文件总大小超出限制KEY
-     */
-    public static final String UPLOAD_SIZE_LIMIT_EXCEEDED_KEY = "webmvc.upload_size_limit_exceeded_key";
-
-    /**
-     * 上传文件类型无效KEY
-     */
-    public static final String UPLOAD_CONTENT_TYPE_INVALID_KEY = "webmvc.upload_content_type_invalid_key";
-
-    // ----------
-
-    /**
-     * 默认异常响应视图格式, 默认值: "", 可选范围: json|xml
-     */
-    public static final String ERROR_DEFAULT_VIEW_FORMAT = "webmvc.error_default_view_format";
 
     /**
      * 会话处理器类
@@ -156,16 +55,6 @@ public class Optional {
     public static final String CONFIRM_TIMEOUT = "webmvc.confirm_timeout";
 
     /**
-     * 控制器请求URL后缀参数名称
-     */
-    public static final String REQUEST_SUFFIX = "webmvc.request_suffix";
-
-    /**
-     * 服务名称参数, 默认值: request.getServerName();
-     */
-    public static final String SERVER_NAME = "webmvc.server_name";
-
-    /**
      * 请求令牌参数名称, 默认值: Request-Token
      */
     public static final String REQUEST_TOKEN_NAME = "webmvc.request_token_name";
@@ -174,16 +63,6 @@ public class Optional {
      * 重定向登录URL地址参数名称, 默认值: "login?redirect_url=${redirect_url}"
      */
     public static final String REDIRECT_LOGIN_URL = "webmvc.redirect_login_url";
-
-    /**
-     * 重定向主页URL地址参数名称, 默认值: ""
-     */
-    public static final String REDIRECT_HOME_URL = "webmvc.redirect_home_url";
-
-    /**
-     * 自定义重定向URL地址参数名称
-     */
-    public static final String REDIRECT_CUSTOM_URL = "webmvc.redirect_custom_url";
 
     /**
      * 重定向自动跳转时间间隔参数名称
@@ -204,16 +83,6 @@ public class Optional {
      * 允许上传的文件类型验证参数名称
      */
     public static final String VALIDATION_ALLOW_UPLOAD_CONTENT_TYPES = "webmvc.validation_allow_upload_content_types";
-
-    /**
-     * 验证结果消息模板参数名称, 默认值: "${items}"
-     */
-    public static final String VALIDATION_TEMPLATE_ELEMENT = "webmvc.validation_template_element";
-
-    /**
-     * 验证结果消息项模板参数名称, 默认值: "${message}<br>"
-     */
-    public static final String VALIDATION_TEMPLATE_ITEM = "webmvc.validation_template_item";
 
     /**
      * 是否开启跨域拦截

@@ -15,8 +15,6 @@
  */
 package net.ymate.framework.core.util;
 
-import net.ymate.framework.core.Optional;
-import net.ymate.framework.webmvc.ErrorCode;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.i18n.I18N;
 import net.ymate.platform.core.support.IContext;
@@ -26,6 +24,9 @@ import net.ymate.platform.core.util.NetworkUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import net.ymate.platform.validation.ValidateResult;
 import net.ymate.platform.webmvc.IWebMvc;
+import net.ymate.platform.webmvc.IWebMvcModuleCfg;
+import net.ymate.platform.webmvc.WebMVC;
+import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
@@ -52,8 +53,8 @@ import java.util.Map;
  *
  * @author 刘镇 (suninformation@163.com) on 14-7-6
  * @version 1.0
- * @deprecated
  * @see net.ymate.platform.webmvc.util.WebUtils
+ * @deprecated
  */
 @Deprecated
 public class WebUtils {
@@ -73,11 +74,11 @@ public class WebUtils {
         if (withBasePath && !"".equals(requestPath) && requestPath.charAt(0) == '/') {
             requestPath = StringUtils.substringAfter(requestPath, "/");
         }
-        return (withBasePath ? baseURL(request) + requestPath : requestPath) + StringUtils.defaultIfEmpty(YMP.get().getConfig().getParam(Optional.REQUEST_SUFFIX), "");
+        return (withBasePath ? baseURL(request) + requestPath : requestPath) + StringUtils.defaultIfEmpty(YMP.get().getConfig().getParam(IWebMvcModuleCfg.PARAMS_REQUEST_SUFFIX), "");
     }
 
     private static String __doGetSafeServerName(HttpServletRequest request) {
-        String _serverName = YMP.get().getConfig().getParam(Optional.SERVER_NAME);
+        String _serverName = YMP.get().getConfig().getParam(IWebMvcModuleCfg.PARAMS_SERVER_NAME);
         return StringUtils.defaultIfBlank(_serverName, request.getServerName());
     }
 
@@ -363,7 +364,7 @@ public class WebUtils {
         if (__resourceName == null) {
             synchronized (WebUtils.class) {
                 if (__resourceName == null) {
-                    __resourceName = StringUtils.defaultIfBlank(owner.getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
+                    __resourceName = WebMVC.get(owner).getModuleCfg().getI18nResourceName();
                 }
             }
         }
@@ -406,13 +407,13 @@ public class WebUtils {
     public static String messageWithTemplate(YMP owner, String title, Collection<ValidateResult> messages) {
         StringBuilder _messages = new StringBuilder();
         for (ValidateResult _vResult : messages) {
-            ExpressionUtils _item = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ITEM), "${message}<br>"));
+            ExpressionUtils _item = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(IWebMvcModuleCfg.PARAMS_VALIDATION_TEMPLATE_ITEM), "${message}<br>"));
             _item.set("name", _vResult.getName());
             _item.set("message", _vResult.getMsg());
             //
             _messages.append(_item.clean().getResult());
         }
-        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(Optional.VALIDATION_TEMPLATE_ELEMENT), "${title}"));
+        ExpressionUtils _element = ExpressionUtils.bind(StringUtils.defaultIfEmpty(owner.getConfig().getParam(IWebMvcModuleCfg.PARAMS_VALIDATION_TEMPLATE_ELEMENT), "${title}"));
         if (StringUtils.isNotBlank(title)) {
             _element.set("title", title);
         }
@@ -426,9 +427,9 @@ public class WebUtils {
     public static String buildRedirectURL(IContext context, String redirectUrl, boolean needPrefix) {
         String _redirectUrl = StringUtils.trimToNull(redirectUrl);
         if (_redirectUrl == null) {
-            _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(Optional.REDIRECT_URL), context != null ? context.getContextParams().get(Optional.REDIRECT_URL) : "");
+            _redirectUrl = StringUtils.defaultIfBlank(WebContext.getRequest().getParameter(Type.Const.REDIRECT_URL), context != null ? context.getContextParams().get(Type.Const.REDIRECT_URL) : "");
             if (StringUtils.isBlank(_redirectUrl)) {
-                _redirectUrl = WebContext.getContext().getOwner().getOwner().getConfig().getParam(Optional.REDIRECT_HOME_URL);
+                _redirectUrl = WebContext.getContext().getOwner().getOwner().getConfig().getParam(IWebMvcModuleCfg.PARAMS_REDIRECT_HOME_URL);
                 if (StringUtils.isBlank(_redirectUrl)) {
                     _redirectUrl = StringUtils.defaultIfBlank(_redirectUrl, baseURL(WebContext.getRequest()));
                 }
@@ -442,10 +443,10 @@ public class WebUtils {
 
     public static String buildRedirectCustomURL(IContext context, String defaultValue) {
         String _returnValue = null;
-        if (context.getContextParams().containsKey(Optional.CUSTOM_REDIRECT)) {
-            String _value = context.getContextParams().get(Optional.CUSTOM_REDIRECT);
-            if (StringUtils.equalsIgnoreCase(_value, Optional.CUSTOM_REDIRECT)) {
-                _value = Optional.REDIRECT_CUSTOM_URL;
+        if (context.getContextParams().containsKey(Type.Const.CUSTOM_REDIRECT)) {
+            String _value = context.getContextParams().get(Type.Const.CUSTOM_REDIRECT);
+            if (StringUtils.equalsIgnoreCase(_value, Type.Const.CUSTOM_REDIRECT)) {
+                _value = IWebMvcModuleCfg.PARAMS_REDIRECT_CUSTOM_URL;
             } else if (StringUtils.startsWithIgnoreCase(_value, "http://") || StringUtils.startsWithIgnoreCase(_value, "https://")) {
                 return _value;
             }
@@ -466,7 +467,7 @@ public class WebUtils {
 
     public static IView buildErrorView(IWebMvc owner, int code, String msg, String redirectUrl, int timeInterval, Map<String, Object> data) {
         IView _view = null;
-        String _errorViewPath = StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(Optional.ERROR_VIEW), "error.jsp");
+        String _errorViewPath = StringUtils.defaultIfEmpty(owner.getOwner().getConfig().getParam(IWebMvcModuleCfg.PARAMS_ERROR_VIEW), "error.jsp");
         if (StringUtils.endsWithIgnoreCase(_errorViewPath, ".ftl")) {
             _view = View.freemarkerView(owner, _errorViewPath);
         } else if (StringUtils.endsWithIgnoreCase(_errorViewPath, ".vm")) {
@@ -488,10 +489,10 @@ public class WebUtils {
     }
 
     public static String httpStatusI18nMsg(int code) {
-        String _statusText = ErrorCode.HTTP_STATUS.get(code);
+        String _statusText = Type.HTTP_STATUS.get(code);
         if (StringUtils.isBlank(_statusText)) {
             code = 400;
-            _statusText = ErrorCode.HTTP_STATUS.get(code);
+            _statusText = Type.HTTP_STATUS.get(code);
         }
         return i18nStr(YMP.get(), "webmvc.http_status_" + code, _statusText);
     }

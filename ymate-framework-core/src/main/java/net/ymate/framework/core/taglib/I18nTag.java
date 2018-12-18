@@ -15,9 +15,8 @@
  */
 package net.ymate.framework.core.taglib;
 
-import net.ymate.framework.core.Optional;
-import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.i18n.I18N;
+import net.ymate.platform.webmvc.WebMVC;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.jsp.JspException;
@@ -41,8 +40,7 @@ public class I18nTag extends AbstractTagSupport {
 
     @Override
     protected Object doProcessTagData() throws JspException {
-        String _defaultResourceName = StringUtils.defaultIfBlank(YMP.get().getConfig().getParam(Optional.I18N_RESOURCE_NAME), "messages");
-        return I18N.formatMessage(StringUtils.defaultIfBlank(getResourceName(), _defaultResourceName), getKey(), getDefaultValue());
+        return I18N.formatMessage(StringUtils.defaultIfBlank(getResourceName(), WebMVC.get().getModuleCfg().getI18nResourceName()), getKey(), getDefaultValue());
     }
 
     public String getKey() {

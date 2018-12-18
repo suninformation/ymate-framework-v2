@@ -17,12 +17,12 @@ package net.ymate.framework.webmvc.intercept;
 
 import net.ymate.framework.commons.ParamUtils;
 import net.ymate.framework.core.Optional;
-import net.ymate.framework.webmvc.ErrorCode;
 import net.ymate.platform.core.beans.intercept.AbstractInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.ErrorCode;
 import net.ymate.platform.webmvc.util.WebResult;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
@@ -129,7 +129,7 @@ public class SignatureCheckInterceptor extends AbstractInterceptor {
             }
         }
         if (_flag) {
-            return WebResult.formatView(WebResult.create(ErrorCode.INVALID_PARAMS_SIGNATURE).msg("请求参数签名无效"), Type.Const.FORMAT_JSON);
+            return WebResult.formatView(WebResult.create(WebContext.getContext().getOwner(), ErrorCode.create(ErrorCode.INVALID_PARAMS_SIGNATURE, "请求参数签名无效")), Type.Const.FORMAT_JSON);
         }
         return null;
     }
