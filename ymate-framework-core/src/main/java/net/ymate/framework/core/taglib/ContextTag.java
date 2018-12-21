@@ -15,6 +15,7 @@
  */
 package net.ymate.framework.core.taglib;
 
+import net.ymate.platform.core.YMP;
 import net.ymate.platform.webmvc.context.WebContext;
 import org.apache.commons.lang.StringUtils;
 
@@ -36,6 +37,31 @@ public class ContextTag extends AbstractTagSupport {
     private String key;
 
     private String value;
+
+    public static String param(String key) {
+        return paramIfDefault(key, null);
+    }
+
+    public static String paramIfDefault(String key, String defaultValue) {
+        if (StringUtils.isNotBlank(key)) {
+            WebContext _context = WebContext.getContext();
+            if (_context != null) {
+                return _context.getOwner().getOwner().getConfig().getParam(key, defaultValue);
+            }
+            return YMP.get().getConfig().getParam(key, defaultValue);
+        }
+        return null;
+    }
+
+    public static String contextAttribute(String attrKey) {
+        if (StringUtils.isNotBlank(attrKey)) {
+            WebContext _context = WebContext.getContext();
+            if (_context != null) {
+                return _context.getAttribute(attrKey);
+            }
+        }
+        return null;
+    }
 
     @Override
     protected Object doProcessTagData() throws JspException {

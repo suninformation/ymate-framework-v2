@@ -69,4 +69,22 @@
         <function-signature>java.lang.String load(java.lang.String,java.lang.String,java.lang.String)
         </function-signature>
     </function>
+
+    <function>
+        <name>paramIfBlank</name>
+        <function-class>net.ymate.framework.core.taglib.ContextTag</function-class>
+        <function-signature>java.lang.String paramIfDefault(java.lang.String,java.lang.String)</function-signature>
+    </function>
+
+    <function>
+        <name>param</name>
+        <function-class>net.ymate.framework.core.taglib.ContextTag</function-class>
+        <function-signature>java.lang.String param(java.lang.String)</function-signature>
+    </function>
+
+    <function>
+        <name>contextAttribute</name>
+        <function-class>net.ymate.framework.core.taglib.ContextTag</function-class>
+        <function-signature>java.lang.String contextAttribute(java.lang.String)</function-signature>
+    </function>
 </taglib>
