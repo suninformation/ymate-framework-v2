@@ -26,7 +26,9 @@ import net.ymate.platform.webmvc.view.IView;
  *
  * @author 刘镇 (suninformation@163.com) on 14/7/6 下午1:47
  * @version 1.0
+ * @see net.ymate.platform.webmvc.impl.DefaultWebErrorProcessor
  */
+@Deprecated
 public class WebErrorProcessor extends DefaultWebErrorProcessor {
     @Override
     public IView onConvention(IWebMvc owner, IRequestContext requestContext) throws Exception {
