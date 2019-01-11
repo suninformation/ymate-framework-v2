@@ -242,7 +242,7 @@ public class HttpClientHelper {
     }
 
     public IHttpResponse get(String url, Map<String, String> params, Charset charset, Header[] headers, String defaultResponseCharset) throws Exception {
-        RequestBuilder _request = __processRequestHeaders(url, headers);
+        RequestBuilder _request = __processRequestHeaders(url, headers, params);
         if (charset != null) {
             _request.setCharset(charset);
         }
