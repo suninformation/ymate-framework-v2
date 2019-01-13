@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2018 the original author or authors.
+ * Copyright 2007-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,19 @@
  */
 package net.ymate.framework.validation;
 
+import net.ymate.platform.core.util.DateTimeUtils;
+
 import java.lang.annotation.*;
 
 /**
- * @author 刘镇 (suninformation@163.com) on 2018/10/24 下午6:11
+ * @author 刘镇 (suninformation@163.com) on 2019/01/12 下午 12:30
  * @version 1.0
- * @since 2.0.6
+ * @since 2.0.7
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface VRSAData {
+public @interface VDateTimeRange {
 
     /**
      * @return 自定参数名称
@@ -33,14 +35,24 @@ public @interface VRSAData {
     String value() default "";
 
     /**
-     * @return 设置原始值最小长度，0为不限制
+     * @return 日期格式字符串
      */
-    int minLength() default 0;
+    String pattern() default DateTimeUtils.YYYY_MM_DD;
 
     /**
-     * @return 设置原始值最大长度，0为不限制
+     * @return 时间段字符串之间的分割符号
      */
-    int maxLength() default 0;
+    String separator() default "/";
+
+    /**
+     * @return 仅接收单日期
+     */
+    boolean single() default false;
+
+    /**
+     * @return 时间段之间的开数最大差值，默认为0表示不限制
+     */
+    int maxDays() default 0;
 
     /**
      * @return 自定义验证消息

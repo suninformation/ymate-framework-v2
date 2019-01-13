@@ -117,7 +117,7 @@ public class RSADataValidator extends AbstractValidator {
                         } else if (_vData.maxLength() > 0 && _length > _vData.maxLength()) {
                             _matched = true;
                         } else {
-                            WebContext.getContext().addAttribute("original_" + context.getParamName(), originalValue);
+                            WebContext.getContext().addAttribute("original_" + StringUtils.defaultIfBlank(_vData.value(), context.getParamName()), originalValue);
                         }
                     } catch (Exception e) {
                         _matched = true;
