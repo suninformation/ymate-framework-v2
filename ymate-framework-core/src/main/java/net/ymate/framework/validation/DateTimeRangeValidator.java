@@ -59,7 +59,7 @@ public class DateTimeRangeValidator extends AbstractValidator {
                     if (_dataTimeArr.length <= 2) {
                         try {
                             Date _startDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[0], _vDateTimeRange.pattern());
-                            if (_vDateTimeRange.single() && _dataTimeArr.length > 1) {
+                            if (!_vDateTimeRange.single() && _dataTimeArr.length > 1) {
                                 Date _endDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[1], _vDateTimeRange.pattern());
                                 if (_vDateTimeRange.maxDays() > 0) {
                                     long _days = DateTimeHelper.bind(_endDateTime).subtract(_startDateTime) / DateTimeUtils.DAY;
