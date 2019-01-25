@@ -58,22 +58,29 @@ public class DateTimeRangeValidator extends AbstractValidator {
                 if (ArrayUtils.isNotEmpty(_dataTimeArr)) {
                     if (_dataTimeArr.length <= 2) {
                         try {
-                            Date _startDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[0], _vDateTimeRange.pattern());
-                            if (!_vDateTimeRange.single() && _dataTimeArr.length > 1) {
-                                Date _endDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[1], _vDateTimeRange.pattern());
-                                if (_vDateTimeRange.maxDays() > 0) {
-                                    long _days = DateTimeHelper.bind(_endDateTime).subtract(_startDateTime) / DateTimeUtils.DAY;
-                                    if (_days < 0 || _days > _vDateTimeRange.maxDays()) {
-                                        _matched = true;
-                                        _maxDaysInvalid = true;
+                            if (_vDateTimeRange.single()) {
+                                Date _startDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[0], DateTimeUtils.YYYY_MM_DD);
+                                //
+                                WebContext.getContext().addAttribute("start_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), _startDateTime.getTime());
+                                WebContext.getContext().addAttribute("end_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), DateTimeHelper.bind(_startDateTime).hoursAdd(23).minutesAdd(59).secondsAdd(59).timeMillis());
+                            } else {
+                                Date _startDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[0], _vDateTimeRange.pattern());
+                                if (_dataTimeArr.length > 1) {
+                                    Date _endDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[1], _vDateTimeRange.pattern());
+                                    if (_vDateTimeRange.maxDays() > 0) {
+                                        long _days = DateTimeHelper.bind(_endDateTime).subtract(_startDateTime) / DateTimeUtils.DAY;
+                                        if (_days < 0 || _days > _vDateTimeRange.maxDays()) {
+                                            _matched = true;
+                                            _maxDaysInvalid = true;
+                                        }
+                                    }
+                                    if (!_matched) {
+                                        WebContext.getContext().addAttribute("end_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), _endDateTime.getTime());
                                     }
                                 }
                                 if (!_matched) {
-                                    WebContext.getContext().addAttribute("end_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), _endDateTime.getTime());
+                                    WebContext.getContext().addAttribute("start_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), _startDateTime.getTime());
                                 }
-                            }
-                            if (!_matched) {
-                                WebContext.getContext().addAttribute("start_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), _startDateTime.getTime());
                             }
                         } catch (Exception e) {
                             _matched = true;

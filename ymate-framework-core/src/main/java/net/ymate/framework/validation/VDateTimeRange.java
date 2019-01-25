@@ -45,12 +45,12 @@ public @interface VDateTimeRange {
     String separator() default "/";
 
     /**
-     * @return 仅接收单日期
+     * @return 仅接收单日期(即所选日期的00点00分00秒0毫秒到所选日期的23点59分59秒0毫秒)
      */
     boolean single() default false;
 
     /**
-     * @return 时间段之间的开数最大差值，默认为0表示不限制
+     * @return 时间段之间的天数最大差值，默认为0表示不限制
      */
     int maxDays() default 0;
 
