@@ -58,7 +58,7 @@ public class DateTimeRangeValidator extends AbstractValidator {
                 if (ArrayUtils.isNotEmpty(_dataTimeArr)) {
                     if (_dataTimeArr.length <= 2) {
                         try {
-                            if (_vDateTimeRange.single()) {
+                            if (_vDateTimeRange.single() || (_dataTimeArr.length > 1 && StringUtils.equalsIgnoreCase(StringUtils.trim(_dataTimeArr[0]), StringUtils.trim(_dataTimeArr[1])))) {
                                 Date _startDateTime = DateTimeUtils.parseDateTime(_dataTimeArr[0], DateTimeUtils.YYYY_MM_DD);
                                 //
                                 WebContext.getContext().addAttribute("start_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), _startDateTime.getTime());
@@ -75,7 +75,7 @@ public class DateTimeRangeValidator extends AbstractValidator {
                                         }
                                     }
                                     if (!_matched) {
-                                        WebContext.getContext().addAttribute("end_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), _endDateTime.getTime());
+                                        WebContext.getContext().addAttribute("end_" + StringUtils.defaultIfBlank(_vDateTimeRange.value(), context.getParamName()), DateTimeHelper.bind(_endDateTime).hoursAdd(23).minutesAdd(59).secondsAdd(59).timeMillis());
                                     }
                                 }
                                 if (!_matched) {
