@@ -4,6 +4,7 @@ import net.ymate.framework.commons.annotation.ExportColumn;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.support.ConsoleTableBuilder;
 import net.ymate.platform.core.util.ClassUtils;
+import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.core.util.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NullArgumentException;
@@ -22,6 +23,10 @@ import java.util.*;
 public final class ExcelFileExportHelper {
 
     private Map<String, Object> __data;
+
+    private Map<String, String> __customFieldNames = new HashMap<String, String>();
+
+    private Map<String, IExportDataRender> __renders = new HashMap<String, IExportDataRender>();
 
     private IExportDataProcessor __processor;
 
@@ -53,6 +58,13 @@ public final class ExcelFileExportHelper {
             throw new NullArgumentException("processor");
         }
         __processor = processor;
+    }
+
+    public ExcelFileExportHelper putCustomFieldName(String name, String customFieldName) {
+        if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(customFieldName)) {
+            __customFieldNames.put(name, customFieldName);
+        }
+        return this;
     }
 
     public ExcelFileExportHelper putData(String varName, Object data) {
@@ -105,10 +117,27 @@ public final class ExcelFileExportHelper {
             _file = File.createTempFile("export_", "_" + index + ".csv");
             _outputStream = new FileOutputStream(_file);
             //
+            Map<String, ExportColumn> _columns = new HashMap<String, ExportColumn>();
             List<String> _columnNames = new ArrayList<String>();
             for (Field _field : ClassUtils.wrapper(dataType).getFields()) {
                 ExportColumn _column = _field.getAnnotation(ExportColumn.class);
-                _columnNames.add(_column != null ? _column.value() : _field.getName());
+                if (_column != null) {
+                    _columns.put(_field.getName(), _column);
+                    if (!_column.excluded()) {
+                        if (!_column.render().equals(IExportDataRender.class)) {
+                            IExportDataRender _render = ClassUtils.impl(_column.render(), IExportDataRender.class);
+                            if (_render != null) {
+                                __renders.put(_field.getName(), _render);
+                            }
+                        }
+                        String _colName = StringUtils.defaultIfBlank(_column.value(), _field.getName());
+                        String _customFieldName = __customFieldNames.get(_colName);
+                        _columnNames.add(_customFieldName == null ? _colName : _customFieldName);
+                    }
+                } else {
+                    String _customFieldName = __customFieldNames.get(_field.getName());
+                    _columnNames.add(_customFieldName == null ? _field.getName() : _customFieldName);
+                }
             }
             //
             ConsoleTableBuilder _builder = ConsoleTableBuilder.create(_columnNames.size()).csv();
@@ -124,7 +153,31 @@ public final class ExcelFileExportHelper {
                         ClassUtils.BeanWrapper _wrapper = ClassUtils.wrapper(_obj);
                         ConsoleTableBuilder.Row _row = _builder.addRow();
                         for (Object _fieldName : _wrapper.getFieldNames()) {
-                            _row.addColumn(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue());
+                            try {
+                                ExportColumn _column = _columns.get((String) _fieldName);
+                                if (_column != null && _column.excluded()) {
+                                    continue;
+                                }
+                                IExportDataRender _render = __renders.get(_fieldName);
+                                if (_column != null && _render != null) {
+                                    String _valueStr = _render.render(_column, (String) _fieldName, _wrapper.getValue((String) _fieldName));
+                                    if (StringUtils.isNotBlank(_valueStr)) {
+                                        _row.addColumn(_valueStr);
+                                    } else {
+                                        _row.addColumn(StringUtils.trimToEmpty(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()));
+                                    }
+                                } else if (_column != null && _column.dateTime()) {
+                                    _row.addColumn(DateTimeUtils.formatTime(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toLongValue(), DateTimeUtils.YYYY_MM_DD_HH_MM_SS));
+                                } else if (_column != null && _column.dataRange().length > 0) {
+                                    _row.addColumn(_column.dataRange()[BlurObject.bind(_wrapper.getValue((String) _fieldName)).toIntValue()]);
+                                } else if (_column != null && _column.currency()) {
+                                    _row.addColumn(MathCalcHelper.bind(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()).scale(2).divide("100").toBlurObject().toStringValue());
+                                } else {
+                                    _row.addColumn(StringUtils.trimToEmpty(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()));
+                                }
+                            } catch (Exception e) {
+                                _row.addColumn(StringUtils.trimToEmpty(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()));
+                            }
                         }
                     }
                 }
@@ -182,5 +235,10 @@ public final class ExcelFileExportHelper {
     public interface IExportDataProcessor {
 
         Map<String, Object> getData(int index) throws Exception;
+    }
+
+    public interface IExportDataRender {
+
+        String render(ExportColumn column, String fieldName, Object value) throws Exception;
     }
 }

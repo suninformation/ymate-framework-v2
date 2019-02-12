@@ -15,6 +15,8 @@
  */
 package net.ymate.framework.commons.annotation;
 
+import net.ymate.framework.commons.ExcelFileExportHelper;
+
 import java.lang.annotation.*;
 
 /**
@@ -29,5 +31,30 @@ public @interface ExportColumn {
     /**
      * @return 列名称
      */
-    String value();
+    String value() default "";
+
+    /**
+     * @return 针对数值数据通过下标输出值(若下标越界将输出原始值)
+     */
+    String[] dataRange() default {};
+
+    /**
+     * @return 指定将列值转换为日期
+     */
+    boolean dateTime() default false;
+
+    /**
+     * @return 指定列为货币类型将值除以100后保留两位小数
+     */
+    boolean currency() default false;
+
+    /**
+     * @return 排除导出属性
+     */
+    boolean excluded() default false;
+
+    /**
+     * @return 自定义列渲染器接口实现类
+     */
+    Class<? extends ExcelFileExportHelper.IExportDataRender> render() default ExcelFileExportHelper.IExportDataRender.class;
 }
