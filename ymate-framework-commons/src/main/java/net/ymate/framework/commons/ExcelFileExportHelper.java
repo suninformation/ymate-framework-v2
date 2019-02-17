@@ -26,6 +26,8 @@ public final class ExcelFileExportHelper {
 
     private Map<String, String> __customFieldNames = new HashMap<String, String>();
 
+    private List<String> __excludedFieldNames = new ArrayList<String>();
+
     private Map<String, IExportDataRender> __renders = new HashMap<String, IExportDataRender>();
 
     private IExportDataProcessor __processor;
@@ -58,6 +60,20 @@ public final class ExcelFileExportHelper {
             throw new NullArgumentException("processor");
         }
         __processor = processor;
+    }
+
+    public ExcelFileExportHelper excludedFieldNames(String[] fieldNames) {
+        if (fieldNames != null && fieldNames.length > 0) {
+            __excludedFieldNames.addAll(Arrays.asList(fieldNames));
+        }
+        return this;
+    }
+
+    public ExcelFileExportHelper putFieldRender(String fieldName, IExportDataRender render) {
+        if (StringUtils.isNotBlank(fieldName) && render != null) {
+            __renders.put(fieldName, render);
+        }
+        return this;
     }
 
     public ExcelFileExportHelper putCustomFieldName(String name, String customFieldName) {
@@ -120,23 +136,25 @@ public final class ExcelFileExportHelper {
             Map<String, ExportColumn> _columns = new HashMap<String, ExportColumn>();
             List<String> _columnNames = new ArrayList<String>();
             for (Field _field : ClassUtils.wrapper(dataType).getFields()) {
-                ExportColumn _column = _field.getAnnotation(ExportColumn.class);
-                if (_column != null) {
-                    _columns.put(_field.getName(), _column);
-                    if (!_column.excluded()) {
-                        if (!_column.render().equals(IExportDataRender.class)) {
-                            IExportDataRender _render = ClassUtils.impl(_column.render(), IExportDataRender.class);
-                            if (_render != null) {
-                                __renders.put(_field.getName(), _render);
+                if (!__excludedFieldNames.contains(_field.getName())) {
+                    ExportColumn _column = _field.getAnnotation(ExportColumn.class);
+                    if (_column != null) {
+                        _columns.put(_field.getName(), _column);
+                        if (!_column.excluded()) {
+                            if (!_column.render().equals(IExportDataRender.class)) {
+                                IExportDataRender _render = ClassUtils.impl(_column.render(), IExportDataRender.class);
+                                if (_render != null) {
+                                    __renders.put(_field.getName(), _render);
+                                }
                             }
+                            String _colName = StringUtils.defaultIfBlank(_column.value(), _field.getName());
+                            String _customFieldName = __customFieldNames.get(_colName);
+                            _columnNames.add(_customFieldName == null ? _colName : _customFieldName);
                         }
-                        String _colName = StringUtils.defaultIfBlank(_column.value(), _field.getName());
-                        String _customFieldName = __customFieldNames.get(_colName);
-                        _columnNames.add(_customFieldName == null ? _colName : _customFieldName);
+                    } else {
+                        String _customFieldName = __customFieldNames.get(_field.getName());
+                        _columnNames.add(_customFieldName == null ? _field.getName() : _customFieldName);
                     }
-                } else {
-                    String _customFieldName = __customFieldNames.get(_field.getName());
-                    _columnNames.add(_customFieldName == null ? _field.getName() : _customFieldName);
                 }
             }
             //
@@ -153,30 +171,32 @@ public final class ExcelFileExportHelper {
                         ClassUtils.BeanWrapper _wrapper = ClassUtils.wrapper(_obj);
                         ConsoleTableBuilder.Row _row = _builder.addRow();
                         for (Object _fieldName : _wrapper.getFieldNames()) {
-                            try {
-                                ExportColumn _column = _columns.get((String) _fieldName);
-                                if (_column != null && _column.excluded()) {
-                                    continue;
-                                }
-                                IExportDataRender _render = __renders.get(_fieldName);
-                                if (_column != null && _render != null) {
-                                    String _valueStr = _render.render(_column, (String) _fieldName, _wrapper.getValue((String) _fieldName));
-                                    if (StringUtils.isNotBlank(_valueStr)) {
-                                        _row.addColumn(_valueStr);
+                            if (!__excludedFieldNames.contains((String) _fieldName)) {
+                                try {
+                                    ExportColumn _column = _columns.get((String) _fieldName);
+                                    if (_column != null && _column.excluded()) {
+                                        continue;
+                                    }
+                                    IExportDataRender _render = __renders.get(_fieldName);
+                                    if (_column != null && _render != null) {
+                                        String _valueStr = _render.render(_column, (String) _fieldName, _wrapper.getValue((String) _fieldName));
+                                        if (StringUtils.isNotBlank(_valueStr)) {
+                                            _row.addColumn(_valueStr);
+                                        } else {
+                                            _row.addColumn(StringUtils.trimToEmpty(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()));
+                                        }
+                                    } else if (_column != null && _column.dateTime()) {
+                                        _row.addColumn(DateTimeUtils.formatTime(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toLongValue(), DateTimeUtils.YYYY_MM_DD_HH_MM_SS));
+                                    } else if (_column != null && _column.dataRange().length > 0) {
+                                        _row.addColumn(_column.dataRange()[BlurObject.bind(_wrapper.getValue((String) _fieldName)).toIntValue()]);
+                                    } else if (_column != null && _column.currency()) {
+                                        _row.addColumn(MathCalcHelper.bind(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()).scale(2).divide("100").toBlurObject().toStringValue());
                                     } else {
                                         _row.addColumn(StringUtils.trimToEmpty(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()));
                                     }
-                                } else if (_column != null && _column.dateTime()) {
-                                    _row.addColumn(DateTimeUtils.formatTime(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toLongValue(), DateTimeUtils.YYYY_MM_DD_HH_MM_SS));
-                                } else if (_column != null && _column.dataRange().length > 0) {
-                                    _row.addColumn(_column.dataRange()[BlurObject.bind(_wrapper.getValue((String) _fieldName)).toIntValue()]);
-                                } else if (_column != null && _column.currency()) {
-                                    _row.addColumn(MathCalcHelper.bind(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()).scale(2).divide("100").toBlurObject().toStringValue());
-                                } else {
+                                } catch (Exception e) {
                                     _row.addColumn(StringUtils.trimToEmpty(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()));
                                 }
-                            } catch (Exception e) {
-                                _row.addColumn(StringUtils.trimToEmpty(BlurObject.bind(_wrapper.getValue((String) _fieldName)).toStringValue()));
                             }
                         }
                     }
