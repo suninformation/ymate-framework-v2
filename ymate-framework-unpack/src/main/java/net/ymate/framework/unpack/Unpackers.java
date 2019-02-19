@@ -113,13 +113,16 @@ public class Unpackers implements IModule, IUnpackers {
 
     @Override
     public synchronized void unpack() {
+        boolean _flag = false;
         File _targetFile = new File(RuntimeUtils.getRootPath(false));
         String _rootPath = RuntimeUtils.getRootPath();
         for (Map.Entry<String, Class<? extends IUnpacker>> _entry : __unpackers.entrySet()) {
             if (!ArrayUtils.contains(__moduleCfg.getDisabledUnpackers(), _entry.getKey())) {
-                File _locker = new File(_rootPath, ".unpack/" + _entry.getKey());
+                File _locker = new File(_rootPath, ".unpack" + File.separator + _entry.getKey());
                 if (!_locker.exists()) {
                     try {
+                        _flag = true;
+                        _LOG.info("Unpacking " + _entry.getValue() + "...");
                         if (FileUtils.unpackJarFile(_entry.getKey(), _targetFile, _entry.getValue())) {
                             _locker.getParentFile().mkdirs();
                             _locker.createNewFile();
@@ -129,6 +132,9 @@ public class Unpackers implements IModule, IUnpackers {
                     }
                 }
             }
+        }
+        if (_flag) {
+            _LOG.info("Synchronizing resource completed.");
         }
     }
 
