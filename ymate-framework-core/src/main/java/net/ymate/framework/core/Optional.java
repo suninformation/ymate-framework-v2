@@ -102,7 +102,10 @@ public class Optional {
     /**
      * 允许跨域请求的方法
      */
-    public static final String ALLOW_CROSS_METHODS = "webmvc.allow_cross_metods";
+    @Deprecated
+    public static final String DEPRECATED_ALLOW_CROSS_METHODS = "webmvc.allow_cross_metods";
+
+    public static final String ALLOW_CROSS_METHODS = "webmvc.allow_cross_methods";
 
     /**
      * 允许跨域请求携带的请求头

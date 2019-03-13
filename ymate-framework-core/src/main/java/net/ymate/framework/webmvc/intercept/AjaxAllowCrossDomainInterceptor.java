@@ -16,6 +16,7 @@
 package net.ymate.framework.webmvc.intercept;
 
 import net.ymate.framework.core.Optional;
+import net.ymate.platform.core.IConfig;
 import net.ymate.platform.core.beans.intercept.IInterceptor;
 import net.ymate.platform.core.beans.intercept.InterceptContext;
 import net.ymate.platform.core.lang.BlurObject;
@@ -37,12 +38,13 @@ public class AjaxAllowCrossDomainInterceptor implements IInterceptor {
     @Override
     public Object intercept(InterceptContext context) throws Exception {
         if (Direction.BEFORE.equals(context.getDirection())) {
-            boolean _allowCrossDomain = BlurObject.bind(context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_DOMAIN)).toBooleanValue();
-            boolean _allowOptions = BlurObject.bind(StringUtils.defaultIfBlank(context.getOwner().getConfig().getParam(Optional.ALLOW_OPTIONS_AUTO_REPLY), "true")).toBooleanValue();
+            IConfig _config = context.getOwner().getConfig();
+            boolean _allowCrossDomain = BlurObject.bind(_config.getParam(Optional.ALLOW_CROSS_DOMAIN)).toBooleanValue();
+            boolean _allowOptions = BlurObject.bind(_config.getParam(Optional.ALLOW_OPTIONS_AUTO_REPLY, "true")).toBooleanValue();
             if (_allowCrossDomain) {
-                String _hosts = context.getOwner().getConfig().getParam(Optional.ALLOW_ORIGIN_HOSTS);
-                String _methods = context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_METHODS);
-                String _headers = context.getOwner().getConfig().getParam(Optional.ALLOW_CROSS_HEADERS);
+                String _hosts = _config.getParam(Optional.ALLOW_ORIGIN_HOSTS);
+                String _methods = StringUtils.defaultIfBlank(_config.getParam(Optional.ALLOW_CROSS_METHODS), _config.getParam(Optional.DEPRECATED_ALLOW_CROSS_METHODS));
+                String _headers = _config.getParam(Optional.ALLOW_CROSS_HEADERS);
                 __addHeadersToView(_hosts, _methods, _headers, BlurObject.bind(context.getContextParams().get(Optional.NOT_ALLOW_CREDENTIALS)).toBooleanValue());
                 //
                 if (_allowOptions && Type.HttpMethod.OPTIONS.equals(WebContext.getRequestContext().getHttpMethod())) {
