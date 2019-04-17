@@ -307,7 +307,7 @@ public class HttpClientHelper {
     }
 
     public IHttpResponse post(String url, Map<String, String> params, Header[] headers) throws Exception {
-        return post(url, null, params, null, null);
+        return post(url, null, params, headers, null);
     }
 
     public IHttpResponse post(String url, ContentType contentType, Map<String, String> params, Header[] headers) throws Exception {
