@@ -24,10 +24,14 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.apache.commons.lang.StringUtils;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,8 +48,18 @@ public class QRCodeHelper {
 
     private BitMatrix __matrix;
 
+    private BufferedImage __logoImage;
+
+    private int __logoImageSize;
+
+    private int __borderWidth;
+
+    private Color __borderColor;
+
+    private Color __backgroundColor;
+
     // 二维码的图片格式
-    private String __format = "png";
+    private String __format;
 
     private QRCodeHelper(BitMatrix matrix) {
         __matrix = matrix;
@@ -105,19 +119,77 @@ public class QRCodeHelper {
      * @return 设置二维码图片格式，默认PNG
      */
     public QRCodeHelper setFormat(String format) {
-        this.__format = StringUtils.defaultIfEmpty(format, "png");
+        __format = format;
+        return this;
+    }
+
+    public QRCodeHelper setLogo(InputStream logoInputStream, int logoImageSize, int borderWidth, Color borderColor, Color backgroundColor) throws IOException {
+        return setLogo(ImageIO.read(logoInputStream), logoImageSize, borderWidth, borderColor, backgroundColor);
+    }
+
+    public QRCodeHelper setLogo(File logoFile, int logoImageSize, int borderWidth, Color borderColor, Color backgroundColor) throws IOException {
+        return setLogo(ImageIO.read(logoFile), logoImageSize, borderWidth, borderColor, backgroundColor);
+    }
+
+    public QRCodeHelper setLogo(URL logoUrl, int logoImageSize, int borderWidth, Color borderColor, Color backgroundColor) throws IOException {
+        return setLogo(ImageIO.read(logoUrl), logoImageSize, borderWidth, borderColor, backgroundColor);
+    }
+
+    public QRCodeHelper setLogo(ImageInputStream logoImageInputStream, int logoImageSize, int borderWidth, Color borderColor, Color backgroundColor) throws IOException {
+        return setLogo(ImageIO.read(logoImageInputStream), logoImageSize, borderWidth, borderColor, backgroundColor);
+    }
+
+    public QRCodeHelper setLogo(BufferedImage logoImage, int logoImageSize, int borderWidth, Color borderColor, Color backgroundColor) {
+        __logoImage = logoImage;
+        if (__logoImage != null) {
+            __logoImageSize = logoImageSize <= 0 ? 5 : logoImageSize;
+            __borderWidth = borderWidth > 0 ? borderWidth : 2;
+            __borderColor = borderColor;
+            __backgroundColor = backgroundColor;
+        }
         return this;
     }
 
     public BufferedImage toBufferedImage() {
-        int width = __matrix.getWidth();
-        int height = __matrix.getHeight();
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        BufferedImage image = new BufferedImage(__matrix.getWidth(), __matrix.getHeight(), BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < __matrix.getWidth(); x++) {
+            for (int y = 0; y < __matrix.getHeight(); y++) {
                 image.setRGB(x, y, __matrix.get(x, y) ? BLACK : WHITE);
             }
         }
+        //
+        if (__logoImage != null) {
+            Graphics2D g = image.createGraphics();
+            //
+            int _logoWidth = image.getWidth() / __logoImageSize;
+            int _logoHeight = image.getHeight() / __logoImageSize;
+            // 按比例缩放LOGO
+            if (__logoImage.getHeight() >= _logoWidth) {
+                _logoHeight = (int) Math.round((__logoImage.getHeight() * _logoWidth * 1.0 / __logoImage.getWidth()));
+            } else {
+                _logoWidth = (int) Math.round((__logoImage.getWidth() * _logoHeight * 1.0 / __logoImage.getHeight()));
+            }
+            BufferedImage _resizeLogoImage = new BufferedImage(_logoWidth, _logoHeight, __logoImage.getType());
+            _resizeLogoImage.getGraphics().drawImage(__logoImage, 0, 0, _logoWidth, _logoHeight, null);
+            //
+            int x = (image.getWidth() - _logoWidth) / 2;
+            int y = (image.getHeight() - _logoHeight) / 2;
+            //
+            if (__backgroundColor != null) {
+                Color _originColor = g.getColor();
+                g.setColor(__backgroundColor);
+                g.fillRect(x, y, _logoWidth, _logoHeight);
+                g.setColor(_originColor);
+            }
+            g.drawImage(_resizeLogoImage, x, y, _logoWidth, _logoHeight, null);
+            if (__borderColor != null) {
+                g.setStroke(new BasicStroke(__borderWidth));
+                g.setColor(__borderColor);
+                g.drawRect(x, y, _logoWidth, _logoHeight);
+            }
+            g.dispose();
+        }
+        //
         return image;
     }
 
@@ -129,7 +201,7 @@ public class QRCodeHelper {
      */
     public void writeToFile(File file) throws IOException {
         BufferedImage image = toBufferedImage();
-        if (!ImageIO.write(image, __format, file)) {
+        if (!ImageIO.write(image, StringUtils.defaultIfEmpty(__format, "png"), file)) {
             throw new IOException("Could not write an image of format " + __format + " to " + file);
         }
     }
@@ -142,7 +214,7 @@ public class QRCodeHelper {
      */
     public void writeToStream(OutputStream stream) throws IOException {
         BufferedImage image = toBufferedImage();
-        if (!ImageIO.write(image, __format, stream)) {
+        if (!ImageIO.write(image, StringUtils.defaultIfEmpty(__format, "png"), stream)) {
             throw new IOException("Could not write an image of format " + __format);
         }
     }
