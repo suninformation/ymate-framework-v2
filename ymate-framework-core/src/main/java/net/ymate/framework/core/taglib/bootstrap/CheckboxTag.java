@@ -59,10 +59,10 @@ public class CheckboxTag extends ElementsTag {
                 this.getDynamicAttributes().put("value", value);
             }
             if (checked) {
-                this.getDynamicAttributes().put("checked", "checked");
+                this.getDynamicAttributes().put("checked", true);
             }
             if (disabled) {
-                this.getDynamicAttributes().put("disabled", "disabled");
+                this.getDynamicAttributes().put("disabled", true);
             }
             //
             return super.__doTagStart();

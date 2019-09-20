@@ -66,7 +66,7 @@ public class FormControlTag extends ElementsTag {
             } else if (StringUtils.equalsIgnoreCase(type, "select")) {
                 this.set_tag("select");
                 if (multiple) {
-                    this.getDynamicAttributes().put("multiple", "multiple");
+                    this.getDynamicAttributes().put("multiple", true);
                 }
             } else if (StringUtils.equalsIgnoreCase(type, "checkbox") || StringUtils.equalsIgnoreCase(type, "radio")) {
                 this.set_tag("div");
@@ -109,7 +109,7 @@ public class FormControlTag extends ElementsTag {
                     this.getDynamicAttributes().put("name", name);
                 }
                 if (disabled) {
-                    this.getDynamicAttributes().put("disabled", "disabled");
+                    this.getDynamicAttributes().put("disabled", true);
                 }
                 if (StringUtils.isNotBlank(placeholder)) {
                     this.getDynamicAttributes().put("placeholder", placeholder);

@@ -68,12 +68,10 @@ public class ElementsTag extends BodyTagSupport implements DynamicAttributes {
                 if (_entry.getValue() instanceof String) {
                     String _v = StringUtils.trimToNull((String) _entry.getValue());
                     if (_v != null) {
-                        if (_v.equals(_entry.getKey())) {
-                            _tagSB.append(" ").append(_entry.getKey());
-                        } else {
-                            _tagSB.append(" ").append(_entry.getKey()).append("=\"").append(_v).append("\"");
-                        }
+                        _tagSB.append(" ").append(_entry.getKey()).append("=\"").append(_v).append("\"");
                     }
+                } else if (boolean.class.isAssignableFrom(_entry.getValue().getClass()) || _entry.getValue() instanceof Boolean) {
+                    _tagSB.append(" ").append(_entry.getKey());
                 } else {
                     _tagSB.append(" ").append(_entry.getKey()).append("=\"").append(_entry.getValue()).append("\"");
                 }
@@ -103,7 +101,7 @@ public class ElementsTag extends BodyTagSupport implements DynamicAttributes {
             } else {
                 __doTagContent(_tagContent, new StringBuilder(0));
             }
-            if (_tagContent != null && _tagContent.length() > 0) {
+            if (_tagContent.length() > 0) {
                 pageContext.getOut().write(_tagContent.toString());
             }
         } catch (IOException e) {
